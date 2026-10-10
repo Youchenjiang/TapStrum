@@ -70,7 +70,7 @@ def _find_latest_msix(repo_root):
     candidates = [
         os.path.join(publish_dir, f)
         for f in os.listdir(publish_dir)
-        if f.startswith("Tapster") and f.endswith(".msix")
+        if (f.startswith("Tapster") or f.startswith("TapStrum")) and f.endswith(".msix")
     ]
     if candidates:
         candidates.sort(key=os.path.getmtime, reverse=True)
@@ -479,7 +479,7 @@ def run_submission_flow(repo_root, token, p_id, msix_path):
 
     outcome = verify_commit_status(token, p_id, submission_id)
     if outcome in ('confirmed', 'unverified'):
-        print(f"\n🎉 SUCCESS: Tapster submitted to Microsoft Partner Center! (Outcome: {outcome})")
+        print(f"\n🎉 SUCCESS: TapStrum submitted to Microsoft Partner Center! (Outcome: {outcome})")
     else:
         print("\n❌ Submission failed to reach confirmed state.")
         sys.exit(1)
@@ -487,7 +487,7 @@ def run_submission_flow(repo_root, token, p_id, msix_path):
 
 def main():
     print("=" * 60)
-    print("Tapster Microsoft Store Publishing Utility")
+    print("TapStrum Microsoft Store Publishing Utility")
     print("=" * 60)
 
     if is_dry_run():

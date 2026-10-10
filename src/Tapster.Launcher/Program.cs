@@ -34,7 +34,7 @@ internal static class Program
         try
         {
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string appDir = Path.Combine(localAppData, "Tapster", $"app-v{AppVersion}");
+            string appDir = Path.Combine(localAppData, "TapStrum", $"app-v{AppVersion}");
             string targetExe = Path.Combine(appDir, "Tapster.Fluent.exe");
             string hashFile = Path.Combine(appDir, ".payload_hash");
 
@@ -77,7 +77,7 @@ internal static class Program
 
             if (!File.Exists(targetExe))
             {
-                MessageBoxW(IntPtr.Zero, "Failed to locate Tapster.Fluent.exe after extraction.", "Tapster Error", 0x10);
+                MessageBoxW(IntPtr.Zero, "Failed to locate Tapster.Fluent.exe after extraction.", "TapStrum Error", 0x10);
                 return 1;
             }
 
@@ -95,7 +95,7 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            MessageBoxW(IntPtr.Zero, $"Tapster Launcher encountered an error:\n{ex.Message}", "Tapster Error", 0x10);
+            MessageBoxW(IntPtr.Zero, $"TapStrum Launcher encountered an error:\n{ex.Message}", "TapStrum Error", 0x10);
             return 1;
         }
     }

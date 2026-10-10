@@ -95,7 +95,7 @@ class TestPublishStoreDryRun(unittest.TestCase):
             timeout=30
         )
         self.assertEqual(result.returncode, 0, f"Dry-run failed with stderr: {result.stderr}")
-        self.assertIn("Tapster submitted to Microsoft Partner Center! (Outcome: confirmed)", result.stdout)
+        self.assertIn("TapStrum submitted to Microsoft Partner Center! (Outcome: confirmed)", result.stdout)
 
 
 if __name__ == '__main__':

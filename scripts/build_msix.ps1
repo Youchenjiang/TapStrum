@@ -8,13 +8,13 @@ $layoutDir = "$packagingDir/Layout"
 $publishDir = "$root/publish"
 $propsContent = [System.IO.File]::ReadAllText("$root/Directory.Build.props", [System.Text.Encoding]::UTF8)
 $pkgVersion = if ($propsContent -match '<Version>(?<v>[\d\.]+)</Version>') { $Matches['v'] } else { "1.1.0.0" }
-$msixPath = "$publishDir/Tapster-v$pkgVersion.msix"
+$msixPath = "$publishDir/TapStrum-v$pkgVersion.msix"
 $certPath = "$packagingDir/TapsterDev.pfx"
 
 Add-WindowsSdkToolsToPath
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host " Building Tapster MSIX Package (v$pkgVersion)" -ForegroundColor Cyan
+Write-Host " Building TapStrum MSIX Package (v$pkgVersion)" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 try {

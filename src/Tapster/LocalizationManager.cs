@@ -180,10 +180,10 @@ public static class LocalizationManager
 
     private static void RegisterTray(Action<string, string, string, string, string> add)
     {
-        add("Tray_ShowHide", "顯示 / 隱藏 Tapster", "Show / Hide Tapster", "Tapsterの表示 / 非表示", "显示 / 隐藏 Tapster");
+        add("Tray_ShowHide", "顯示 / 隱藏 TapStrum", "Show / Hide TapStrum", "TapStrumの表示 / 非表示", "显示 / 隐藏 TapStrum");
         add("Tray_AlwaysOnTop", "視窗永遠置頂", "Always on Top", "常に最前面に表示", "窗口置顶");
-        add("Tray_Exit", "結束 Tapster", "Exit Tapster", "Tapsterを終了", "退出 Tapster");
-        add("Tray_Tooltip", "Tapster (Ctrl+Alt+T 喚醒)", "Tapster (Ctrl+Alt+T to Wake)", "Tapster (Ctrl+Alt+T で起動)", "Tapster (Ctrl+Alt+T 唤醒)");
+        add("Tray_Exit", "結束 TapStrum", "Exit TapStrum", "TapStrumを終了", "退出 TapStrum");
+        add("Tray_Tooltip", "TapStrum (Ctrl+Alt+T 喚醒)", "TapStrum (Ctrl+Alt+T to Wake)", "TapStrum (Ctrl+Alt+T で起動)", "TapStrum (Ctrl+Alt+T 唤醒)");
     }
 
     private static void RegisterCommon(Action<string, string, string, string, string> add)
@@ -356,18 +356,18 @@ public static class LocalizationManager
     private static void RegisterSettings(Action<string, string, string, string, string> add)
     {
         add("Settings_Title", "偏好設定", "Settings", "設定", "设置");
-        add("Settings_Desc", "自訂 Tapster 系統常駐、開機自動啟動與視窗行為", "Preferences, global hotkeys, system tray integration, and appearance", "環境設定、グローバルホットキー、タスクトレイ設定および外観", "首选项、全局热键、系统托盘与外观设置");
+        add("Settings_Desc", "自訂 TapStrum 系統常駐、開機自動啟動與視窗行為", "Preferences, global hotkeys, system tray integration, and appearance", "環境設定、グローバルホットキー、タスクトレイ設定および外観", "首选项、全局热键、系统托盘与外观设置");
         add("Settings_LangTitle", "介面語言", "Interface Language", "表示言語", "界面语言");
-        add("Settings_LangDesc", "選擇 Tapster 介面顯示語言，支援即時套用", "Choose the display language for Tapster with instant UI updates", "Tapsterのインターフェース表示言語を変更します（即時反映）", "选择 Tapster 界面显示语言，支持即时生效");
+        add("Settings_LangDesc", "選擇 TapStrum 介面顯示語言，支援即時套用", "Choose the display language for TapStrum with instant UI updates", "TapStrumのインターフェース表示言語を変更します（即時反映）", "选择 TapStrum 界面显示语言，支持即时生效");
         add("Settings_LangAuto", "跟隨系統", "System Default", "システムに従う", "跟随系统");
         add("Settings_BootTitle", "開機自動啟動", "Start on Windows Boot", "Windows 起動時に自動実行", "开机自启动");
-        add("Settings_BootDesc", "於 Windows 登入時自動在背景啟動 Tapster 並常駐於系統匣", "Automatically launch Tapster in the background when logging into Windows", "Windows ログイン時にバックグラウンドで自動起動します", "登录 Windows 时在后台自动启动 Tapster 并常驻于系统托盘");
+        add("Settings_BootDesc", "於 Windows 登入時自動在背景啟動 TapStrum 並常駐於系統匣", "Automatically launch TapStrum in the background when logging into Windows", "Windows ログイン時にバックグラウンドで自動起動します", "登录 Windows 时在后台自动启动 TapStrum 并常驻于系统托盘");
         add("Settings_StartMinimizedTitle", "啟動時最小化至系統匣", "Start Minimized to Tray", "起動時にトレイへ最小化", "启动时最小化至托盘");
         add("Settings_StartMinimizedDesc", "開啟應用程式時直接隱藏至右下角系統匣，不彈出主視窗干擾", "Launch directly into the system tray without showing the main window", "メインウィンドウを表示せず、タスクトレイに格納した状態で起動します", "程序启动时不显示主窗口，直接隐藏至托盘");
         add("Settings_CloseToTrayTitle", "點擊關閉時縮小至系統匣", "Minimize to Tray on Close", "閉じるボタンでトレイへ最小化", "关闭时最小化至托盘");
         add("Settings_CloseToTrayDesc", "點擊右上角關閉按鈕時縮排至系統匣，保持全域快捷鍵隨叫隨到", "Clicking the close button (X) minimizes to tray instead of quitting", "右上の [×] を押した際にアプリを終了せずトレイへ格納します", "点击右上角关闭按钮时最小化至托盘，保持全局快捷键随时可用");
         add("Settings_AlwaysOnTopTitle", "視窗永遠置頂", "Always on Top", "常に最前面に表示", "窗口置顶");
-        add("Settings_AlwaysOnTopDesc", "將 Tapster 視窗固定於其他視窗最上層 (全域喚醒熱鍵 Ctrl+Alt+T)", "Keep the Tapster window pinned above all other windows (Hotkey: Ctrl+Alt+T)", "Tapsterのウィンドウを他のウィンドウより前面に固定します (ホットキー: Ctrl+Alt+T)", "将 Tapster 窗口固定在其他应用程序顶层 (全局热键: Ctrl+Alt+T)");
+        add("Settings_AlwaysOnTopDesc", "將 TapStrum 視窗固定於其他視窗最上層 (全域喚醒熱鍵 Ctrl+Alt+T)", "Keep the TapStrum window pinned above all other windows (Hotkey: Ctrl+Alt+T)", "TapStrumのウィンドウを他のウィンドウより前面に固定します (ホットキー: Ctrl+Alt+T)", "将 TapStrum 窗口固定在其他应用程序顶层 (全局热键: Ctrl+Alt+T)");
         add("Settings_HotkeysTitle", "全域功能熱鍵", "Global Action Hotkeys", "グローバルホットキー", "全局功能热键");
         add("Settings_HotkeysDesc", "即使在遊戲全螢幕或背景視窗，按下熱鍵亦可直接遙控所有功能", "Control features seamlessly even while running full-screen games or apps", "フルスクリーンゲームや作業中でもホットキーから即座に操作できます", "在任何全屏游戏或程序中均可直接通过热键操作");
         add("Settings_HkWake", "喚醒 / 隱藏主視窗", "Wake / Hide Main Window", "ウィンドウの表示 / 非表示", "唤醒 / 隐藏主窗口");
@@ -383,7 +383,7 @@ public static class LocalizationManager
 
     private static void RegisterAbout(Action<string, string, string, string, string> add)
     {
-        add("About_Title", "關於 Tapster", "About Tapster", "Tapster について", "关于 Tapster");
+        add("About_Title", "關於 TapStrum", "About TapStrum", "TapStrum について", "关于 TapStrum");
         add("About_Desc", "應用程式版本、技術規格、專案連結與隱私聲明", "Application version, technical architecture, and open source links", "アプリケーションバージョン、技術仕様、オープンソース情報", "应用程序版本、技术规格、开源协议与项目链接");
         add("About_HeroSub", "Windows 11 原生超輕量自動化助手", "Windows 11 Native Ultra-Lightweight Automation Utility", "Windows 11 ネイティブ超軽量自動化ユーティリティ", "Windows 11 原生超轻量自动化助手");
         add("About_HeroSub2", "專為遠端桌面 (VNC/RDP)、虛擬機、遊戲掛機與高頻點擊量身打造", "Tailored for remote desktop (VNC/RDP), virtual machines, and high-frequency clicking", "リモートデスクトップ、仮想マシン、高速連打、ゲーム放置に最適化", "专为远程桌面 (VNC/RDP)、虚拟机、游戏挂机与高频点击量身打造");
