@@ -60,90 +60,63 @@ try {
         (Get-ChildItem "$root/Tapster.Fluent/bin/Release/net8.0-windows*/win-x64" -Directory -ErrorAction SilentlyContinue)[0].FullName
     }
 
-    $strictWhitelist = @(
-        # App binaries & runtime configuration
-        "Tapster.Fluent.exe",
-        "Tapster.Fluent.dll",
-        "Tapster.Core.dll",
-        "Tapster.Fluent.deps.json",
-        "Tapster.Fluent.runtimeconfig.json",
-        "resources.pri",
-        "app.ico",
-        # CoreCLR Native Runtime Engine
-        "coreclr.dll",
-        "clrjit.dll",
-        "clrgc.dll",
-        "clretwrc.dll",
-        "mscorrc.dll",
-        "hostfxr.dll",
-        "hostpolicy.dll",
-        # WinUI 3 & WinRT Projections
-        "Microsoft.WinUI.dll",
-        "Microsoft.Windows.SDK.NET.dll",
-        "WinRT.Runtime.dll",
-        "Microsoft.WindowsAppRuntime.Bootstrap.dll",
-        "Microsoft.WindowsAppRuntime.Bootstrap.Net.dll",
-        "Microsoft.InteractiveExperiences.Projection.dll",
-        "Microsoft.Windows.ApplicationModel.Resources.Projection.dll",
-        "Microsoft.Web.WebView2.Core.Projection.dll",
-        "Microsoft.Web.WebView2.Core.dll",
-        "WebView2Loader.dll",
-        # Managed Dependency Closure
-        "System.Private.CoreLib.dll",
-        "System.Runtime.dll",
-        "System.Runtime.CompilerServices.Unsafe.dll",
-        "System.Runtime.InteropServices.dll",
-        "System.Runtime.Intrinsics.dll",
-        "System.Runtime.Loader.dll",
-        "System.Runtime.Numerics.dll",
-        "System.Collections.dll",
-        "System.Collections.Concurrent.dll",
-        "System.Collections.Immutable.dll",
-        "System.Collections.NonGeneric.dll",
-        "System.Collections.Specialized.dll",
-        "System.ComponentModel.dll",
-        "System.ComponentModel.Primitives.dll",
-        "System.Memory.dll",
-        "System.Text.Json.dll",
-        "System.Text.Encodings.Web.dll",
-        "System.Text.Encoding.Extensions.dll",
-        "System.Text.RegularExpressions.dll",
-        "System.Threading.dll",
-        "System.Threading.Thread.dll",
-        "System.Threading.ThreadPool.dll",
-        "System.Linq.dll",
-        "System.Linq.Expressions.dll",
-        "System.Numerics.Vectors.dll",
-        "System.ObjectModel.dll",
-        "System.Private.Uri.dll",
-        "Microsoft.Win32.Registry.dll",
-        "Microsoft.Win32.Primitives.dll",
-        "System.Diagnostics.Process.dll",
-        "System.Diagnostics.FileVersionInfo.dll",
-        "System.Diagnostics.Tracing.dll",
-        "System.Security.Cryptography.dll",
-        "System.Security.AccessControl.dll",
-        "System.Security.Claims.dll",
-        "System.Security.Principal.Windows.dll",
-        "System.Reflection.Metadata.dll",
-        "System.Reflection.Emit.dll",
-        "System.Reflection.Emit.ILGeneration.dll",
-        "System.Reflection.Emit.Lightweight.dll",
-        "System.Reflection.Primitives.dll",
-        "System.IO.Compression.dll",
-        "System.IO.Compression.Native.dll",
-        "System.IO.MemoryMappedFiles.dll",
-        "System.Net.Primitives.dll",
-        "System.Console.dll",
-        "System.Formats.Asn1.dll"
+    # Fail-safe exclusion list for non-runtime AI, debug, and unneeded platform binaries
+    $fluentExclude = @(
+        "*.pdb",
+        "DirectML.dll",
+        "onnxruntime.dll",
+        "Microsoft.ML.OnnxRuntime.dll",
+        "Microsoft.Windows.AI.MachineLearning.dll",
+        "Microsoft.Windows.AI.*",
+        "NPUDetect.dll",
+        "PerceptiveStreaming.dll",
+        "Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.dll",
+        "Microsoft.DiaSymReader.Native.*",
+        "mscordaccore*",
+        "mscordbi.dll",
+        "createdump.exe",
+        "workloads.*.json"
     )
 
-    foreach ($item in $strictWhitelist) {
-        $sourceFile = Join-Path $fluentPublishSource $item
-        if (Test-Path $sourceFile) {
-            Copy-Item $sourceFile "$layoutDir/" -Force
+    Get-ChildItem $fluentPublishSource -File |
+        Where-Object {
+            $name = $_.Name
+            -not ($fluentExclude | Where-Object { $name -like $_ })
+        } |
+        ForEach-Object {
+            Copy-Item $_.FullName "$layoutDir/" -Force
+        }
+
+    $runtimeSource = "$fluentPublishSource/runtimes/win-x64/native"
+    if (Test-Path $runtimeSource) {
+        $runtimeTarget = "$layoutDir/runtimes/win-x64/native"
+        New-Item -ItemType Directory -Path $runtimeTarget -Force | Out-Null
+        Copy-Item "$runtimeSource/WebView2Loader.dll" "$runtimeTarget/" -ErrorAction SilentlyContinue
+    }
+
+    if (Test-Path "$root/Tapster.Fluent/app.ico") {
+        Copy-Item "$root/Tapster.Fluent/app.ico" "$layoutDir/app.ico" -Force
+    }
+
+    # Completeness verification gate: ensure critical runtime and payload files are present
+    $requiredFiles = @(
+        "AppxManifest.xml",
+        "resources.pri",
+        "coreclr.dll",
+        "clrjit.dll",
+        "hostfxr.dll",
+        "Microsoft.WinUI.dll",
+        "WinRT.Runtime.dll"
+    )
+    foreach ($req in $requiredFiles) {
+        $checkPath = Join-Path $layoutDir $req
+        if (-not (Test-Path $checkPath)) {
+            throw "[Verification Error] Critical package file missing from layout: $req"
         }
     }
+
+    $layoutFiles = Get-ChildItem $layoutDir -Recurse -File
+    Write-Host "[Layout] Verified layout completeness: $($layoutFiles.Count) files staged." -ForegroundColor Green
 
     $runtimeSource = "$fluentPublishSource/runtimes/win-x64/native"
     if (Test-Path $runtimeSource) {
