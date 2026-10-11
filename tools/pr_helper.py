@@ -130,22 +130,31 @@ def categorize_commits(commits):
     return categories
 
 
-def build_pr_body(commits, custom_summary=None):
-    categories = categorize_commits(commits)
-
+def build_pr_body(commits, custom_summary=None, custom_changes=None):
     summary_text = custom_summary or (
         f"This pull request incorporates {len(commits)} atomic commit(s) delivering updates "
         "aligned with repository engineering standards and conventional governance rules."
     )
 
-    changes_lines = []
-    idx = 1
-    for (ctype, scope), descs in sorted(categories.items()):
-        header = f"{idx}. **{ctype.upper()} ({scope})**:"
-        changes_lines.append(header)
-        for d in descs:
-            changes_lines.append(f"   - {d}")
-        idx += 1
+    if custom_changes and custom_changes.strip():
+        changes_body = custom_changes.strip()
+    else:
+        categories = categorize_commits(commits)
+        changes_lines = []
+        idx = 1
+        for (ctype, scope), descs in sorted(categories.items()):
+            header = f"{idx}. **{ctype.upper()} ({scope})**:"
+            changes_lines.append(header)
+            unique_descs = list(dict.fromkeys(descs))
+            if len(unique_descs) > 4:
+                for d in unique_descs[:4]:
+                    changes_lines.append(f"   - {d}")
+                changes_lines.append(f"   - ... and {len(unique_descs) - 4} additional atomic refinement(s)")
+            else:
+                for d in unique_descs:
+                    changes_lines.append(f"   - {d}")
+            idx += 1
+        changes_body = "\n".join(changes_lines)
 
     verification_items = [
         "- [x] Conventional commits audit passes: `python tools/lint_commits.py`",
@@ -157,7 +166,7 @@ def build_pr_body(commits, custom_summary=None):
 {summary_text}
 
 {SECTION_KEY_CHANGES}
-{chr(10).join(changes_lines)}
+{changes_body}
 
 {SECTION_VERIFICATION}
 {chr(10).join(verification_items)}
@@ -174,13 +183,23 @@ def lint_pr_content(body_text):
     if SECTION_VERIFICATION not in body_text:
         errors.append(f"Missing mandatory section: '{SECTION_VERIFICATION}'")
 
-    summary_part = ""
     if SECTION_SUMMARY in body_text:
         parts = body_text.split(SECTION_SUMMARY, 1)[1]
         summary_part = parts.split("##", 1)[0].strip()
+        if not summary_part:
+            errors.append(f"Section '{SECTION_SUMMARY}' cannot be empty.")
 
-    if not summary_part:
-        errors.append(f"Section '{SECTION_SUMMARY}' cannot be empty.")
+    if SECTION_KEY_CHANGES in body_text:
+        parts = body_text.split(SECTION_KEY_CHANGES, 1)[1]
+        changes_part = parts.split("##", 1)[0].strip()
+        if not changes_part:
+            errors.append(f"Section '{SECTION_KEY_CHANGES}' cannot be empty.")
+
+    if SECTION_VERIFICATION in body_text:
+        parts = body_text.split(SECTION_VERIFICATION, 1)[1]
+        verif_part = parts.split("##", 1)[0].strip()
+        if not verif_part:
+            errors.append(f"Section '{SECTION_VERIFICATION}' cannot be empty.")
 
     return errors
 
@@ -210,7 +229,17 @@ def handle_generate(args):
         print(f"❌ 在 {args.base}..HEAD 之間找不到任何提交紀錄。")
         sys.exit(1)
 
-    body = build_pr_body(commits, custom_summary=args.summary)
+    custom_changes = None
+    if getattr(args, "changes_file", None):
+        safe_changes_path = get_safe_path(args.changes_file)
+        if os.path.exists(safe_changes_path):
+            with open(safe_changes_path, "r", encoding="utf-8") as f:
+                custom_changes = f.read().strip()
+        else:
+            print(f"❌ 找不到指定的 Changes 檔案: {safe_changes_path}")
+            sys.exit(1)
+
+    body = build_pr_body(commits, custom_summary=args.summary, custom_changes=custom_changes)
     safe_out = get_safe_path(args.output)
     with open(safe_out, "w", encoding="utf-8") as f:
         f.write(body)
@@ -287,7 +316,17 @@ def handle_create(args):
     if not args.skip_checks:
         run_local_preflight()
 
-    body_content = build_pr_body(commits, custom_summary=args.summary)
+    custom_changes = None
+    if getattr(args, "changes_file", None):
+        safe_changes_path = get_safe_path(args.changes_file)
+        if os.path.exists(safe_changes_path):
+            with open(safe_changes_path, "r", encoding="utf-8") as f:
+                custom_changes = f.read().strip()
+        else:
+            print(f"❌ 找不到指定的 Changes 檔案: {safe_changes_path}")
+            sys.exit(1)
+
+    body_content = build_pr_body(commits, custom_summary=args.summary, custom_changes=custom_changes)
     lint_errors = lint_pr_content(body_content)
     if lint_errors:
         print("❌ 生成之 PR Body 結構不合規：", lint_errors)
@@ -324,6 +363,15 @@ def handle_create(args):
             os.remove(temp_body_path)
 
 
+def handle_merge(_args):
+    print("=" * 75)
+    print("❌ [SECURITY VIOLATION] PR 合併操作受最高等級安全治理保護！")
+    print("🛑 嚴禁 AI Agent 或自動化腳本執行 'gh pr merge' 或 API 自動合併！")
+    print("📌 任何 PR 合併至 main / master 均為人類 Maintainer 之專屬決策權利。")
+    print("=" * 75)
+    sys.exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(description="PR 自動生成、結構驗證與安全提交工具")
     subparsers = parser.add_subparsers(dest="action", required=True)
@@ -332,6 +380,7 @@ def main():
     gen_parser = subparsers.add_parser("generate", help="自動產出合規 PR Body Markdown")
     gen_parser.add_argument("--base", default=DEFAULT_BASE_REF, help=f"比較之基準分支 (預設 {DEFAULT_BASE_REF})")
     gen_parser.add_argument("--summary", default=None, help="自訂 Summary 描述")
+    gen_parser.add_argument("--changes-file", default=None, help="指定自訂 Key Changes Markdown 檔案路徑")
     gen_parser.add_argument("-o", "--output", default="PR_BODY.md", help="輸出檔案路徑 (預設 PR_BODY.md)")
 
     # 2. lint
@@ -346,7 +395,11 @@ def main():
     create_parser.add_argument("--base", default="main", help="目標基準分支 (預設 main)")
     create_parser.add_argument("--label", default="documentation", help="指定 PR 標籤 (預設 documentation)")
     create_parser.add_argument("--summary", default=None, help="自訂 Summary 描述")
+    create_parser.add_argument("--changes-file", default=None, help="指定自訂 Key Changes Markdown 檔案路徑")
     create_parser.add_argument("--skip-checks", action="store_true", help="跳過本地 lint 與驗證")
+
+    # 4. merge (strictly forbidden security gate)
+    subparsers.add_parser("merge", help="PR 自動合併 (此功能永久禁止，僅供安全攔截)")
 
     args = parser.parse_args()
 
@@ -356,6 +409,8 @@ def main():
         handle_lint(args)
     elif args.action == "create":
         handle_create(args)
+    elif args.action == "merge":
+        handle_merge(args)
 
 
 if __name__ == "__main__":

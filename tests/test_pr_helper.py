@@ -118,7 +118,31 @@ A summary here.
 - [x] passed
 """
         errors = pr_helper.lint_pr_content(empty_summary)
-        self.assertTrue(any("cannot be empty" in err for err in errors))
+        self.assertTrue(any("Section '## Summary' cannot be empty" in err for err in errors))
+
+    def test_empty_key_changes(self):
+        empty_changes = """## Summary
+Summary text.
+
+## Key Changes
+
+## Verification
+- [x] passed
+"""
+        errors = pr_helper.lint_pr_content(empty_changes)
+        self.assertTrue(any("Section '## Key Changes' cannot be empty" in err for err in errors))
+
+    def test_empty_verification(self):
+        empty_verif = """## Summary
+Summary text.
+
+## Key Changes
+1. **FEAT (core)**: change
+
+## Verification
+"""
+        errors = pr_helper.lint_pr_content(empty_verif)
+        self.assertTrue(any("Section '## Verification' cannot be empty" in err for err in errors))
 
 
 class TestLintBranchName(unittest.TestCase):
@@ -166,6 +190,32 @@ class TestBuildPrBody(unittest.TestCase):
 
         errors = pr_helper.lint_pr_content(body)
         self.assertEqual(errors, [])
+
+    def test_custom_changes_provided(self):
+        sample_commits = [
+            ("sha1", "feat(fluent): rebrand application to tapstrum"),
+        ]
+        custom_changes = "1. **Architecture**:\n   - Complete rebrand to TapStrum"
+        body = pr_helper.build_pr_body(sample_commits, custom_changes=custom_changes)
+        self.assertIn(custom_changes, body)
+        self.assertNotIn("1. **FEAT (fluent)**:", body)
+
+    def test_key_changes_synthesis_for_large_commits(self):
+        sample_commits = [
+            (f"sha{i}", f"docs(docs): documentation item {i}")
+            for i in range(10)
+        ]
+        body = pr_helper.build_pr_body(sample_commits)
+        self.assertIn("... and 6 additional atomic refinement(s)", body)
+
+
+class TestSecurityGate(unittest.TestCase):
+    """Test security boundaries preventing unauthorized automated merges."""
+
+    def test_merge_subcommand_strictly_forbidden(self):
+        with self.assertRaises(SystemExit) as ctx:
+            pr_helper.handle_merge(None)
+        self.assertEqual(ctx.exception.code, 1)
 
 
 if __name__ == '__main__':
