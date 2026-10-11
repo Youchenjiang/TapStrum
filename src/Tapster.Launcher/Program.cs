@@ -162,7 +162,11 @@ internal static class Program
                 }
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            // Best effort: cross-process wake event signaling may fail if permissions differ; safely ignored
+            Debug.WriteLine($"Failed to signal wake event: {ex.Message}");
+        }
     }
 
     private static void ExtractPayload(string targetDir, Stream? stream)

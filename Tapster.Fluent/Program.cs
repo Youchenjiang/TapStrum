@@ -9,13 +9,11 @@ namespace Tapster_Fluent;
 
 public static class Program
 {
-    private static SingleInstanceService? _singleInstanceService;
-
     [STAThread]
     public static void Main(string[] args)
     {
-        _singleInstanceService = new SingleInstanceService();
-        if (!_singleInstanceService.TryAcquire())
+        using var singleInstanceService = new SingleInstanceService();
+        if (!singleInstanceService.TryAcquire())
         {
             // Another instance is already running; wake it up and exit cleanly
             SingleInstanceService.SignalWake();
@@ -23,7 +21,7 @@ public static class Program
         }
 
         // Listen for wake signals from secondary instances or the launcher
-        _singleInstanceService.StartWakeListener(() =>
+        singleInstanceService.StartWakeListener(() =>
         {
             MainWindow.Instance?.DispatcherQueue.TryEnqueue(() =>
             {
@@ -39,7 +37,5 @@ public static class Program
             SynchronizationContext.SetSynchronizationContext(context);
             _ = new App();
         });
-
-        _singleInstanceService.Dispose();
     }
 }

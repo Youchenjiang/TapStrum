@@ -134,6 +134,7 @@ public static partial class NativeMethods
 
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S4200:Native methods should be wrapped", Justification = "Win32 P/Invoke interop method")]
     public static partial bool AllowSetForegroundWindow(int dwProcessId);
 
     // ── System Tray (Shell_NotifyIcon) ──────────────────────────────────────────

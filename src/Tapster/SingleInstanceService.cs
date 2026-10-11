@@ -18,7 +18,6 @@ public sealed class SingleInstanceService : IDisposable
     private bool _ownsMutex;
     private EventWaitHandle? _wakeEvent;
     private CancellationTokenSource? _cts;
-    private Thread? _listenerThread;
     private bool _disposed;
 
     public bool OwnsMutex => _ownsMutex;
@@ -97,12 +96,12 @@ public sealed class SingleInstanceService : IDisposable
             _cts = new CancellationTokenSource();
             var token = _cts.Token;
 
-            _listenerThread = new Thread(() => ListenLoop(_wakeEvent, token, onWakeRequested))
+            var listenerThread = new Thread(() => ListenLoop(_wakeEvent, token, onWakeRequested))
             {
                 IsBackground = true,
                 Name = "TapStrum_SingleInstance_WakeListener"
             };
-            _listenerThread.Start();
+            listenerThread.Start();
         }
         catch
         {
