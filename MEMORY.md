@@ -9,7 +9,8 @@
 - **Language**: 繁體中文 preferred for casual conversation; code/commits in English.
 - **Style**: Direct, no fluff. Get things done with high engineering rigor.
 - **Git Commit Protocol**: Strict Conventional Commits (`type(scope): subject` <= 72 chars, no trailing period, numbered English body `1. ...`).
-- **Authorization Gate**: Always confirm before any external mutations (`git push`, release tags, PR creation).
+- **Feature Branch Commit/Push Exemption**: User explicitly granted blanket permission: "以後這種提交和推送不用跟我確認" (Git commit and push on working feature branches do not require turn-by-turn confirmation).
+- **Absolute PR Merge Prohibition**: **嚴禁 Agent 自行執行任何 PR Merge（`gh pr merge` 或 API merge）**。即使 CI 與審查 100% 通過，合併進 `main` 分支的權力永遠屬於使用者本人（Human-Only）。Agent 任務在 PR 建立且 CI 狀態回報後即告一段落，靜候使用者親自審查並手動點擊合併。
 - **Zero GitHub Comments / Chat**: 嚴禁在 GitHub PR / Issue 上留下任何文字評論、回覆或機器人文字。處理 Review Feedback 時只需完成代碼修復、推送到分支、並將 review thread 標記為 resolved，絕對不發布任何文字留言。
 
 ---
@@ -42,8 +43,9 @@
 - [x] **Fluent 96% Virtual Keyboard**: Add full arrow cluster and numpad with dynamic highlights (feat/fluent-96-percent-virtual-keyboard)
 - [x] **Key Holder Step Timeline**: Multi-stage key holding pipeline with step card timeline (feat/key-holder-step-timeline)
 - [x] **Multi-Language Support**: Full localization across 4 languages with clean labels (feat/fluent-localization)
-- [x] **Release 1.3.0.0**: Minor version bump across props, manifests, changelog and memory (chore/bump-version-1.3.0.0)
 - [x] **Post-Merge Security Workflow Permissions**: Grant read permissions to caller workflow and jobs calling reusable workflows (fix/post-merge-security-permissions)
+- [x] **MSIX Packaging Slimming & Fail-Safe Verification**: Retargeted SDK to 19041, trimmed publish outputs, excluded unused AI/debug payloads, added automated completeness verification gate in `scripts/build_msix.ps1` (PR #52 merged to `main`).
+- [ ] **TapStrum Rebranding & Microsoft Store Identity Sync**: Complete rebrand to TapStrum, Partner Center identity sync (`9N4WHN5NP91C`), 1080p screenshots, Clickra-style README, and unit tests for local developer tools (PR #53 open, awaiting human review).
 
 ---
 
