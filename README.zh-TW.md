@@ -1,6 +1,6 @@
-# Tapster (Native & Fluent 原生鍵鼠自動化助手)
+# TapStrum (Native & Fluent 原生鍵鼠自動化助手)
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Youchenjiang/Tapster/badge)](https://scorecard.dev/viewer/?url=github.com/Youchenjiang/Tapster)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Youchenjiang/TapStrum/badge)](https://scorecard.dev/viewer/?url=github.com/Youchenjiang/TapStrum)
 [![Security Policy](https://img.shields.io/badge/Security-Policy-blue.svg)](.github/SECURITY.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform: Windows 11](https://img.shields.io/badge/Platform-Windows%2011%20Fluent-0078D4.svg)](https://microsoft.com/windows)
@@ -15,15 +15,15 @@
 
 | 發行版本 | 專案 / 產出 | 特色亮點 | 適用情境 |
 |---|---|---|---|
-| **綠色免安裝單檔** | `publish/Tapster.exe` | 真正純單一 `.exe` 檔案（43.1MB），內嵌 Payload 與 SHA-256 自動同步，零依賴解壓即跑 | 隨身碟攜帶 / 快速啟動 / 免安裝 |
-| **微軟商店 MSIX** | `publish/Tapster-v1.1.0.msix` | 標準微軟簽署 `.msix` 安裝包（33.9MB），自動更新管理與完全沙盒隔離 | 一般使用者 / 企業受控環境 |
+| **綠色免安裝單檔** | `publish/TapStrum.exe` | 真正純單一 `.exe` 檔案，內嵌 Payload 與 SHA-256 自動同步，零依賴解壓即跑 | 隨身碟攜帶 / 快速啟動 / 免安裝 |
+| **微軟商店 MSIX** | `publish/TapStrum-v1.3.0.0.msix` | 標準微軟簽署 `.msix` 安裝包（6.85MB 自封裝極限瘦身），自動更新管理與完全沙盒隔離 | 一般使用者 / 企業受控環境 |
 | **底層 Native 核心** | `src/Tapster/` | C# .NET Native 核心（記憶體 < 35MB，延遲 < 1ms），純 Win32 原生調用 | 高性能自動化 / 模組嵌入 |
 
 ---
 
 ## 🛡️ OpenSSF 軟體供應鏈安全承諾
 
-Tapster 嚴格遵守 **OpenSSF（開源安全基金會）** 安全標準：
+TapStrum 嚴格遵守 **OpenSSF（開源安全基金會）** 安全標準：
 - **100% 離線純本機運行**：絕不發送任何外部網路請求，零遙測資料收集。
 - **自動化安全審計**：每週自動執行 OpenSSF Scorecard 供應鏈審查與 CodeQL SAST 靜態代碼掃描。
 - **CI/CD 權限最小化**：GitHub Actions 全面導入 SHA-Pinned Action 與最小權限宣告（`permissions: read-all`）。
@@ -51,16 +51,17 @@ dotnet build Tapster.sln -c Release
 ```powershell
 powershell -ExecutionPolicy Bypass -File "scripts/build_portable.ps1"
 ```
-產出：`publish/Tapster.exe` (43.1 MB)
+產出：`publish/TapStrum.exe`
 
 ### 3. 打包並簽署 Store MSIX 安裝套件
 ```powershell
 powershell -ExecutionPolicy Bypass -File "scripts/build_msix.ps1"
 ```
-產出：`publish/Tapster-v1.1.0.msix` (33.9 MB)
+產出：`publish/TapStrum-v1.3.0.0.msix` (6.85 MB)
 
 ---
 
 ## 授權條款
 
 本專案採用 [MIT License](LICENSE) 授權條款開源發布。
+

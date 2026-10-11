@@ -1,6 +1,6 @@
-# Tapster (Native & Fluent)
+# TapStrum (Native & Fluent)
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Youchenjiang/Tapster/badge)](https://scorecard.dev/viewer/?url=github.com/Youchenjiang/Tapster)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Youchenjiang/TapStrum/badge)](https://scorecard.dev/viewer/?url=github.com/Youchenjiang/TapStrum)
 [![Security Policy](https://img.shields.io/badge/Security-Policy-blue.svg)](.github/SECURITY.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform: Windows 11](https://img.shields.io/badge/Platform-Windows%2011%20Fluent-0078D4.svg)](https://microsoft.com/windows)
@@ -15,15 +15,15 @@ Modern Windows 11 keyboard and mouse automation utility, featuring both a **WinU
 
 | Distribution | Project / Format | Highlights | Target Scenario |
 |---|---|---|---|
-| **Standalone Portable** | `publish/Tapster.exe` | True single-file EXE (43.1MB), zero dependencies, embedded payload with SHA-256 auto-update sync | Portable / USB drive / Quick launch |
-| **Microsoft Store MSIX** | `publish/Tapster-v1.1.0.msix` | Signed MSIX package (33.9MB), auto updates, full sandbox compliance | End Users / Corporate Environments |
+| **Standalone Portable** | `publish/TapStrum.exe` | True single-file EXE, zero dependencies, embedded payload with SHA-256 auto-update sync | Portable / USB drive / Quick launch |
+| **Microsoft Store MSIX** | `publish/TapStrum-v1.3.0.0.msix` | Signed MSIX package (6.85MB self-contained), auto updates, full sandbox compliance | End Users / Corporate Environments |
 | **Native Core Engine** | `src/Tapster/` | C# .NET NativeAOT build (< 35MB RAM, < 1ms latency), zero external dependencies | Headless automation / Embedding |
 
 ---
 
 ## 🛡️ OpenSSF Supply Chain Security Guarantee
 
-Tapster strictly complies with **OpenSSF (Open Source Security Foundation)** security standards:
+TapStrum strictly complies with **OpenSSF (Open Source Security Foundation)** security standards:
 - **100% Offline & Zero Telemetry**: Operates exclusively on local Win32 native APIs without sending any network requests.
 - **Automated Security Audits**: Weekly automated OpenSSF Scorecard supply-chain scans and CodeQL SAST analyses.
 - **Hardened CI/CD**: Pinned GitHub Actions commit hashes and least-privilege token permissions (`permissions: read-all`).
@@ -58,13 +58,13 @@ dotnet build Tapster.sln -c Release
 ```powershell
 powershell -ExecutionPolicy Bypass -File "scripts/build_portable.ps1"
 ```
-Output: `publish/Tapster.exe` (43.1 MB)
+Output: `publish/TapStrum.exe`
 
 ### 3. Package & Sign Store MSIX
 ```powershell
 powershell -ExecutionPolicy Bypass -File "scripts/build_msix.ps1"
 ```
-Output: `publish/Tapster-v1.1.0.msix` (33.9 MB)
+Output: `publish/TapStrum-v1.3.0.0.msix` (6.85 MB)
 
 ---
 

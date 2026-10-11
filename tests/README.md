@@ -1,6 +1,6 @@
-# Tapster Test Suite
+# TapStrum Test Suite
 
-This directory contains automated unit and regression tests for Tapster.
+This directory contains automated unit and regression tests for TapStrum.
 
 ## Structure
 
