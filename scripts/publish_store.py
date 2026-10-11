@@ -273,7 +273,6 @@ def update_metadata(metadata, parsed_listings):
             'Desktop': True,
             'Mobile': False,
             'Xbox': False,
-            'Team': False,
             'Holographic': False
         }
 
