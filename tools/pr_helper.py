@@ -56,6 +56,8 @@ def sanitize_label(label_str):
 def sanitize_title(title_str):
     if not title_str or not CONVENTIONAL_REGEX.match(title_str) or len(title_str) > 72:
         raise ValueError(f"Invalid PR title: '{title_str}'")
+    if title_str.endswith("."):
+        raise ValueError("Invalid PR title: must not end with a period '.'")
     if any(ch in title_str for ch in ["\n", "\r", '"', ";", "`", "$"]):
         raise ValueError("Invalid character in PR title")
     return title_str
