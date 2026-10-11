@@ -268,6 +268,24 @@ def update_metadata(metadata, parsed_listings):
     if not metadata.get('notesForCertification'):
         metadata['notesForCertification'] = 'TapStrum is a high-precision keyboard and mouse input automation utility.'
 
+    if not metadata.get('allowTargetFutureDeviceFamilies'):
+        metadata['allowTargetFutureDeviceFamilies'] = {
+            'Desktop': True,
+            'Mobile': False,
+            'Xbox': False,
+            'Team': False,
+            'Holographic': False
+        }
+
+    if metadata.get('allowMicrosoftDecideAppAvailabilityToFutureDeviceFamilies') is None:
+        metadata['allowMicrosoftDecideAppAvailabilityToFutureDeviceFamilies'] = True
+
+    if not metadata.get('visibility'):
+        metadata['visibility'] = 'Public'
+
+    if not metadata.get('targetPublishMode'):
+        metadata['targetPublishMode'] = 'Immediate'
+
     if 'listings' not in metadata or not isinstance(metadata['listings'], dict):
         metadata['listings'] = {}
     listings = metadata['listings']
