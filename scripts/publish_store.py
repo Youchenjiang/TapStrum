@@ -259,6 +259,7 @@ def update_single_listing(base_listing, new_data):
             base_listing[camel_key] = val[:7] if parsed_key == 'keywords' else val
     if not base_listing.get('title'):
         base_listing['title'] = 'TapStrum'
+    base_listing['privacyPolicyUrl'] = 'https://github.com/Youchenjiang/TapStrum/blob/main/PRIVACY.md'
 
 
 def update_metadata(metadata, parsed_listings):
