@@ -53,7 +53,7 @@ if (AppWindowTitleBar.IsCustomizationSupported())
 在底層 `NativeMethods.cs` 中宣告 Windows 11 原生 DWM 屬性：
 
 ```csharp
-namespace Tapster;
+namespace TapStrum;
 
 public static partial class NativeMethods
 {
@@ -76,7 +76,7 @@ public static partial class NativeMethods
 ```csharp
 using Microsoft.UI.Xaml;
 using WinRT.Interop;
-using Tapster;
+using TapStrum;
 
 namespace Tapster_Fluent;
 
@@ -125,7 +125,7 @@ XAML 結構極簡化，移除所有在視窗頂部自訂的假標題列 Grid：
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:Tapster_Fluent"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="Tapster"
+    Title="TapStrum"
     mc:Ignorable="d">
 
     <!-- 視窗內部客戶區可安心使用 MicaBackdrop 享受極致質感，不影響原生標題列拖曳 -->

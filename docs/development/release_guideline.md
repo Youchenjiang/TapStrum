@@ -1,6 +1,6 @@
-# Tapster 版本號管理與發布規範 (Release Versioning Guide)
+# TapStrum 版本號管理與發布規範 (Release Versioning Guide)
 
-本文件定義 Tapster 的版本號架構設計、微軟商店相容規範，以及發布新版本時的標準作業程序 (SOP)。
+本文件定義 TapStrum 的版本號架構設計、微軟商店相容規範，以及發布新版本時的標準作業程序 (SOP)。
 
 ---
 
@@ -37,14 +37,14 @@
 
 ## 1. 版本號結構與微軟商店限制
 
-Tapster 嚴格遵循四位數版本號格式：`Major.Minor.Patch.Revision`（例如 `1.1.0.0`）。
+TapStrum 嚴格遵循四位數版本號格式：`Major.Minor.Patch.Revision`（例如 `1.1.0.0`）。
 
 > [!IMPORTANT]
 > **微軟商店強制限制**：
 > 提交至 Microsoft Store 的 MSIX 套件，其版本號第四位（Revision）**必須強制為 `0`**。
 > 若第四位為非 `0`（例如 `1.1.0.1`），合作夥伴中心（Partner Center）將拒絕上傳。
 
-因此，Tapster 的版本號結構定義如下：
+因此，TapStrum 的版本號結構定義如下：
 
 $$\text{Version} = \text{Major} . \text{Minor} . \text{Patch} . \mathbf{0}$$
 

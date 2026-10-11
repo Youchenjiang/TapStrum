@@ -1,4 +1,4 @@
-# Tapster 發展規劃 (Roadmap & Milestones)
+# TapStrum 發展規劃 (Roadmap & Milestones)
 
 **專案定位**：Windows 11 現代化鍵鼠輸入自動化控制台（WinUI 3 + C# .NET Native）  
 **目標期程**：2025年 — 2026年  
@@ -10,7 +10,7 @@
 
 ```mermaid
 timeline
-    title Tapster 全階段演進路徑 (Phase 0 ~ Phase 5)
+    title TapStrum 全階段演進路徑 (Phase 0 ~ Phase 5)
     Phase 0 : 2025 早期 : Python 原型與 Tkinter GUI : VNC 自動打字 / 軟體鍵盤網格 / 動作錄製重播
     Phase 1 : 2026 前期 : C# NativeAOT 核心重構 : SendInput 原生硬體模擬 / 微秒級時序 / 2MB 零依賴
     Phase 2 : 2026 近期 : WinUI 3 Fluent 現代介面 : 擬真 5 排實體鍵盤 / 分頁獨立執行卡片 / 全域喚醒 (Ctrl+Alt+T) / PE 圖示注入
@@ -55,7 +55,7 @@ timeline
 ### [Phase 1] C# NativeAOT 核心重構 (Native Core) — `已完成 ✅`
 > **背景痛點**：徹底消除 Python 直譯器依賴、消除防毒軟體誤報、降低記憶體佔用至 10MB 以下，並將計時精確度推至微秒級。
 
-- [x] **[P1-1] 零依賴底層引擎解耦 (`src/Tapster/`)**
+- [x] **[P1-1] 零依賴底層引擎解耦 (`src/TapStrum/`)**
   - 建立專屬核心函式庫 `Tapster.Core`，採用標準 Win32 P/Invoke 封裝 `SendInput` API。
 - [x] **[P1-2] 高精度輸入模擬器 (`Keyboard.cs` & `Mouse.cs`)**
   - **鍵盤規則**：支援 Virtual-Key 碼與 Unicode UTF-16 字元直投（`KEYEVENTF_UNICODE`），免切換中/英輸入法即可準確打字。
@@ -66,7 +66,7 @@ timeline
   - `AutoClicker.cs`：微秒級連點循環，最小間隔達 1ms。
   - `KeyHolder.cs`：單鍵與多鍵組合長按，支援計時倒數與無限保持。
   - `MacroRecorder.cs`：基於 `Stopwatch` 微秒級高解析時序記錄器，支援鍵鼠混合動作錄製與變速回放。
-- [x] **[P1-4] 原生 CLI 工具 (`Tapster.Cli`)**
+- [x] **[P1-4] 原生 CLI 工具 (`TapStrum.Cli`)**
   - 支援 NativeAOT 編譯，產出體積僅約 2-3MB 的超輕量零依賴執行檔。
 
 ---
@@ -98,7 +98,7 @@ timeline
 - [x] **[P2-8] 單鍵捕捉全域掃描 (Full Virtual-Key Capture)**
   - **規則**：實作全域 0x08~0xFE 虛擬鍵盤掃描機制，點擊「Capture Key」後可在任意視窗按下實體鍵並自動轉換為友善按鍵名稱。
 - [x] **[P2-9] 關於分頁與規格展示 (About & Technical Specs)**
-  - **規則**：於導航列底部加入 About 專屬頁面，呈現 Hero Logo 卡片、版本號標籤、底層技術規格矩陣、100% 離線隱私聲明，以及一鍵開啟 `%LOCALAPPDATA%\Tapster\` 設定目錄。
+  - **規則**：於導航列底部加入 About 專屬頁面，呈現 Hero Logo 卡片、版本號標籤、底層技術規格矩陣、100% 離線隱私聲明，以及一鍵開啟 `%LOCALAPPDATA%\TapStrum\` 設定目錄。
 
 ---
 
@@ -108,7 +108,7 @@ timeline
 - [ ] **[P3-1] 巨集腳本 JSON 匯出與匯入 (Macro JSON Schema)**
   - **規格**：定義標準巨集 JSON 格式，支援將錄製好的動作序列儲存為 `.tapster` 檔案，方便分享、編輯與備份。
 - [x] **[P3-2] 使用者偏好設定持久化與開機自動啟動 (Settings Persistence & Windows Startup)**
-  - **規則**：於 NavigationView 左下角新增 Settings 設定分頁；支援「開機自動啟動 (Start with Windows)」、「啟動時自動縮小至系統匣」、「點擊關閉 (X) 時縮至系統匣」之開關切換；設定自動序列化儲存至 `%LOCALAPPDATA%\Tapster\settings.json`。
+  - **規則**：於 NavigationView 左下角新增 Settings 設定分頁；支援「開機自動啟動 (Start with Windows)」、「啟動時自動縮小至系統匣」、「點擊關閉 (X) 時縮至系統匣」之開關切換；設定自動序列化儲存至 `%LOCALAPPDATA%\TapStrum\settings.json`。
 - [x] **[P3-3] 系統匣常駐與右鍵選單 (System Tray & Background Resident)**
   - **規則**：透過 Win32 `Shell_NotifyIconW` 與 Window Subclassing 實作零依賴系統匣圖示；支援 `--tray` 啟動隱藏常駐、雙擊喚醒、視窗關閉縮排至系統匣，以及包含「顯示/隱藏」、「永遠置頂」、「結束」的原生右鍵彈出式選單。
 - [x] **[P3-4] 背景巨集錄製引擎 (Macro Recorder Engine)**
@@ -118,7 +118,7 @@ timeline
 - [ ] **[P3-6] 智慧像素 / 影像顏色條件觸發 (Pixel & Image Trigger)**
   - **規格**：偵測指定螢幕座標之像素顏色或區域特徵，符合條件時自動觸發連點或巨集。
 - [x] **[P3-7] 全域功能熱鍵系統 (Global Function Hotkeys)**
-  - **規格**：各模組支援全域熱鍵直接啟動與停止（免切回 Tapster 視窗）：
+  - **規格**：各模組支援全域熱鍵直接啟動與停止（免切回 TapStrum 視窗）：
     - `F6`：切換 Auto Clicker（連點開始/暫停）
     - `F7`：切換 Key Holder（按鍵長按開始/停止）
     - `F8`：啟動 Auto Typer（自動開始打字）
@@ -181,8 +181,8 @@ timeline
 - [x] **[P5-3] 編譯程序防護與構建伺服器清理 (Build Process Guard & Server Shutdown)**
   - **規則**：全域關閉 MSBuild NodeReuse 與 SharedCompilation，在所有打包腳本加入 `finally { Stop-BuildServers }` 自動關閉伺服器防殘留，確保使用者開發環境 100% 乾淨無背景 `.NET Host` 佔用。
 - [x] **[P5-4] 雙軌發行架構 (Dual-Track Distribution)**
-  - **軌道 A (Store / 一般用戶)**：`Tapster (WinUI 3 Fluent MSIX)` 具備現代美觀介面、自動依賴管理與沙盒安全性。
-  - **軌道 B (可攜式 / 綠色免安裝)**：`Tapster Portable (True Single-File EXE)` 真正純單一 `.exe` 檔案，解壓即跑、零依賴、零報錯。
+  - **軌道 A (Store / 一般用戶)**：`TapStrum (WinUI 3 Fluent MSIX)` 具備現代美觀介面、自動依賴管理與沙盒安全性。
+  - **軌道 B (可攜式 / 綠色免安裝)**：`TapStrum Portable (True Single-File EXE)` 真正純單一 `.exe` 檔案，解壓即跑、零依賴、零報錯。
 - [ ] **[P5-5] Microsoft Store Submission API 自動發布**
   - **規格**：透過 Azure AD 認證，在建立 Git Release Tag 時自動上傳 MSIX 至 Partner Center 審核隊列。
 
@@ -203,7 +203,7 @@ Script-List/automation/
     ├── docs/
     │   └── ROADMAP.md            # 本發展藍圖文件
     ├── src/
-    │   ├── Tapster/              # [Tapster.Core] 零依賴底層自動化引擎 (.NET 8/10)
+    │   ├── TapStrum/              # [Tapster.Core] 零依賴底層自動化引擎 (.NET 8/10)
     │   │   ├── AutoTyper.cs
     │   │   ├── AutoClicker.cs
     │   │   ├── KeyHolder.cs
@@ -220,7 +220,7 @@ Script-List/automation/
         ├── Assets/               # 高解析圖示與向量資源
         ├── MainWindow.xaml(.cs)  # 標題列拖曳、置頂與全域喚醒控制
         ├── MainPage.xaml(.cs)    # 5 排實體虛擬鍵盤、各分頁獨立控制卡片、關於頁
-        ├── AppSettings.cs        # 偏好設定持久化 (%LOCALAPPDATA%\Tapster\settings.json)
+        ├── AppSettings.cs        # 偏好設定持久化 (%LOCALAPPDATA%\TapStrum\settings.json)
         ├── UpdateIcon.ps1        # Post-build Win32 PE 資源注入腳本
         └── Tapster.Fluent.csproj # 專案設定與自動化構建目標
 ```
