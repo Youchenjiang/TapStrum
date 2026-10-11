@@ -22,6 +22,7 @@
     <AppxManifestMetadataIsRequired>false</AppxManifestMetadataIsRequired>
     <WindowsAppSDKSelfContained Condition="'$(WindowsAppSDKSelfContained)' == ''">true</WindowsAppSDKSelfContained>
     <WindowsAppSdkDeploymentManagerInitialize Condition="'$(WindowsAppSdkDeploymentManagerInitialize)' == ''">false</WindowsAppSdkDeploymentManagerInitialize>
+    <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

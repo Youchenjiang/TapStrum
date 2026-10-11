@@ -26,7 +26,12 @@ internal static class Program
     [DllImport("user32.dll")]
     private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
+    [DllImport("user32.dll")]
+    private static extern bool AllowSetForegroundWindow(int dwProcessId);
+
     private const int SW_RESTORE = 9;
+    private const int ASFW_ANY = -1;
+    private const string WakeEventName = @"Local\TapStrum_Wake_Event";
 
     [STAThread]
     public static int Main(string[] args)
@@ -124,18 +129,44 @@ internal static class Program
         try
         {
             var processes = Process.GetProcessesByName("Tapster.Fluent");
+            if (processes.Length == 0) return false;
+
+            AllowSetForegroundWindow(ASFW_ANY);
+            SignalWakeEvent();
+
             foreach (var p in processes)
             {
                 if (p.MainWindowHandle != IntPtr.Zero)
                 {
                     ShowWindow(p.MainWindowHandle, SW_RESTORE);
                     SetForegroundWindow(p.MainWindowHandle);
-                    return true;
+                    break;
                 }
             }
+
+            return true;
         }
         catch { }
         return false;
+    }
+
+    private static void SignalWakeEvent()
+    {
+        try
+        {
+            if (EventWaitHandle.TryOpenExisting(WakeEventName, out var wakeEvent))
+            {
+                using (wakeEvent)
+                {
+                    wakeEvent.Set();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Best effort: cross-process wake event signaling may fail if permissions differ; safely ignored
+            Debug.WriteLine($"Failed to signal wake event: {ex.Message}");
+        }
     }
 
     private static void ExtractPayload(string targetDir, Stream? stream)

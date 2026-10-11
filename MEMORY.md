@@ -45,21 +45,27 @@
 - [x] **Multi-Language Support**: Full localization across 4 languages with clean labels (feat/fluent-localization)
 - [x] **Post-Merge Security Workflow Permissions**: Grant read permissions to caller workflow and jobs calling reusable workflows (fix/post-merge-security-permissions)
 - [x] **MSIX Packaging Slimming & Fail-Safe Verification**: Retargeted SDK to 19041, trimmed publish outputs, excluded unused AI/debug payloads, added automated completeness verification gate in `scripts/build_msix.ps1` (PR #52 merged to `main`).
-- [ ] **TapStrum Rebranding & Microsoft Store Identity Sync**: Complete rebrand to TapStrum, Partner Center identity sync (`9N4WHN5NP91C`), 1080p screenshots, Clickra-style README, and unit tests for local developer tools (PR #53 open, awaiting human review).
+- [x] **TapStrum Rebranding & Microsoft Store Identity Sync**: Complete rebrand to TapStrum, Partner Center identity sync (`9N4WHN5NP91C`), 1080p screenshots, Clickra-style README, and unit tests for local developer tools (PR #53 merged to `main`).
+- [x] **Single-Instance Guard & Tray Wake Mechanism**: Resolved background process accumulation by enforcing named Mutex (`Local\TapStrum_SingleInstance_Mutex`) and EventWaitHandle IPC (`Local\TapStrum_Wake_Event`) across Launcher and Fluent UI (fix/fluent-single-instance-guard).
 
 ---
 
 ## 🏗️ Architectural Context
-- **Project**: Tapster (Native & Fluent 鍵鼠自動化助手)
+- **Project**: TapStrum (Native & Fluent 鍵鼠自動化助手)
 - **Preset**: desktop (Windows / .NET 8+ / WinUI 3 / WinAppSDK / NativeAOT)
 - **Core Engine (`src/Tapster/`)**: Pure Win32 P/Invoke (`SendInput`, `GetAsyncKeyState`), Unicode UTF-16 input, microsecond timing, zero bloat, offline only.
 - **Modern UI (`Tapster.Fluent/`)**: WinUI 3 + Windows App SDK, Mica material, realistic 5-row keyboard layout, per-panel self-contained control cards, Win32 system tray resident, global wake hotkey (`Ctrl + Alt + T`).
-- **Single-File Launcher (`src/Tapster.Launcher/`)**: Standalone 43MB executable with embedded payload, SHA-256 integrity auto-sync, graceful instance shutdown.
-- **Packaging (`packaging/`, `scripts/`)**: Dual-track release (`scripts/build_portable.ps1` -> `Tapster.exe`, `scripts/build_msix.ps1` -> `Tapster-*.msix`).
+- **Single-File Launcher (`src/Tapster.Launcher/`)**: Standalone executable with embedded payload, SHA-256 integrity auto-sync, graceful instance shutdown.
+- **Packaging (`packaging/`, `scripts/`)**: Dual-track release (`scripts/build_portable.ps1` -> `TapStrum.exe`, `scripts/build_msix.ps1` -> `TapStrum-*.msix`).
 
 ---
 
 ## ✅ Completed Decisions & Lessons Learned
+- **Tray Mode Process Single-Instance Detection**: When WinUI 3 hides its window into the system tray via `AppWindow.Hide()`, the OS sets `Process.MainWindowHandle` to `IntPtr.Zero`. Relying solely on `MainWindowHandle != IntPtr.Zero` causes external launchers to erroneously conclude no instance is running and spawn duplicate background processes. Solved via a two-layer guard: (1) Launcher checks running process names and signals an IPC wake event (`Local\TapStrum_Wake_Event`) with `AllowSetForegroundWindow(ASFW_ANY)` instead of spawning a new process, and (2) UI app entry point (`Program.cs`) acquires a named Mutex (`Local\TapStrum_SingleInstance_Mutex`), rejects secondary instances before initializing XAML, and listens for wake events to bring `MainWindow` to front on the UI dispatcher.
+- **Reusable Workflow Permissions Downgrade Ceiling**: In GitHub Actions, when a caller workflow calls a reusable workflow via `uses:`, permissions can only be downgraded, never elevated. An empty top-level `permissions: {}` in the caller workflow sets the permission ceiling to `none`, causing called workflows that request `actions: read` and `contents: read` (such as DefectDojo and Faraday) to fail at startup with an invalid workflow error. The caller workflow must grant `actions: read` and `contents: read` at the top level and job level.
+- **Rebranding to TapStrum & Microsoft Partner Center Identity Synchronization**: Renamed product from Tapster to TapStrum across all user-facing UI, launcher, system tray, and multilingual store documentation. Synchronized MSIX Package Identity with reserved Microsoft Partner Center details (`Package/Identity/Name="g1014308.Tapstrum"`, `Publisher="CN=CBF59877-21AD-4BC4-8F91-FE8DA520A138"`, `DisplayName="TapStrum"`, `PublisherDisplayName="g1014308"`). Maintained backward compatibility for local settings folder and registry startup keys while producing signed submission package `publish/TapStrum-v1.3.0.0.msix`.
+- **Absolute Separation of Branch Mutation from PR Merge Authority**: Feature-branch commit and push permissions do not extend to pull request merges into base branches. Merging a PR into `main` alters the production baseline and is strictly classified as Tier 4 Human-Only authority. Agents are permanently barred from executing `gh pr merge` or automated merge APIs.
+- **Anti-Dump PR Body Synthesis and Tooling Tests**: `tools/pr_helper.py` synthesizes commits into structured architectural modules when commit counts are large rather than dumping raw git logs. Backported anti-dump logic, section verification, merge guards, and comprehensive test suites (`test_pr_helper.py`, `test_lint_commits.py`) to the central template repository `tool-scripts`.
 - **Build Server Cleanup**: Must run `dotnet build-server shutdown` after MSBuild tasks to eliminate persistent worker processes in user background (`NodeReuse=false`).
 - **Action Commit SHA Hygiene**: When pinning GitHub Actions to commit SHAs, always verify the exact commit hash via `git ls-remote` (avoid typographical errors like `ddab` vs `cbab`).
 - **GCR Deprecation**: `ossf/scorecard-action` v2.4.0 relied on deprecated GCR image requiring billing; v2.4.4+ is required for public repository scanning.

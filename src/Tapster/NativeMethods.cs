@@ -130,6 +130,13 @@ public static partial class NativeMethods
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
+    public const int ASFW_ANY = -1;
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S4200:Native methods should be wrapped", Justification = "Win32 P/Invoke interop method")]
+    public static partial bool AllowSetForegroundWindow(int dwProcessId);
+
     // ── System Tray (Shell_NotifyIcon) ──────────────────────────────────────────
     public const uint NIM_ADD = 0x00000000;
     public const uint NIM_MODIFY = 0x00000001;
