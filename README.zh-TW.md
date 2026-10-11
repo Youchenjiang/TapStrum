@@ -1,67 +1,112 @@
-# TapStrum (Native & Fluent 原生鍵鼠自動化助手)
+<div align="center">
+<img src="packaging/msix/Assets/AppIcon.png" alt="TapStrum Logo" width="80" height="80" />
+<h1>TapStrum</h1>
+<p>高效能的 Windows 10 / 11 鍵鼠自動化與輔助工具套件</p>
+<p>
+<a href="https://apps.microsoft.com/detail/9N4WHN5NP91C"><img src="https://img.shields.io/badge/Microsoft%20Store-TapStrum-blue?style=flat-square&logo=microsoft-store" alt="Microsoft Store" /></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License: MIT" /></a>
+<a href=".github/SECURITY.md"><img src="https://img.shields.io/badge/Security-Policy-blue?style=flat-square" alt="Security Policy" /></a>
+<a href="https://scorecard.dev/viewer/?url=github.com/Youchenjiang/TapStrum"><img src="https://api.scorecard.dev/projects/github.com/Youchenjiang/TapStrum/badge" alt="OpenSSF Scorecard" /></a>
+</p>
+<p>
+<a href="README.md">English</a> | <b>繁體中文</b>
+</p>
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Youchenjiang/TapStrum/badge)](https://scorecard.dev/viewer/?url=github.com/Youchenjiang/TapStrum)
-[![Security Policy](https://img.shields.io/badge/Security-Policy-blue.svg)](.github/SECURITY.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Platform: Windows 11](https://img.shields.io/badge/Platform-Windows%2011%20Fluent-0078D4.svg)](https://microsoft.com/windows)
+<img src="packaging/store_assets/screenshots/tw1.png" alt="TapStrum Dashboard" width="850" />
+</div>
 
-現代化 Windows 11 鍵盤與滑鼠輸入自動化控制台，結合 **WinUI 3 Fluent 現代桌面應用程式** 與超輕量 **NativeAOT 核心**。
+**TapStrum** 是一款專為 Windows 10 與 Windows 11 打造的高性能原生鍵鼠自動化輔助工具套件，為桌面環境提供確定性、微秒級精確度的鍵盤與滑鼠模擬控制。
 
-[Read English Version](README.md) · [查看發展藍圖 (ROADMAP)](docs/ROADMAP.md) · [安全性政策](.github/SECURITY.md)
+坊間多數自動點擊器或自動化腳本大多以 Python 撰寫，每次啟動都需承擔 **1–2 秒的「冷啟動」延遲**，抑或充斥廣告與未知的遙測追蹤。TapStrum 採用純粹的 Windows 原生架構：**Native Win32 驅動引擎** 確保零延遲模擬響應、**WinUI 3 Fluent** 現代化 Mica 儀表板提供 144Hz+ 極速流暢拖曳與高質感介面，以及 100% 本機執行、絕無外部網路相依。
 
----
+## 主要功能
 
-## 🌟 核心架構與發行雙軌制
+### 自動打字機 (Auto Typer)
+- **擬真實體鍵擊** — 以實體鍵擊事件逐字模擬輸入文字，支援 Unicode UTF-16 直投機制。
+- **繞過輸入限制** — 自動繞過中英文輸入法組字干擾，並解決遠端桌面 (RDP / VNC) 或虛擬機剪貼簿限制。
+- **即時執行反饋** — 具備獨立字元執行進度條、自訂打字間隔，以及模擬真人打字的自然隨機時間抖動。
 
-| 發行版本 | 專案 / 產出 | 特色亮點 | 適用情境 |
-|---|---|---|---|
-| **綠色免安裝單檔** | `publish/TapStrum.exe` | 真正純單一 `.exe` 檔案，內嵌 Payload 與 SHA-256 自動同步，零依賴解壓即跑 | 隨身碟攜帶 / 快速啟動 / 免安裝 |
-| **微軟商店 MSIX** | `publish/TapStrum-v1.3.0.0.msix` | 標準微軟簽署 `.msix` 安裝包（6.85MB 自封裝極限瘦身），自動更新管理與完全沙盒隔離 | 一般使用者 / 企業受控環境 |
-| **底層 Native 核心** | `src/Tapster/` | C# .NET Native 核心（記憶體 < 35MB，延遲 < 1ms），純 Win32 原生調用 | 高性能自動化 / 模組嵌入 |
+### 按鍵長按器 (Key Holder)
+- **實體虛擬鍵盤** — 內建 5 排標準物理鍵盤網格，長按與啟用狀態即時以視覺化發光呈現。
+- **全鍵盤捕捉** — 完整支援 0x08–0xFE 鍵碼捕捉，包含功能鍵、修飾鍵與特殊控制鍵。
+- **倒數計時與無限保持** — 支援精確秒數倒數或無限期按住；可自訂多組按鍵的時間輪替清單自動執行。
 
----
+### 極速連點器 (Auto Clicker)
+- **毫秒級超高頻連點** — 支援滑鼠左鍵、右鍵與中鍵連點，間隔精確微調至毫秒級。
+- **十字準星取點** — 內建可拖曳螢幕十字準星取點工具，並可在畫面上標記鎖定座標。
+- **座標與時間抖動** — 支援點擊半徑隨機位移與時間間隔隨機浮動，高度模擬真實點擊。
 
-## 🛡️ OpenSSF 軟體供應鏈安全承諾
+### 微秒級巨集錄製器 (Macro Recorder)
+- **底層動作捕捉** — 透過全域 Win32 Low-Level 鉤子，以 QPC 高精度計時器捕捉滑鼠點擊、軌跡與鍵盤事件。
+- **多倍速彈性回放** — 支援 0.25x 至 5.0x 多倍速自訂回放與重複執行次數。
+- **視覺化步驟清單** — 即時檢視已錄製動作，雙擊可編輯步驟或清理動作。
 
-TapStrum 嚴格遵守 **OpenSSF（開源安全基金會）** 安全標準：
-- **100% 離線純本機運行**：絕不發送任何外部網路請求，零遙測資料收集。
-- **自動化安全審計**：每週自動執行 OpenSSF Scorecard 供應鏈審查與 CodeQL SAST 靜態代碼掃描。
-- **CI/CD 權限最小化**：GitHub Actions 全面導入 SHA-Pinned Action 與最小權限宣告（`permissions: read-all`）。
+### Windows 11 Fluent 儀表板與系統匣常駐
+- **Mica 材質與深色主題** — 原生 Windows 11 Mica 半透明材質、圓角陰影與深淺色主題自適應。
+- **系統匣常駐** — 關閉視窗或開機時自動縮小至工作列右下角系統匣常駐，不佔據工作列空間。
+- **全域一鍵喚醒** — 在任何視窗隨時按下全域熱鍵 **`Ctrl + Alt + T`**，瞬間呼叫出主儀表板。
+- **視窗永遠置頂** — 一鍵釘選視窗於最上層，方便一邊操作目標軟體或遊戲一邊監控狀態。
 
----
+### 本機優先與隱私保護 (Local-First & Privacy)
+TapStrum 秉持嚴格的 **本機優先（Local-First）** 與 **零遙測** 原則：
+- **預設 100% 離線運作**：所有鍵盤按鍵模擬、滑鼠點擊、座標偵測與巨集錄製均完全在您的電腦本機執行，檔案與按鍵記錄絕不上傳伺服器。
+- **零遙測與零追蹤**：無任何網路傳輸通訊、無分析追蹤 SDK、無背景常駐臃腫服務。
+- **輸入安全保證**：未經使用者主動在前景操作時，絕不監聽或記錄任何背景按鍵。設定值僅儲存於本機 `%LOCALAPPDATA%\TapStrum\settings.json`。詳情請參閱 [PRIVACY.md](PRIVACY.md)。
 
-## 功能規格亮點
+## 安裝說明
 
-1. **Auto Typer (自動打字機)** — 以實體鍵擊事件逐字模擬打入文字，支援 Unicode UTF-16 直投（自動繞過中英輸入法與遠端 VNC 剪貼簿限制），獨立字元即時進度反饋。
-2. **Key Holder (按鍵長按器)** — 擬真 5 排實體虛擬鍵盤、0x08~0xFE 全鍵盤按鍵捕捉（Capture Key）、支援計時倒數與無限保持。
-3. **Auto Clicker (極速連點器)** — 高頻滑鼠連點（左鍵/右鍵/中鍵，毫秒級間隔）、十字準星取點與即時點擊計數。
-4. **Macro Recorder (巨集錄製器)** — 背景多執行緒即時捕捉鍵鼠動作，高解析度時間戳與多倍速回放（0.1x 至 10.0x）。
-5. **系統匣常駐與熱鍵** — 關閉自動縮小至系統匣、全域喚醒熱鍵（**`Ctrl + Alt + T`**）、視窗永遠置頂。
+### 推薦：Microsoft Store（自動更新）
+[![Microsoft Store Badge](https://developer.microsoft.com/en-us/store/badges/images/English_get-it-from-MS.png)](https://apps.microsoft.com/detail/9N4WHN5NP91C)
 
----
+- 微軟簽署標準 MSIX 套件，具備完整沙盒安全隔離。
+- 透過 Microsoft Store 自動背景增量更新。
+- **6.85 MB 極限瘦身自封裝架構**，無須在電腦上安裝額外的 .NET 執行階段。
 
-## 建置與打包
+### 綠色免安裝：單檔 EXE
+1. 從 [Releases](../../releases) 下載最新版 `TapStrum.exe`。
+2. 雙擊直接開跑 — 真正的純單一檔案、零依賴、解壓即跑，非常適合隨身碟攜帶。
 
-### 1. 建置專案方案
+### 解除安裝
+開啟 Windows **設定 > 應用程式 > 安裝的應用程式**，搜尋 **TapStrum** 並點擊 **解除安裝**。Windows 將乾淨移除沙盒環境與快取。
+
+## 本機開發
+
+### 環境需求
+- Windows 10 (20H2+) 或 Windows 11
+- .NET 8.0 SDK (8.0.400+) 或 .NET 9.0 SDK
+- Windows 10/11 SDK (Build 19041+)
+
+### 建置
 ```powershell
+git clone https://github.com/Youchenjiang/TapStrum.git
+cd TapStrum
 dotnet build Tapster.sln -c Release
 ```
 
-### 2. 打包純單一 .exe 綠色可攜版
+### 測試
 ```powershell
-powershell -ExecutionPolicy Bypass -File "scripts/build_portable.ps1"
+dotnet test Tapster.sln -c Release
 ```
-產出：`publish/TapStrum.exe`
 
-### 3. 打包並簽署 Store MSIX 安裝套件
+### 打包腳本
 ```powershell
-powershell -ExecutionPolicy Bypass -File "scripts/build_msix.ps1"
-```
-產出：`publish/TapStrum-v1.3.0.0.msix` (6.85 MB)
+# 1. 打包純單檔綠色免安裝版 (publish/TapStrum.exe)
+powershell -ExecutionPolicy Bypass -File scripts/build_portable.ps1
 
----
+# 2. 打包自封裝 Store MSIX 套件 (publish/TapStrum-v1.3.0.0.msix, 6.85 MB)
+powershell -ExecutionPolicy Bypass -File scripts/build_msix.ps1
+```
+
+完整環境配置與詳細建置指引：[LOCAL_BUILD_NOTES.md](LOCAL_BUILD_NOTES.md)
+
+## 貢獻
+發起 Pull Request 前，請參閱：
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Git 工作流程與嚴格 Conventional Commits 規範
+- [LOCAL_BUILD_NOTES.md](LOCAL_BUILD_NOTES.md) — 建置、打包與乾淨編譯器關閉流程
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — Win32 核心驅動與 WinUI 3 架構分析
+- [docs/ROADMAP.md](docs/ROADMAP.md) — 產品發展藍圖與里程碑
+- [CHANGELOG.md](CHANGELOG.md) — 完整版本歷史
 
 ## 授權條款
-
 本專案採用 [MIT License](LICENSE) 授權條款開源發布。
 
