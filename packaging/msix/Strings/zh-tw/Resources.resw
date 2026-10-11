@@ -13,7 +13,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppName" xml:space="preserve">
-    <value>Tapster</value>
+    <value>TapStrum</value>
   </data>
   <data name="AppDescription" xml:space="preserve">
     <value>Windows 11 Fluent 現代化高精度鍵鼠輸入自動化控制台。</value>
