@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Microsoft Store Publishing Script for Tapster
+Microsoft Store Publishing Script for TapStrum
 
 Automates package upload, metadata synchronization from docs/StoreListing_*.md,
 and submission management via Microsoft Partner Center Submission API.
@@ -104,7 +104,7 @@ def load_store_config(config_path):
             c_id or "MOCK_CLIENT",
             c_sec or "MOCK_SECRET",
             p_id or "MOCK_PRODUCT",
-            m_path or "publish/Tapster.msix"
+            m_path or "publish/TapStrum-v1.3.0.0.msix"
         )
 
     if not all([t_id, c_id, c_sec, p_id, m_path]):

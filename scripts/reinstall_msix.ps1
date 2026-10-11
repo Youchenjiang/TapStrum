@@ -15,14 +15,17 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$packageName = "g1014308.Tapster"
+$packageName = "g1014308.117270B203670"
 
 # Locate MSIX if not provided
 if ([string]::IsNullOrWhiteSpace($MsixPath)) {
     $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
     $publishDir = Join-Path $repoRoot "publish"
     if (Test-Path $publishDir) {
-        $candidate = Get-ChildItem -Path $publishDir -Filter "Tapster*.msix" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        $candidate = Get-ChildItem -Path $publishDir -Filter "*TapStrum*.msix" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if (-not $candidate) {
+            $candidate = Get-ChildItem -Path $publishDir -Filter "*.msix" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        }
         if ($candidate) {
             $MsixPath = $candidate.FullName
         }
