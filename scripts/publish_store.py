@@ -245,6 +245,7 @@ def parse_all_listings(repo_root):
 def update_single_listing(base_listing, new_data):
     fields = [
         ('Description', 'description'),
+        ('ShortDescription', 'shortDescription'),
         ('ReleaseNotes', 'releaseNotes'),
         ('Features', 'features'),
         ('Keywords', 'keywords')
@@ -256,12 +257,37 @@ def update_single_listing(base_listing, new_data):
             for k in (json_key, json_key.lower(), camel_key):
                 base_listing.pop(k, None)
             base_listing[camel_key] = val[:7] if parsed_key == 'keywords' else val
+    if not base_listing.get('title'):
+        base_listing['title'] = 'TapStrum'
 
 
 def update_metadata(metadata, parsed_listings):
-    listings = metadata.get('listings') or metadata.get('Listings') or {}
-    if not isinstance(listings, dict):
-        return 0
+    if metadata.get('applicationCategory') in (None, '', 'NotSet'):
+        metadata['applicationCategory'] = 'UtilitiesAndTools'
+
+    if not metadata.get('notesForCertification'):
+        metadata['notesForCertification'] = 'TapStrum is a high-precision keyboard and mouse input automation utility.'
+
+    if 'listings' not in metadata or not isinstance(metadata['listings'], dict):
+        metadata['listings'] = {}
+    listings = metadata['listings']
+
+    for lang in parsed_listings:
+        if lang not in listings:
+            listings[lang] = {
+                'baseListing': {
+                    'title': 'TapStrum',
+                    'description': '',
+                    'shortDescription': '',
+                    'features': [],
+                    'keywords': [],
+                    'releaseNotes': '',
+                    'images': [],
+                    'recommendedHardware': [],
+                    'minimumHardware': []
+                },
+                'platformOverrides': {}
+            }
 
     updated_count = 0
     for lang, container in listings.items():
@@ -466,7 +492,11 @@ def run_submission_flow(repo_root, token, p_id, msix_path):
     sanitize_keywords_recursive(submission)
 
     sub_url = f'https://manage.devcenter.microsoft.com/v1.0/my/applications/{p_id}/submissions/{submission_id}'
-    api_request(sub_url, token, method='PUT', body_dict=submission)
+    put_res = api_request(sub_url, token, method='PUT', body_dict=submission)
+    if put_res is None:
+        print("❌ Failed to update submission metadata via PUT. Aborting.")
+        delete_pending_submission(token, p_id)
+        sys.exit(1)
 
     if not wait_for_preprocessing(token, p_id, submission_id):
         print("❌ Preprocessing failed. Aborting.")
