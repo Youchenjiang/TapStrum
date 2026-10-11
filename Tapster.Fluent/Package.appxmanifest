@@ -9,7 +9,7 @@
   IgnorableNamespaces="uap rescap uap10">
 
   <Identity
-    Name="g1014308.Tapster"
+    Name="g1014308.117270B203670"
     Publisher="CN=CBF59877-21AD-4BC4-8F91-FE8DA520A138"
     ProcessorArchitecture="x64"
     Version="1.3.0.0" />
@@ -17,7 +17,7 @@
   <mp:PhoneIdentity PhoneProductId="16D6EA53-879C-45F4-AA01-5CA78F5F3A12" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Tapster.Fluent</DisplayName>
+    <DisplayName>TapStrum</DisplayName>
     <PublisherDisplayName>g1014308</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -42,8 +42,8 @@
       uap10:RuntimeBehavior="packagedClassicApp"
       uap10:TrustLevel="mediumIL">
       <uap:VisualElements
-        DisplayName="Tapster.Fluent"
-        Description="Tapster.Fluent"
+        DisplayName="TapStrum"
+        Description="TapStrum"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.scale-200.png"
         Square44x44Logo="Assets\Square44x44Logo.scale-200.png">

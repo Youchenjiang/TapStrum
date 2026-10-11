@@ -41,19 +41,20 @@ jobs:
         run: |
           dotnet test Tapster.sln --no-build -c Release --logger "console;verbosity=normal"
 
-      - name: "Run Store Tooling Unit Tests"
+      - name: "Run Python Tooling & Automation Unit Tests"
         shell: pwsh
         run: |
-          python -m unittest tests/test_publish_store.py
+          python -m unittest discover tests
 
       - name: "Test Portable Single-File Packaging"
         shell: pwsh
         run: |
           powershell -ExecutionPolicy Bypass -File scripts/build_portable.ps1
-          if (-not (Test-Path "publish/Tapster.exe")) {
-            throw "Missing expected output: publish/Tapster.exe"
+          $exe = Get-ChildItem "publish/*.exe" | Select-Object -First 1
+          if ($null -eq $exe) {
+            throw "Missing expected executable output in publish/"
           }
-          Write-Host "Portable build verified: publish/Tapster.exe ($((Get-Item publish/Tapster.exe).Length / 1MB) MB)"
+          Write-Host "Portable build verified: $($exe.FullName) ($([math]::Round($exe.Length / 1MB, 2)) MB)"
 
       - name: "Test Store MSIX Packaging"
         shell: pwsh

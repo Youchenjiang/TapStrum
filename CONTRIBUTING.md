@@ -1,6 +1,6 @@
-# Contributing to Tapster
+# Contributing to TapStrum
 
-Tapster follows strict commit, branch, and engineering quality policies inspired by the Clickra and MealLedger standards. The goal is to keep Git history clean, easily bisectable, auditable, and resilient for long-term maintenance.
+TapStrum follows strict commit, branch, and engineering quality policies inspired by the Clickra and MealLedger standards. The goal is to keep Git history clean, easily bisectable, auditable, and resilient for long-term maintenance.
 
 ---
 
@@ -62,7 +62,7 @@ One commit must represent exactly **one logical unit of change**:
 
 ## 🛡️ Supply Chain & Privacy Rules
 
-- **Zero Network Telemetry**: Tapster is a 100% offline local utility. No keystroke recording or user activity shall ever be sent over the network.
+- **Zero Network Telemetry**: TapStrum is a 100% offline local utility. No keystroke recording or user activity shall ever be sent over the network.
 - **Never Commit Sensitive Data**: Do not commit private keys, certificate passwords (`.pfx` without test passwords), or personal files.
 - **Build Process Isolation**: Always ensure build scripts invoke `dotnet build-server shutdown` in `finally` blocks to prevent persistent `.NET Host` background processes.
 
@@ -73,6 +73,6 @@ One commit must represent exactly **one logical unit of change**:
 Before opening a PR or merging commits:
 1. Run `dotnet build Tapster.sln -c Release` to ensure 0 errors.
 2. Verify both packaging pipelines produce clean artifacts:
-   - `powershell -File scripts/build_portable.ps1` -> `publish/Tapster.exe`
-   - `powershell -File scripts/build_msix.ps1` -> `publish/Tapster-v1.1.0.msix`
+   - `powershell -File scripts/build_portable.ps1` -> `publish/TapStrum.exe`
+   - `powershell -File scripts/build_msix.ps1` -> `publish/TapStrum-v1.3.0.0.msix`
 3. Confirm background process state is completely clean (`Stop-BuildServers`).

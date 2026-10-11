@@ -1,4 +1,4 @@
-# Tapster 架構與 Target Framework 決策文件
+# TapStrum 架構與 Target Framework 決策文件
 
 ## 1. 核心組件架構
 

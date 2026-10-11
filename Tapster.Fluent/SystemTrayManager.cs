@@ -67,7 +67,7 @@ public sealed class SystemTrayManager : IDisposable
             uFlags = NativeMethods.NIF_MESSAGE | NativeMethods.NIF_ICON | NativeMethods.NIF_TIP,
             uCallbackMessage = NativeMethods.WM_TRAYICON,
             hIcon = _hIcon,
-            szTip = "Tapster (Ctrl+Alt+T to Wake)"
+            szTip = "TapStrum (Ctrl+Alt+T to Wake)"
         };
 
         NativeMethods.Shell_NotifyIconW(NativeMethods.NIM_ADD, ref _nid);

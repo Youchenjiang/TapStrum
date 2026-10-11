@@ -7,10 +7,10 @@ $publishDir = "$root/publish"
 $tempFluent = "$publishDir/fluent-temp"
 $launcherDir = "$root/src/Tapster.Launcher"
 $payloadZip = "$launcherDir/payload.zip"
-$targetExe = "$publishDir/Tapster.exe"
+$targetExe = "$publishDir/TapStrum.exe"
 
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host " Building Tapster True Single-File EXE (v1.1.0)" -ForegroundColor Cyan
+Write-Host " Building TapStrum True Single-File EXE" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 try {

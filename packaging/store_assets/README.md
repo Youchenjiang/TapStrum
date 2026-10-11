@@ -1,6 +1,6 @@
 # Microsoft Store Marketing & Presentation Assets
 
-This directory contains visual and promotional assets used for publishing Tapster to the Microsoft Partner Center and Microsoft Store.
+This directory contains visual and promotional assets used for publishing TapStrum to the Microsoft Partner Center and Microsoft Store.
 
 ## Directory Structure
 

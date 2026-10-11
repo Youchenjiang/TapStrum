@@ -1,8 +1,8 @@
-# Tapster Architecture & Engineering Specification
+# TapStrum Architecture & Engineering Specification
 
 ## 1. System Overview
 
-Tapster is a modern, high-performance Windows automation assistant engineered for deterministic keyboard and mouse emulation, macro recording/replay, and continuous action holding. It provides a dual-interface architecture: a lightweight WPF utility interface (`Tapster.Gui`) and an acrylic/mica-styled Windows 11 Fluent application (`Tapster.Fluent`), both powered by a unified unmanaged Win32 driver engine (`Tapster.Core`).
+TapStrum is a modern, high-performance Windows automation assistant engineered for deterministic keyboard and mouse emulation, macro recording/replay, and continuous action holding. It provides a dual-interface architecture: a lightweight WPF utility interface (`Tapster.Gui`) and an acrylic/mica-styled Windows 11 Fluent application (`Tapster.Fluent`), both powered by a unified unmanaged Win32 driver engine (`Tapster.Core`).
 
 ```mermaid
 flowchart TD

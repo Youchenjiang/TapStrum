@@ -1,73 +1,115 @@
-# Tapster (Native & Fluent)
+<div align="center">
+<img src="packaging/msix/Assets/AppIcon.png" alt="TapStrum Logo" width="80" height="80" />
+<h1>TapStrum</h1>
+<p>High-performance keyboard and mouse input automation utility suite for Windows 10 &amp; 11</p>
+<p>
+<img src="https://img.shields.io/badge/Microsoft%20Store-Coming%20Soon-orange?style=flat-square&logo=microsoft-store" alt="Microsoft Store: Coming Soon" />
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License: MIT" /></a>
+<a href=".github/SECURITY.md"><img src="https://img.shields.io/badge/Security-Policy-blue?style=flat-square" alt="Security Policy" /></a>
+<a href="https://scorecard.dev/viewer/?url=github.com/Youchenjiang/TapStrum"><img src="https://api.scorecard.dev/projects/github.com/Youchenjiang/TapStrum/badge" alt="OpenSSF Scorecard" /></a>
+</p>
+<p>
+<b>English</b> | <a href="README.zh-TW.md">繁體中文</a>
+</p>
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Youchenjiang/Tapster/badge)](https://scorecard.dev/viewer/?url=github.com/Youchenjiang/Tapster)
-[![Security Policy](https://img.shields.io/badge/Security-Policy-blue.svg)](.github/SECURITY.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Platform: Windows 11](https://img.shields.io/badge/Platform-Windows%2011%20Fluent-0078D4.svg)](https://microsoft.com/windows)
+<img src="packaging/store_assets/screenshots/en1.png" alt="TapStrum Dashboard" width="850" />
+</div>
 
-Modern Windows 11 keyboard and mouse automation utility, featuring both a **WinUI 3 Fluent Desktop GUI** and a lightweight **NativeAOT Core**.
+**TapStrum** is a modern, high-performance input automation utility suite engineered specifically for Windows 10 and Windows 11. It provides deterministic, microsecond-precision keyboard and mouse emulation directly on the desktop.
 
-[閱讀繁體中文版](README.zh-TW.md) · [View Roadmap & Specifications](docs/ROADMAP.md) · [Security Policy](.github/SECURITY.md)
+Most automation scripts and auto-clickers are either written in Python—paying a 1–2 second "cold start" overhead—or bundled with suspicious adware and bloated telemetry. TapStrum adopts a clean, native Windows architecture instead: a **Native Win32 driver engine** for zero-latency execution, a **WinUI 3 Fluent** dashboard with Mica material and 144Hz+ silky smooth interaction, and 100% local execution with zero network connectivity.
 
----
+## Core Features
 
-## 🌟 Core Architecture & Distribution
+### Auto Typer
+- **Keystroke Simulation** — Simulates physical keystrokes character-by-character with full Unicode UTF-16 direct injection.
+- **Bypass Restrictions** — Seamlessly bypasses IME auto-completion interference and remote desktop / VNC clipboard limitations.
+- **Execution Feedback** — Independent real-time progress indicators, adjustable typing intervals, and natural human-like jitter.
 
-| Distribution | Project / Format | Highlights | Target Scenario |
-|---|---|---|---|
-| **Standalone Portable** | `publish/Tapster.exe` | True single-file EXE (43.1MB), zero dependencies, embedded payload with SHA-256 auto-update sync | Portable / USB drive / Quick launch |
-| **Microsoft Store MSIX** | `publish/Tapster-v1.1.0.msix` | Signed MSIX package (33.9MB), auto updates, full sandbox compliance | End Users / Corporate Environments |
-| **Native Core Engine** | `src/Tapster/` | C# .NET NativeAOT build (< 35MB RAM, < 1ms latency), zero external dependencies | Headless automation / Embedding |
+### Key Holder
+- **Virtual Keyboard Grid** — Realistic 5-row physical virtual keyboard layout with real-time visual key activation glow.
+- **Broad Key Capture** — Full 0x08–0xFE key capture support for complex shortcuts, function keys, and modifiers.
+- **Continuous & Timed** — Toggle between infinite hold and precise countdown timers; supports multi-key rotational sequences.
 
----
+### Auto Clicker
+- **Ultra-Fast Clicking** — High-frequency mouse clicking supporting Left, Right, and Middle buttons down to millisecond intervals.
+- **Crosshair Coordinate Picker** — Visual on-screen crosshair overlay to lock precise screen targets.
+- **Randomized Jitter** — Configurable coordinate radius jitter and timing randomization to emulate human interaction.
 
-## 🛡️ OpenSSF Supply Chain Security Guarantee
+### Macro Recorder
+- **Low-Level Capture** — Global unmanaged input hooks record mouse clicks, movements, and keystrokes with QPC microsecond timestamps.
+- **Variable-Speed Playback** — Replay recorded sequences with customizable speed multipliers (0.25x to 5.0x) and loop counters.
+- **Step Visualizer** — Interactive step list for inspecting and pruning recorded action sequences.
 
-Tapster strictly complies with **OpenSSF (Open Source Security Foundation)** security standards:
-- **100% Offline & Zero Telemetry**: Operates exclusively on local Win32 native APIs without sending any network requests.
-- **Automated Security Audits**: Weekly automated OpenSSF Scorecard supply-chain scans and CodeQL SAST analyses.
-- **Hardened CI/CD**: Pinned GitHub Actions commit hashes and least-privilege token permissions (`permissions: read-all`).
+### Windows 11 Fluent Dashboard & System Tray
+- **Mica & Dark Mode** — Native Windows 11 Mica material backdrop, rounded corners, soft shadows, and dynamic Dark/Light theme switching.
+- **System Tray Resident** — Minimizes cleanly to the Windows taskbar notification area upon closing or startup.
+- **Global Wake-up Hotkey** — Instant foreground summoning from any application using **`Ctrl + Alt + T`**.
+- **Always on Top** — One-click window pinning to float above target games or application windows.
 
----
+### Local-First & Privacy
+TapStrum is engineered on a strict **Local-First & Zero-Telemetry** philosophy:
+- **100% Offline by Default**: Keystroke simulation, mouse clicking, coordinate detection, and macro recording run entirely locally via native Win32 APIs. Your data never leaves your computer.
+- **Zero Telemetry**: No tracking SDKs, no analytics, no crash uploaders, and zero background telemetry daemons.
+- **Input Security**: Never intercepts or logs background keystrokes when not actively engaged by the user. Configuration is stored strictly locally in `%LOCALAPPDATA%\TapStrum\settings.json`. See [PRIVACY.md](PRIVACY.md) for details.
 
-## Features Overview
+## Installation
 
-1. **Auto Typer** — Keystroke-by-keystroke simulation with Unicode UTF-16 support (bypasses IME and VNC clipboard restrictions), independent live progress feedback.
-2. **Key Holder** — Realistic 5-row physical virtual keyboard grid, full 0x08~0xFE key capture, timed/indefinite hold.
-3. **Auto Clicker** — Ultra-fast mouse clicking (Left/Right/Middle, ms-level interval, Crosshair coordinate picker, live click count).
-4. **Macro Recorder** — Global input capture with relative millisecond timing and variable speed replay (0.1x to 10.0x).
-5. **System Tray & Hotkey** — Minimizes to system tray on close, global wake-up hotkey (**`Ctrl + Alt + T`**), Always on Top.
+### Standalone Portable: Single-File EXE (Recommended)
+1. Download `TapStrum.exe` from [Releases](../../releases).
+2. Run directly — true single-file executable, zero installation, zero external dependencies, perfect for USB drives.
 
----
+### Sideloadable Package: MSIX
+Download `TapStrum-v1.3.0.0.msix` from [Releases](../../releases) to install with Windows modern app package management and desktop shortcuts.
 
-## Prerequisites
+### Microsoft Store (Coming Soon)
+> **Note**: TapStrum is currently undergoing certification on the Microsoft Store (Product ID: `9N4WHN5NP91C`). Once approved, it will be directly installable with automatic background updates.
 
-- .NET 8 / 10 SDK ([Download](https://dotnet.microsoft.com/download))
-- Windows 10 (20H2+) / Windows 11
+- Packaged as a signed MSIX with full sandbox isolation.
+- Automatic background updates via the Microsoft Store.
+- Self-contained trimmed runtime (~6.85 MB) requiring zero external .NET installations.
 
----
+### Uninstall
+Open **Settings > Apps > Installed apps**, find **TapStrum**, and click **Uninstall**. The packaged sandbox and local cache are cleanly removed by Windows.
 
-## Build
+## Local Development
 
-### 1. Build Solution
+### Requirements
+- Windows 10 (20H2+) or Windows 11
+- .NET 8.0 SDK (8.0.400+) or .NET 9.0 SDK
+- Windows 10/11 SDK (Build 19041+)
+
+### Build
 ```powershell
+git clone https://github.com/Youchenjiang/TapStrum.git
+cd TapStrum
 dotnet build Tapster.sln -c Release
 ```
 
-### 2. Package True Standalone Single-File EXE
+### Test
 ```powershell
-powershell -ExecutionPolicy Bypass -File "scripts/build_portable.ps1"
+dotnet test Tapster.sln -c Release
 ```
-Output: `publish/Tapster.exe` (43.1 MB)
 
-### 3. Package & Sign Store MSIX
+### Packaging Pipelines
 ```powershell
-powershell -ExecutionPolicy Bypass -File "scripts/build_msix.ps1"
-```
-Output: `publish/Tapster-v1.1.0.msix` (33.9 MB)
+# 1. Build Standalone Portable Single-File EXE (publish/TapStrum.exe)
+powershell -ExecutionPolicy Bypass -File scripts/build_portable.ps1
 
----
+# 2. Build Self-Contained Signed Store MSIX (publish/TapStrum-v1.3.0.0.msix, ~6.85 MB)
+powershell -ExecutionPolicy Bypass -File scripts/build_msix.ps1
+```
+
+Full environment setup and build details: [LOCAL_BUILD_NOTES.md](LOCAL_BUILD_NOTES.md)
+
+## Contributing
+Before opening a pull request, please review:
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Git workflow and strict Conventional Commit rules
+- [LOCAL_BUILD_NOTES.md](LOCAL_BUILD_NOTES.md) — Build, packaging, and clean worker shutdown
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — Core Win32 driver and WinUI 3 architecture
+- [docs/ROADMAP.md](docs/ROADMAP.md) — Product roadmap and milestones
+- [CHANGELOG.md](CHANGELOG.md) — Full version history
 
 ## License
+Licensed under the [MIT License](LICENSE).
 
-This project is licensed under the [MIT License](LICENSE).

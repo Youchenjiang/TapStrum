@@ -13,7 +13,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppName" xml:space="preserve">
-    <value>Tapster</value>
+    <value>TapStrum</value>
   </data>
   <data name="AppDescription" xml:space="preserve">
     <value>Windows 11용 Fluent 현대식 고정밀 마우스 및 키보드 자동화 콘솔.</value>

@@ -1,16 +1,16 @@
-# Tapster 踩坑歷史與故障排除日誌 (Troubleshooting & Resolutions)
+# TapStrum 踩坑歷史與故障排除日誌 (Troubleshooting & Resolutions)
 
-本文檔詳細記錄 Tapster 在原生 Win32 P/Invoke 輸入模擬、全域鍵盤鉤子、WinUI 3 (Windows App SDK) 開發以及 CI/CD 代碼掃描過程中遭遇之關鍵問題與修復方案。
+本文檔詳細記錄 TapStrum 在原生 Win32 P/Invoke 輸入模擬、全域鍵盤鉤子、WinUI 3 (Windows App SDK) 開發以及 CI/CD 代碼掃描過程中遭遇之關鍵問題與修復方案。
 
 ---
 
 ## 1. 執行時期與 Win32 子系統踩坑
 
 ### 1.1 UIPI (User Interface Privilege Isolation) 阻擋 `SendInput` 模擬輸入
-- **現象**：Tapster 在一般應用程式（記事本、瀏覽器）正常按鍵，但切換至系統管理員權限視窗（如「工作管理員」、管理員終端機、某些 Anti-Cheat 遊戲）時，模擬按鍵無效或無回應。
+- **現象**：TapStrum 在一般應用程式（記事本、瀏覽器）正常按鍵，但切換至系統管理員權限視窗（如「工作管理員」、管理員終端機、某些 Anti-Cheat 遊戲）時，模擬按鍵無效或無回應。
 - **原因**：Windows UIPI 安全機制嚴格禁止較低 Integrity Level（中完整性，一般使用者）的行程向較高 Integrity Level（高完整性，系統管理員）的視窗發送 Win32 視窗訊息或注入硬體模擬輸入。
 - **解決方案**：
-  1. 若目標視窗以管理者權限執行，Tapster 必須以「以系統管理員身分執行」啟動。
+  1. 若目標視窗以管理者權限執行，TapStrum 必須以「以系統管理員身分執行」啟動。
   2. 在使用指南中清楚標註 UIPI 權限邊界，避免誤判為程式 Bug。
 
 ---

@@ -8,11 +8,11 @@ namespace Tapster_Fluent;
 public class AppSettings
 {
     private const string REG_RUN_KEY = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string APP_NAME = "Tapster";
+    private const string APP_NAME = "TapStrum";
 
-    private static readonly string SettingsFolder = Path.Join(
+    public static readonly string SettingsFolder = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Tapster");
+        "TapStrum");
 
     private static readonly string SettingsFilePath = Path.Join(SettingsFolder, "settings.json");
 
@@ -48,7 +48,7 @@ public class AppSettings
             try
             {
                 using var key = Registry.CurrentUser.OpenSubKey(REG_RUN_KEY, false);
-                return key?.GetValue(APP_NAME) != null;
+                return key?.GetValue(APP_NAME) != null || key?.GetValue("Tapster") != null;
             }
             catch (Exception ex)
             {
@@ -71,6 +71,7 @@ public class AppSettings
                 else
                 {
                     key.DeleteValue(APP_NAME, false);
+                    key.DeleteValue("Tapster", false);
                 }
             }
             catch (Exception ex)
@@ -87,6 +88,18 @@ public class AppSettings
             if (File.Exists(SettingsFilePath))
             {
                 string json = File.ReadAllText(SettingsFilePath);
+                var settings = JsonSerializer.Deserialize<AppSettings>(json);
+                if (settings != null) return settings;
+            }
+
+            // Fallback for migration from legacy Tapster settings folder
+            string legacyFolder = Path.Join(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Tapster");
+            string legacySettingsFile = Path.Join(legacyFolder, "settings.json");
+            if (File.Exists(legacySettingsFile))
+            {
+                string json = File.ReadAllText(legacySettingsFile);
                 var settings = JsonSerializer.Deserialize<AppSettings>(json);
                 if (settings != null) return settings;
             }

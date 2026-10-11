@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Microsoft Store Publishing Script for Tapster
+Microsoft Store Publishing Script for TapStrum
 
 Automates package upload, metadata synchronization from docs/StoreListing_*.md,
 and submission management via Microsoft Partner Center Submission API.
@@ -70,7 +70,7 @@ def _find_latest_msix(repo_root):
     candidates = [
         os.path.join(publish_dir, f)
         for f in os.listdir(publish_dir)
-        if f.startswith("Tapster") and f.endswith(".msix")
+        if f.startswith(("Tapster", "TapStrum")) and f.endswith(".msix")
     ]
     if candidates:
         candidates.sort(key=os.path.getmtime, reverse=True)
@@ -104,7 +104,7 @@ def load_store_config(config_path):
             c_id or "MOCK_CLIENT",
             c_sec or "MOCK_SECRET",
             p_id or "MOCK_PRODUCT",
-            m_path or "publish/Tapster.msix"
+            m_path or "publish/TapStrum-v1.3.0.0.msix"
         )
 
     if not all([t_id, c_id, c_sec, p_id, m_path]):
@@ -245,6 +245,7 @@ def parse_all_listings(repo_root):
 def update_single_listing(base_listing, new_data):
     fields = [
         ('Description', 'description'),
+        ('ShortDescription', 'shortDescription'),
         ('ReleaseNotes', 'releaseNotes'),
         ('Features', 'features'),
         ('Keywords', 'keywords')
@@ -256,12 +257,72 @@ def update_single_listing(base_listing, new_data):
             for k in (json_key, json_key.lower(), camel_key):
                 base_listing.pop(k, None)
             base_listing[camel_key] = val[:7] if parsed_key == 'keywords' else val
+    if not base_listing.get('title'):
+        base_listing['title'] = 'TapStrum'
+    base_listing['privacyPolicyUrl'] = 'https://github.com/Youchenjiang/TapStrum/blob/main/PRIVACY.md'
+
+
+def _init_default_metadata(metadata):
+    if metadata.get('applicationCategory') in (None, '', 'NotSet'):
+        metadata['applicationCategory'] = 'UtilitiesAndTools'
+
+    if not metadata.get('notesForCertification'):
+        metadata['notesForCertification'] = 'TapStrum is a high-precision keyboard and mouse input automation utility.'
+
+    if not metadata.get('allowTargetFutureDeviceFamilies'):
+        metadata['allowTargetFutureDeviceFamilies'] = {
+            'Desktop': True,
+            'Mobile': False,
+            'Xbox': False,
+            'Holographic': False
+        }
+
+    if metadata.get('allowMicrosoftDecideAppAvailabilityToFutureDeviceFamilies') is None:
+        metadata['allowMicrosoftDecideAppAvailabilityToFutureDeviceFamilies'] = True
+
+    if not metadata.get('visibility'):
+        metadata['visibility'] = 'Public'
+
+    if not metadata.get('targetPublishMode'):
+        metadata['targetPublishMode'] = 'Immediate'
+
+
+def _ensure_listing_containers(listings, languages):
+    for lang in languages:
+        if lang not in listings:
+            listings[lang] = {
+                'baseListing': {
+                    'title': 'TapStrum',
+                    'description': '',
+                    'shortDescription': '',
+                    'features': [],
+                    'keywords': [],
+                    'releaseNotes': '',
+                    'images': [],
+                    'recommendedHardware': [],
+                    'minimumHardware': []
+                },
+                'platformOverrides': {}
+            }
+
+
+def _find_matching_listing_data(lang, parsed_listings):
+    lang_lower = lang.lower()
+    for k, v in parsed_listings.items():
+        k_lower = k.lower()
+        if k_lower == lang_lower or (k_lower.startswith('en') and lang_lower.startswith('en')):
+            return v
+    return None
 
 
 def update_metadata(metadata, parsed_listings):
-    listings = metadata.get('listings') or metadata.get('Listings') or {}
-    if not isinstance(listings, dict):
-        return 0
+    _init_default_metadata(metadata)
+
+    if 'listings' not in metadata or not isinstance(metadata['listings'], dict):
+        metadata['listings'] = {}
+    listings = metadata['listings']
+
+    _ensure_listing_containers(listings, parsed_listings.keys())
 
     updated_count = 0
     for lang, container in listings.items():
@@ -269,12 +330,7 @@ def update_metadata(metadata, parsed_listings):
         if not isinstance(base, dict):
             continue
 
-        matched_data = None
-        for k, v in parsed_listings.items():
-            if k.lower() == lang.lower() or (k.lower().startswith('en') and lang.lower().startswith('en')):
-                matched_data = v
-                break
-
+        matched_data = _find_matching_listing_data(lang, parsed_listings)
         if matched_data:
             update_single_listing(base, matched_data)
             updated_count += 1
@@ -466,7 +522,11 @@ def run_submission_flow(repo_root, token, p_id, msix_path):
     sanitize_keywords_recursive(submission)
 
     sub_url = f'https://manage.devcenter.microsoft.com/v1.0/my/applications/{p_id}/submissions/{submission_id}'
-    api_request(sub_url, token, method='PUT', body_dict=submission)
+    put_res = api_request(sub_url, token, method='PUT', body_dict=submission)
+    if put_res is None:
+        print("❌ Failed to update submission metadata via PUT. Aborting.")
+        delete_pending_submission(token, p_id)
+        sys.exit(1)
 
     if not wait_for_preprocessing(token, p_id, submission_id):
         print("❌ Preprocessing failed. Aborting.")
@@ -479,7 +539,7 @@ def run_submission_flow(repo_root, token, p_id, msix_path):
 
     outcome = verify_commit_status(token, p_id, submission_id)
     if outcome in ('confirmed', 'unverified'):
-        print(f"\n🎉 SUCCESS: Tapster submitted to Microsoft Partner Center! (Outcome: {outcome})")
+        print(f"\n🎉 SUCCESS: TapStrum submitted to Microsoft Partner Center! (Outcome: {outcome})")
     else:
         print("\n❌ Submission failed to reach confirmed state.")
         sys.exit(1)
@@ -487,7 +547,7 @@ def run_submission_flow(repo_root, token, p_id, msix_path):
 
 def main():
     print("=" * 60)
-    print("Tapster Microsoft Store Publishing Utility")
+    print("TapStrum Microsoft Store Publishing Utility")
     print("=" * 60)
 
     if is_dry_run():

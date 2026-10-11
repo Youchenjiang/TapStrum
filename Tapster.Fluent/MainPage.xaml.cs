@@ -879,9 +879,7 @@ public sealed partial class MainPage : Page
     {
         try
         {
-            string folder = System.IO.Path.Join(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Tapster");
+            string folder = AppSettings.SettingsFolder;
             if (!System.IO.Directory.Exists(folder))
             {
                 System.IO.Directory.CreateDirectory(folder);
