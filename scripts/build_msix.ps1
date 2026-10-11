@@ -25,7 +25,7 @@ try {
     New-Item -ItemType Directory -Path $layoutDir | Out-Null
 
     # 2. Publish Tapster.Fluent
-    Write-Host "[Build] Compiling Tapster.Fluent for MSIX (framework-dependent)..." -ForegroundColor Yellow
+    Write-Host "[Build] Compiling Tapster.Fluent for MSIX (self-contained .NET runtime)..." -ForegroundColor Yellow
     $fluentBuildDir = "$root/Tapster.Fluent/bin/Release"
     $fluentObjDir = "$root/Tapster.Fluent/obj/Release"
     if (Test-Path $fluentBuildDir) { Remove-Item -Recurse -Force $fluentBuildDir }
@@ -34,7 +34,9 @@ try {
     dotnet publish "$root/Tapster.Fluent/Tapster.Fluent.csproj" `
         -c Release `
         -r win-x64 `
-        --self-contained false `
+        --self-contained true `
+        -p:PublishTrimmed=true `
+        -p:TrimMode=partial `
         -p:WindowsPackageType=MSIX `
         -p:WindowsAppSDKSelfContained=false `
         -p:WindowsAppSdkDeploymentManagerInitialize=false
@@ -53,20 +55,26 @@ try {
         Copy-Item -Recurse "$packagingDir/Strings" "$layoutDir/" -Force
     }
 
-    $fluentPublishSource = "$root/Tapster.Fluent/bin/Release/net8.0-windows10.0.26100.0/win-x64/publish"
-    if (-not (Test-Path $fluentPublishSource)) {
-        $fluentPublishSource = "$root/Tapster.Fluent/bin/Release/net8.0-windows10.0.26100.0/win-x64"
+    $publishMatches = Get-ChildItem "$root/Tapster.Fluent/bin/Release/net8.0-windows*/win-x64/publish" -Directory -ErrorAction SilentlyContinue
+    $fluentPublishSource = if ($publishMatches) { $publishMatches[0].FullName } else {
+        (Get-ChildItem "$root/Tapster.Fluent/bin/Release/net8.0-windows*/win-x64" -Directory -ErrorAction SilentlyContinue)[0].FullName
     }
 
+    # Fail-safe exclusion list for non-runtime AI, debug, and unneeded platform binaries
     $fluentExclude = @(
         "*.pdb",
         "DirectML.dll",
         "onnxruntime.dll",
+        "Microsoft.ML.OnnxRuntime.dll",
         "Microsoft.Windows.AI.MachineLearning.dll",
         "Microsoft.Windows.AI.*",
         "NPUDetect.dll",
         "PerceptiveStreaming.dll",
         "Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.dll",
+        "Microsoft.DiaSymReader.Native.*",
+        "mscordaccore*",
+        "mscordbi.dll",
+        "createdump.exe",
         "workloads.*.json"
     )
 
@@ -78,6 +86,37 @@ try {
         ForEach-Object {
             Copy-Item $_.FullName "$layoutDir/" -Force
         }
+
+    $runtimeSource = "$fluentPublishSource/runtimes/win-x64/native"
+    if (Test-Path $runtimeSource) {
+        $runtimeTarget = "$layoutDir/runtimes/win-x64/native"
+        New-Item -ItemType Directory -Path $runtimeTarget -Force | Out-Null
+        Copy-Item "$runtimeSource/WebView2Loader.dll" "$runtimeTarget/" -ErrorAction SilentlyContinue
+    }
+
+    if (Test-Path "$root/Tapster.Fluent/app.ico") {
+        Copy-Item "$root/Tapster.Fluent/app.ico" "$layoutDir/app.ico" -Force
+    }
+
+    # Completeness verification gate: ensure critical runtime and payload files are present
+    $requiredFiles = @(
+        "AppxManifest.xml",
+        "resources.pri",
+        "coreclr.dll",
+        "clrjit.dll",
+        "hostfxr.dll",
+        "Microsoft.WinUI.dll",
+        "WinRT.Runtime.dll"
+    )
+    foreach ($req in $requiredFiles) {
+        $checkPath = Join-Path $layoutDir $req
+        if (-not (Test-Path $checkPath)) {
+            throw "[Verification Error] Critical package file missing from layout: $req"
+        }
+    }
+
+    $layoutFiles = Get-ChildItem $layoutDir -Recurse -File
+    Write-Host "[Layout] Verified layout completeness: $($layoutFiles.Count) files staged." -ForegroundColor Green
 
     $runtimeSource = "$fluentPublishSource/runtimes/win-x64/native"
     if (Test-Path $runtimeSource) {
