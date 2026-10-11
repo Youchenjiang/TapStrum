@@ -70,7 +70,7 @@ def _find_latest_msix(repo_root):
     candidates = [
         os.path.join(publish_dir, f)
         for f in os.listdir(publish_dir)
-        if (f.startswith("Tapster") or f.startswith("TapStrum")) and f.endswith(".msix")
+        if f.startswith(("Tapster", "TapStrum")) and f.endswith(".msix")
     ]
     if candidates:
         candidates.sort(key=os.path.getmtime, reverse=True)
@@ -262,7 +262,7 @@ def update_single_listing(base_listing, new_data):
     base_listing['privacyPolicyUrl'] = 'https://github.com/Youchenjiang/TapStrum/blob/main/PRIVACY.md'
 
 
-def update_metadata(metadata, parsed_listings):
+def _init_default_metadata(metadata):
     if metadata.get('applicationCategory') in (None, '', 'NotSet'):
         metadata['applicationCategory'] = 'UtilitiesAndTools'
 
@@ -286,11 +286,9 @@ def update_metadata(metadata, parsed_listings):
     if not metadata.get('targetPublishMode'):
         metadata['targetPublishMode'] = 'Immediate'
 
-    if 'listings' not in metadata or not isinstance(metadata['listings'], dict):
-        metadata['listings'] = {}
-    listings = metadata['listings']
 
-    for lang in parsed_listings:
+def _ensure_listing_containers(listings, languages):
+    for lang in languages:
         if lang not in listings:
             listings[lang] = {
                 'baseListing': {
@@ -307,18 +305,32 @@ def update_metadata(metadata, parsed_listings):
                 'platformOverrides': {}
             }
 
+
+def _find_matching_listing_data(lang, parsed_listings):
+    lang_lower = lang.lower()
+    for k, v in parsed_listings.items():
+        k_lower = k.lower()
+        if k_lower == lang_lower or (k_lower.startswith('en') and lang_lower.startswith('en')):
+            return v
+    return None
+
+
+def update_metadata(metadata, parsed_listings):
+    _init_default_metadata(metadata)
+
+    if 'listings' not in metadata or not isinstance(metadata['listings'], dict):
+        metadata['listings'] = {}
+    listings = metadata['listings']
+
+    _ensure_listing_containers(listings, parsed_listings.keys())
+
     updated_count = 0
     for lang, container in listings.items():
         base = container.get('baseListing') or container.get('BaseListing')
         if not isinstance(base, dict):
             continue
 
-        matched_data = None
-        for k, v in parsed_listings.items():
-            if k.lower() == lang.lower() or (k.lower().startswith('en') and lang.lower().startswith('en')):
-                matched_data = v
-                break
-
+        matched_data = _find_matching_listing_data(lang, parsed_listings)
         if matched_data:
             update_single_listing(base, matched_data)
             updated_count += 1
