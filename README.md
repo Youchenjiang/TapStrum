@@ -3,7 +3,7 @@
 <h1>TapStrum</h1>
 <p>High-performance keyboard and mouse input automation utility suite for Windows 10 &amp; 11</p>
 <p>
-<img src="https://img.shields.io/badge/Microsoft%20Store-Coming%20Soon-orange?style=flat-square&logo=microsoft-store" alt="Microsoft Store: Coming Soon" />
+<a href="https://apps.microsoft.com/detail/9n4whn5np91c"><img src="https://img.shields.io/badge/Microsoft%20Store-Get%20it%20on%20Store-0078D4?style=flat-square&logo=microsoft-store&logoColor=white" alt="Get it on Microsoft Store" /></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License: MIT" /></a>
 <a href=".github/SECURITY.md"><img src="https://img.shields.io/badge/Security-Policy-blue?style=flat-square" alt="Security Policy" /></a>
 <a href="https://scorecard.dev/viewer/?url=github.com/Youchenjiang/TapStrum"><img src="https://api.scorecard.dev/projects/github.com/Youchenjiang/TapStrum/badge" alt="OpenSSF Scorecard" /></a>
@@ -62,12 +62,12 @@ TapStrum is engineered on a strict **Local-First & Zero-Telemetry** philosophy:
 ### Sideloadable Package: MSIX
 Download `TapStrum-v1.3.0.0.msix` from [Releases](../../releases) to install with Windows modern app package management and desktop shortcuts.
 
-### Microsoft Store (Coming Soon)
-> **Note**: TapStrum is currently undergoing certification on the Microsoft Store (Product ID: `9N4WHN5NP91C`). Once approved, it will be directly installable with automatic background updates.
+### Microsoft Store (Official)
+Get TapStrum directly from the [Microsoft Store](https://apps.microsoft.com/detail/9n4whn5np91c):
 
-- Packaged as a signed MSIX with full sandbox isolation.
-- Automatic background updates via the Microsoft Store.
-- Self-contained trimmed runtime (~6.85 MB) requiring zero external .NET installations.
+- One-click install and automatic background updates via the Microsoft Store.
+- Verified and signed by Microsoft with full AppContainer sandbox security.
+- Self-contained trimmed runtime (~7.15 MB) requiring zero external .NET runtime installations.
 
 ### Uninstall
 Open **Settings > Apps > Installed apps**, find **TapStrum**, and click **Uninstall**. The packaged sandbox and local cache are cleanly removed by Windows.
