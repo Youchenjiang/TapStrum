@@ -72,8 +72,9 @@ def _required_checks(files, repo="", author=""):
     if files is not None and not isinstance(files, list):
         raise RuntimeError("invalid changed-file inventory")
     required = set(resolve_required_checks(repo))
-    if "dependabot" in author.lower():
+    if author.lower() in {"dependabot", "dependabot[bot]"}:
         required.discard("PR and Commit Policy Validation")
+        required.discard("PR and commit policy")
     if (files and not ("tapstrum" in repo.lower() or "tapster" in repo.lower()) and
             any(file.get("path", "").startswith("src/") or
                 file.get("path") == ".github/workflows/dependency-security-scan.yml"
