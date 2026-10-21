@@ -202,6 +202,7 @@ public static class LocalizationManager
         add("Common_Error", "錯誤：{0}", "Error: {0}", "エラー：{0}", "错误：{0}");
         add("Common_Save", "儲存", "Save", "保存", "保存");
         add("Common_Cancel", "取消", "Cancel", "キャンセル", "取消");
+        add("Common_Close", "關閉", "Close", "閉じる", "关闭");
     }
 
     private static void RegisterTyper(Action<string, string, string, string, string> add)
@@ -399,6 +400,8 @@ public static class LocalizationManager
         add("About_PrivacyDesc", "100% 離線純本機運行，零網路遙測傳輸，不收集任何按鍵或個人資料", "100% offline local execution, zero network telemetry, no keylogging or data collection", "100% オフライン実行、テレメトリ送信なし、キーや個人情報を一切収集しません", "100% 离线纯本地运行，零网络遥测传输，不收集任何按键或个人资料");
         add("About_StoreBtn", "微軟商店", "Microsoft Store", "Microsoft Store", "微软商店");
         add("About_OpenFolderBtn", "開啟設定目錄", "Open Settings Folder", "設定フォルダーを開く", "打开设置目录");
+        add("About_StoreErrorTitle", "無法開啟微軟商店", "Unable to Open Microsoft Store", "Microsoft Store を開けません", "无法打开微软商店");
+        add("About_StoreErrorDesc", "無法啟動微軟商店頁面：\n{0}\n\n請直接於瀏覽器開啟：\nhttps://apps.microsoft.com/detail/9n4whn5np91c", "Failed to launch Microsoft Store:\n{0}\n\nAlternatively, please open in your browser:\nhttps://apps.microsoft.com/detail/9n4whn5np91c", "Microsoft Store を起動できませんでした：\n{0}\n\nブラウザで開いてください：\nhttps://apps.microsoft.com/detail/9n4whn5np91c", "无法启动微软商店页面：\n{0}\n\n请直接在浏览器中打开：\nhttps://apps.microsoft.com/detail/9n4whn5np91c");
     }
 
 }

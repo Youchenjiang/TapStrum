@@ -876,7 +876,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void OpenStore_Click(object sender, RoutedEventArgs e)
+    private async void OpenStore_Click(object sender, RoutedEventArgs e)
     {
         try
         {
@@ -889,6 +889,24 @@ public sealed partial class MainPage : Page
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Failed to open Microsoft Store: {ex.Message}");
+            if (Content?.XamlRoot != null)
+            {
+                try
+                {
+                    var dialog = new ContentDialog
+                    {
+                        Title = LocalizationManager.Get("About_StoreErrorTitle"),
+                        Content = string.Format(LocalizationManager.Get("About_StoreErrorDesc"), ex.Message),
+                        CloseButtonText = LocalizationManager.Get("Common_Close"),
+                        XamlRoot = Content.XamlRoot
+                    };
+                    await dialog.ShowAsync();
+                }
+                catch (Exception dialogEx)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to display error dialog: {dialogEx.Message}");
+                }
+            }
         }
     }
 
