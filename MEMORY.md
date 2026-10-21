@@ -48,6 +48,7 @@
 - [x] **TapStrum Rebranding & Microsoft Store Identity Sync**: Complete rebrand to TapStrum, Partner Center identity sync (`9N4WHN5NP91C`), 1080p screenshots, Clickra-style README, and unit tests for local developer tools (PR #53 merged to `main`).
 - [x] **Single-Instance Guard & Tray Wake Mechanism**: Resolved background process accumulation by enforcing named Mutex (`Local\TapStrum_SingleInstance_Mutex`) and EventWaitHandle IPC (`Local\TapStrum_Wake_Event`) across Launcher and Fluent UI (fix/fluent-single-instance-guard).
 - [x] **Microsoft Store Live Listing Sync**: Synchronized official Microsoft Store detail URL (`https://apps.microsoft.com/detail/9n4whn5np91c`) across READMEs, About view navigation button, and documentation.
+- [x] **Store Package Reconciliation & Release Enrichment**: Automated GitHub Actions workflow (`.github/workflows/store-release-enrichment.yml`) and helpers to probe Partner Center publication state, download official Microsoft Marketplace-signed MSIX packages, and enrich GitHub Releases (feat/store-release-enrichment).
 
 ---
 
