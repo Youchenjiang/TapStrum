@@ -397,6 +397,7 @@ public static class LocalizationManager
         add("About_SpecsLicenseValue", "MIT License (100% 免費且開源)", "MIT License (100% Free & Open Source)", "MIT License (完全無料＆オープンソース)", "MIT License (100% 免费开源)");
         add("About_PrivacyTitle", "隱私承諾與本地設定", "Privacy & Local Data", "プライバシーとローカル設定", "隐私承诺与本地设置");
         add("About_PrivacyDesc", "100% 離線純本機運行，零網路遙測傳輸，不收集任何按鍵或個人資料", "100% offline local execution, zero network telemetry, no keylogging or data collection", "100% オフライン実行、テレメトリ送信なし、キーや個人情報を一切収集しません", "100% 离线纯本地运行，零网络遥测传输，不收集任何按键或个人资料");
+        add("About_StoreBtn", "微軟商店", "Microsoft Store", "Microsoft Store", "微软商店");
         add("About_OpenFolderBtn", "開啟設定目錄", "Open Settings Folder", "設定フォルダーを開く", "打开设置目录");
     }
 
