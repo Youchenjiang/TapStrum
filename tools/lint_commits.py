@@ -8,7 +8,6 @@ lint_commits.py - 本機 Commit 政策與職責分離防搭便車稽核工具 (C
 4. 支援指定範圍檢驗 (--range、--base) 與嚴格模式 (--strict)。
 """
 
-import os
 import re
 import sys
 import argparse
