@@ -66,11 +66,11 @@ Download `TapStrum-v1.3.0.0.msix` from [Releases](../../releases) to install wit
 Get TapStrum directly from the [Microsoft Store](https://apps.microsoft.com/detail/9n4whn5np91c):
 
 - One-click install and automatic background updates via the Microsoft Store.
-- Verified and signed by Microsoft with full AppContainer sandbox security.
-- Self-contained trimmed runtime (~7.15 MB) requiring zero external .NET runtime installations.
+- Verified and digitally signed by Microsoft with clean uninstall and package integrity protection.
+- Self-contained trimmed runtime (~6.85 MB) requiring zero external .NET runtime installations.
 
 ### Uninstall
-Open **Settings > Apps > Installed apps**, find **TapStrum**, and click **Uninstall**. The packaged sandbox and local cache are cleanly removed by Windows.
+Open **Settings > Apps > Installed apps**, find **TapStrum**, and click **Uninstall**. Application files and local cache are cleanly removed by Windows.
 
 ## Local Development
 

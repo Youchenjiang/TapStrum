@@ -60,17 +60,17 @@ TapStrum 秉持嚴格的 **本機優先（Local-First）** 與 **零遙測** 原
 2. 雙擊直接開跑 — 真正的純單一檔案、零依賴、解壓即跑，非常適合隨身碟攜帶。
 
 ### 應用程式套件：MSIX
-從 [Releases](../../releases) 下載 `TapStrum-v1.3.0.0.msix`，享受現代 Windows 應用程式沙盒隔離管理與桌面捷徑整合。
+從 [Releases](../../releases) 下載 `TapStrum-v1.3.0.0.msix`，享受現代 Windows 應用程式封裝管理與桌面捷徑整合。
 
 ### Microsoft Store（官方微軟商店）
 直接前往 [Microsoft Store 商店頁面](https://apps.microsoft.com/detail/9n4whn5np91c) 一鍵取得安裝：
 
-- 微軟官方簽章認證與現代化沙盒安全隔離。
+- 微軟官方數位簽章認證、乾淨解除安裝與 MSIX 套件完整性保護。
 - 透過微軟商店自動背景增量更新，永遠保持最新版本。
-- **7.15 MB 極限瘦身自封裝架構**，無須在電腦上安裝額外的 .NET 執行階段。
+- **6.85 MB 極限瘦身自封裝架構**，無須在電腦上安裝額外的 .NET 執行階段。
 
 ### 解除安裝
-開啟 Windows **設定 > 應用程式 > 安裝的應用程式**，搜尋 **TapStrum** 並點擊 **解除安裝**。Windows 將乾淨移除沙盒環境與快取。
+開啟 Windows **設定 > 應用程式 > 安裝的應用程式**，搜尋 **TapStrum** 並點擊 **解除安裝**。Windows 將乾淨移除應用程式檔案與本機快取。
 
 ## 本機開發
 
