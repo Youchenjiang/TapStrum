@@ -2,7 +2,8 @@ version = 1
 
 exclude_patterns = [
   "Tapster.Fluent/App.xaml.cs",
-  "Tapster.Fluent/MainWindow.xaml.cs"
+  "Tapster.Fluent/MainWindow.xaml.cs",
+  "scripts/**"
 ]
 
 test_patterns = [
@@ -11,4 +12,8 @@ test_patterns = [
 
 [[analyzers]]
 name = "csharp"
+enabled = true
+
+[[analyzers]]
+name = "python"
 enabled = true
