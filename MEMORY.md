@@ -47,6 +47,7 @@
 - [x] **MSIX Packaging Slimming & Fail-Safe Verification**: Retargeted SDK to 19041, trimmed publish outputs, excluded unused AI/debug payloads, added automated completeness verification gate in `scripts/build_msix.ps1` (PR #52 merged to `main`).
 - [x] **TapStrum Rebranding & Microsoft Store Identity Sync**: Complete rebrand to TapStrum, Partner Center identity sync (`9N4WHN5NP91C`), 1080p screenshots, Clickra-style README, and unit tests for local developer tools (PR #53 merged to `main`).
 - [x] **Single-Instance Guard & Tray Wake Mechanism**: Resolved background process accumulation by enforcing named Mutex (`Local\TapStrum_SingleInstance_Mutex`) and EventWaitHandle IPC (`Local\TapStrum_Wake_Event`) across Launcher and Fluent UI (fix/fluent-single-instance-guard).
+- [x] **Microsoft Store Live Listing Sync**: Synchronized official Microsoft Store detail URL (`https://apps.microsoft.com/detail/9n4whn5np91c`) across READMEs, About view navigation button, and documentation.
 
 ---
 

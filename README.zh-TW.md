@@ -3,7 +3,7 @@
 <h1>TapStrum</h1>
 <p>高效能的 Windows 10 / 11 鍵鼠自動化與輔助工具套件</p>
 <p>
-<img src="https://img.shields.io/badge/Microsoft%20Store-Coming%20Soon-orange?style=flat-square&logo=microsoft-store" alt="Microsoft Store: Coming Soon" />
+<a href="https://apps.microsoft.com/detail/9n4whn5np91c"><img src="https://img.shields.io/badge/Microsoft%20Store-微軟商店下載-0078D4?style=flat-square&logo=microsoft-store&logoColor=white" alt="前往微軟商店下載" /></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License: MIT" /></a>
 <a href=".github/SECURITY.md"><img src="https://img.shields.io/badge/Security-Policy-blue?style=flat-square" alt="Security Policy" /></a>
 <a href="https://scorecard.dev/viewer/?url=github.com/Youchenjiang/TapStrum"><img src="https://api.scorecard.dev/projects/github.com/Youchenjiang/TapStrum/badge" alt="OpenSSF Scorecard" /></a>
@@ -60,17 +60,17 @@ TapStrum 秉持嚴格的 **本機優先（Local-First）** 與 **零遙測** 原
 2. 雙擊直接開跑 — 真正的純單一檔案、零依賴、解壓即跑，非常適合隨身碟攜帶。
 
 ### 應用程式套件：MSIX
-從 [Releases](../../releases) 下載 `TapStrum-v1.3.0.0.msix`，享受現代 Windows 應用程式沙盒隔離管理與桌面捷徑整合。
+從 [Releases](../../releases) 下載 `TapStrum-v1.3.0.0.msix`，享受現代 Windows 應用程式封裝管理與桌面捷徑整合。
 
-### Microsoft Store（審核發布中）
-> **提示**：TapStrum 目前正在微軟商店進行認證審核（Product ID: `9N4WHN5NP91C`），通過後即可於微軟商店一鍵安裝並享有自動背景增量更新。
+### Microsoft Store（官方微軟商店）
+直接前往 [Microsoft Store 商店頁面](https://apps.microsoft.com/detail/9n4whn5np91c) 一鍵取得安裝：
 
-- 微軟簽署標準 MSIX 套件，具備完整沙盒安全隔離。
-- 透過 Microsoft Store 自動背景增量更新。
+- 微軟官方數位簽章認證、乾淨解除安裝與 MSIX 套件完整性保護。
+- 透過微軟商店自動背景增量更新，永遠保持最新版本。
 - **6.85 MB 極限瘦身自封裝架構**，無須在電腦上安裝額外的 .NET 執行階段。
 
 ### 解除安裝
-開啟 Windows **設定 > 應用程式 > 安裝的應用程式**，搜尋 **TapStrum** 並點擊 **解除安裝**。Windows 將乾淨移除沙盒環境與快取。
+開啟 Windows **設定 > 應用程式 > 安裝的應用程式**，搜尋 **TapStrum** 並點擊 **解除安裝**。Windows 將乾淨移除應用程式檔案與本機快取。
 
 ## 本機開發
 

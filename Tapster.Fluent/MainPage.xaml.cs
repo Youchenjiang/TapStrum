@@ -451,6 +451,7 @@ public sealed partial class MainPage : Page
         SetText(page.AboutSpecsLicenseValueText, "About_SpecsLicenseValue");
         SetText(page.AboutPrivacyTitleText, "About_PrivacyTitle");
         SetText(page.AboutPrivacyDescText, "About_PrivacyDesc");
+        SetContent(page.AboutStoreBtn, "About_StoreBtn");
         SetContent(page.AboutOpenFolderBtn, "About_OpenFolderBtn");
     }
 
@@ -872,6 +873,40 @@ public sealed partial class MainPage : Page
         if (NavView.FooterMenuItems.Count > 0)
         {
             NavView.SelectedItem = NavView.FooterMenuItems[0];
+        }
+    }
+
+    private async void OpenStore_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "https://apps.microsoft.com/detail/9n4whn5np91c",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to open Microsoft Store: {ex.Message}");
+            if (Content?.XamlRoot != null)
+            {
+                try
+                {
+                    var dialog = new ContentDialog
+                    {
+                        Title = LocalizationManager.Get("About_StoreErrorTitle"),
+                        Content = string.Format(LocalizationManager.Get("About_StoreErrorDesc"), ex.Message),
+                        CloseButtonText = LocalizationManager.Get("Common_Close"),
+                        XamlRoot = Content.XamlRoot
+                    };
+                    await dialog.ShowAsync();
+                }
+                catch (Exception dialogEx)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to display error dialog: {dialogEx.Message}");
+                }
+            }
         }
     }
 
