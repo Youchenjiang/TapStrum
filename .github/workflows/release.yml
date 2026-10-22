@@ -19,6 +19,8 @@ jobs:
     timeout-minutes: 45
     permissions:
       contents: read
+    outputs:
+      pr_body: ${{ steps.get_pr_desc.outputs.pr_body }}
 
     steps:
       - name: "Checkout Code"
@@ -54,31 +56,6 @@ jobs:
             publish/*.msix
           if-no-files-found: error
           retention-days: 1
-
-  publish:
-    name: Publish GitHub Release
-    needs: build
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    runs-on: windows-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
-      pull-requests: read
-
-    steps:
-      - name: "Checkout Code"
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: "Download Release Assets"
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: release-assets
-          path: publish
-
-      - name: "Verify Release Assets"
-        shell: pwsh
-        run: |
-          Get-ChildItem -Path publish
 
       - name: "Fetch Merged Pull Request Description"
         id: get_pr_desc
@@ -116,21 +93,62 @@ jobs:
           $prBody >> $env:GITHUB_OUTPUT
           "$delimiter" >> $env:GITHUB_OUTPUT
 
-      - name: "Create GitHub Release and Upload Artifacts"
-        shell: bash
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    steps:
+      - name: "Download Release Assets"
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets
+          path: publish
+
+      - name: "Verify Release Assets"
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path publish
+
+      - name: "Publish GitHub Release and Assets"
+        shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+          REPO_NAME: ${{ github.repository }}
+          RAW_PR_BODY: ${{ needs.build.outputs.pr_body }}
         run: |
-          cat << 'EOF' > release_notes.md
-          ${{ steps.get_pr_desc.outputs.pr_body }}
-
+          $notesHeader = if ([string]::IsNullOrWhiteSpace($env:RAW_PR_BODY)) { "No release notes available." } else { $env:RAW_PR_BODY }
+          $installationGuide = @"
           ---
           ### 📦 Installation
-          - **Portable Standalone**: 下載 `TapStrum.exe`（單檔案綠色免安裝，零外部相依，點擊即用）。
-          - **Microsoft Store MSIX**: 下載 `TapStrum-*.msix` 於 Windows 10/11 雙擊安裝，或待日後於 Microsoft Store 上架後取得以享有全自動無縫靜默更新。
-          EOF
-          gh release create "${{ github.ref_name }}" \
-            publish/*.exe \
-            publish/*.msix \
-            --title "${{ github.ref_name }}" \
-            --notes-file release_notes.md
+          - **Portable Standalone**: 下載 ``TapStrum.exe``（單檔案綠色免安裝，零外部相依，點擊即用）。
+          - **Microsoft Store MSIX**: 下載 ``TapStrum-*.msix`` 於 Windows 10/11 雙擊安裝，或待日後於 Microsoft Store 上架後取得以享有全自動無縫靜默更新。
+          "@
+          $fullNotes = "$notesHeader`n`n$installationGuide"
+          [System.IO.File]::WriteAllText("release_notes.md", $fullNotes, [System.Text.Encoding]::UTF8)
+
+          $assetFiles = @(Get-Item publish/*.exe, publish/*.msix | Select-Object -ExpandProperty FullName)
+          if ($assetFiles.Count -eq 0) {
+              throw "No release asset files found in publish directory."
+          }
+
+          $releaseExists = $false
+          try {
+              gh release view "$env:TAG_NAME" --repo "$env:REPO_NAME" | Out-Null
+              if ($LASTEXITCODE -eq 0) { $releaseExists = $true }
+          } catch {
+              $releaseExists = $false
+          }
+
+          if ($releaseExists) {
+              Write-Host "Release $env:TAG_NAME already exists; uploading missing/updated assets..."
+              gh release upload "$env:TAG_NAME" @assetFiles --repo "$env:REPO_NAME" --clobber
+          } else {
+              Write-Host "Creating new GitHub release for $env:TAG_NAME..."
+              gh release create "$env:TAG_NAME" @assetFiles --title "$env:TAG_NAME" --notes-file release_notes.md --repo "$env:REPO_NAME"
+          }
