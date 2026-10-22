@@ -112,7 +112,12 @@ jobs:
       - name: "Verify Release Assets"
         shell: pwsh
         run: |
-          Get-ChildItem -Path publish
+          $exes = @(Get-ChildItem -Path publish -Filter *.exe)
+          $msixs = @(Get-ChildItem -Path publish -Filter *.msix)
+          Write-Host "Found $($exes.Count) executable(s) and $($msixs.Count) MSIX package(s) in publish directory."
+          if ($exes.Count -eq 0 -or $msixs.Count -eq 0) {
+              throw "Incomplete release assets: expected at least one .exe and one .msix in publish directory."
+          }
 
       - name: "Publish GitHub Release and Assets"
         shell: pwsh
