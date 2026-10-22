@@ -6,32 +6,25 @@ on:
       - "v*"
   workflow_dispatch:
 
-permissions: {}  # deny-all by default; job-level grants contents: write for release upload
+permissions:
+  contents: read
 
 env:
   DOTNET_VERSION: '8.0.x'
 
 jobs:
-  release-build:
+  build:
     name: Build & Package Dual-Track Releases
     runs-on: windows-latest
     timeout-minutes: 45
     permissions:
-      contents: write  # required to create GitHub Release and upload artifacts
+      contents: read
+    outputs:
+      pr_body: ${{ steps.get_pr_desc.outputs.pr_body }}
 
     steps:
       - name: "Checkout Code"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: "Detect Release Trigger"
-        id: release-trigger
-        shell: bash
-        run: |
-          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/v* ]]; then
-            echo "is_release=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "is_release=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: "Setup .NET SDK"
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
@@ -54,8 +47,17 @@ jobs:
         run: |
           dotnet build-server shutdown
 
+      - name: "Upload Release Assets"
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-assets
+          path: |
+            publish/*.exe
+            publish/*.msix
+          if-no-files-found: error
+          retention-days: 1
+
       - name: "Fetch Merged Pull Request Description"
-        if: steps.release-trigger.outputs.is_release == 'true'
         id: get_pr_desc
         shell: pwsh
         env:
@@ -91,22 +93,67 @@ jobs:
           $prBody >> $env:GITHUB_OUTPUT
           "$delimiter" >> $env:GITHUB_OUTPUT
 
-      - name: "Create GitHub Release and Upload Artifacts"
-        if: steps.release-trigger.outputs.is_release == 'true'
-        shell: bash
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    steps:
+      - name: "Download Release Assets"
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets
+          path: publish
+
+      - name: "Verify Release Assets"
+        shell: pwsh
+        run: |
+          $exes = @(Get-ChildItem -Path publish -Filter *.exe)
+          $msixs = @(Get-ChildItem -Path publish -Filter *.msix)
+          Write-Host "Found $($exes.Count) executable(s) and $($msixs.Count) MSIX package(s) in publish directory."
+          if ($exes.Count -eq 0 -or $msixs.Count -eq 0) {
+              throw "Incomplete release assets: expected at least one .exe and one .msix in publish directory."
+          }
+
+      - name: "Publish GitHub Release and Assets"
+        shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+          REPO_NAME: ${{ github.repository }}
+          RAW_PR_BODY: ${{ needs.build.outputs.pr_body }}
         run: |
-          cat << 'EOF' > release_notes.md
-          ${{ steps.get_pr_desc.outputs.pr_body }}
-
+          $notesHeader = if ([string]::IsNullOrWhiteSpace($env:RAW_PR_BODY)) { "No release notes available." } else { $env:RAW_PR_BODY }
+          $installationGuide = @"
           ---
           ### 📦 Installation
-          - **Portable Standalone**: 下載 `Tapster.exe`（單檔案綠色免安裝，零外部相依，點擊即用）。
-          - **Microsoft Store MSIX**: 下載 `Tapster-*.msix` 於 Windows 10/11 雙擊安裝，或待日後於 Microsoft Store 上架後取得以享有全自動無縫靜默更新。
-          EOF
-          gh release create "${{ github.ref_name }}" \
-            publish/Tapster.exe \
-            publish/*.msix \
-            --title "${{ github.ref_name }}" \
-            --notes-file release_notes.md
+          - **Portable Standalone**: 下載 ``TapStrum.exe``（單檔案綠色免安裝，零外部相依，點擊即用）。
+          - **Microsoft Store MSIX**: 下載 ``TapStrum-*.msix`` 於 Windows 10/11 雙擊安裝，或待日後於 Microsoft Store 上架後取得以享有全自動無縫靜默更新。
+          "@
+          $fullNotes = "$notesHeader`n`n$installationGuide"
+          [System.IO.File]::WriteAllText("release_notes.md", $fullNotes, [System.Text.Encoding]::UTF8)
+
+          $assetFiles = @(Get-Item publish/*.exe, publish/*.msix | Select-Object -ExpandProperty FullName)
+          if ($assetFiles.Count -eq 0) {
+              throw "No release asset files found in publish directory."
+          }
+
+          $releaseExists = $false
+          try {
+              gh release view "$env:TAG_NAME" --repo "$env:REPO_NAME" | Out-Null
+              if ($LASTEXITCODE -eq 0) { $releaseExists = $true }
+          } catch {
+              $releaseExists = $false
+          }
+
+          if ($releaseExists) {
+              Write-Host "Release $env:TAG_NAME already exists; uploading missing/updated assets..."
+              gh release upload "$env:TAG_NAME" @assetFiles --repo "$env:REPO_NAME" --clobber
+          } else {
+              Write-Host "Creating new GitHub release for $env:TAG_NAME..."
+              gh release create "$env:TAG_NAME" @assetFiles --title "$env:TAG_NAME" --notes-file release_notes.md --repo "$env:REPO_NAME"
+          }
