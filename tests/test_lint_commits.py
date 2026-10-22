@@ -59,14 +59,14 @@ class TestValidateCommit(unittest.TestCase):
         # Mixing governance doc (memory.md) with code file (app.cs)
         files = ["memory.md", "src/tapster/app.cs"]
         subj = "feat(core): implement feature and update memory"
-        errors, warnings = lint_commits.validate_commit("sha1", subj, files, strict=True)
+        errors, _ = lint_commits.validate_commit("sha1", subj, files, strict=True)
         self.assertTrue(any("違反職責分離" in err for err in errors))
 
     def test_governance_isolated_in_docs(self):
         # Isolated governance commit should pass
         files = ["memory.md"]
         subj = "docs(docs): record tapstrum rebranding and partner center identity"
-        errors, warnings = lint_commits.validate_commit("sha1", subj, files, strict=True)
+        errors, _ = lint_commits.validate_commit("sha1", subj, files, strict=True)
         self.assertEqual(errors, [])
 
 

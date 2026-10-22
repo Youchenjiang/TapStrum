@@ -92,7 +92,8 @@ class TestPublishStoreDryRun(unittest.TestCase):
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
+            check=False
         )
         self.assertEqual(result.returncode, 0, f"Dry-run failed with stderr: {result.stderr}")
         self.assertIn("TapStrum submitted to Microsoft Partner Center! (Outcome: confirmed)", result.stdout)

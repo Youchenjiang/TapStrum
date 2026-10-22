@@ -6,7 +6,6 @@ Automates package upload, metadata synchronization from docs/StoreListing_*.md,
 and submission management via Microsoft Partner Center Submission API.
 """
 
-import copy
 import io
 import json
 import os
@@ -60,7 +59,7 @@ def open_https(request, timeout=60):
     target = request.full_url if isinstance(request, urllib.request.Request) else request
     if not target.lower().startswith('https://'):
         raise ValueError(f'Only HTTPS URLs are allowed: {target}')
-    return urllib.request.urlopen(request, timeout=timeout)
+    return urllib.request.urlopen(request, timeout=timeout)  # skipcq: BAN-B310
 
 
 def _find_latest_msix(repo_root):
