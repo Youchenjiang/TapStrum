@@ -5,8 +5,8 @@
 | 組件名稱 | 專案路徑 | 技術棧 | 發布模式 / 特性 |
 | :--- | :--- | :--- | :--- |
 | **Tapster.Core** | `src/Tapster/Tapster.csproj` | C# (.NET 8 LTS) | 共享核心函式庫：純 Win32 P/Invoke 鍵鼠模擬、全域 LowLevel Hook、高精度 QPC 計時與錄製狀態機 |
-| **Tapster.Gui** | `src/Tapster.Gui/Tapster.Gui.csproj` | C# (.NET 8 LTS) + WPF | **輕量原生桌面端**：內嵌 5 排虛擬鍵盤狀態格、低資源佔用 (<30MB) 單視窗控制台 |
-| **Tapster.Fluent** | `Tapster.Fluent/Tapster.Fluent.csproj` | C# (.NET 8 LTS) + WinUI 3 (Windows App SDK) | **現代化 Fluent UI**：Mica 材質、系統匣 (System Tray) 常駐、全域熱鍵喚醒 (`Ctrl+Alt+T`) |
+| **Tapster.Fluent** | `src/Tapster.Fluent/Tapster.Fluent.csproj` | C# (.NET 8 LTS) + WinUI 3 (Windows App SDK) | **現代化 Fluent UI**：Mica 材質、系統匣 (System Tray) 常駐、全域熱鍵喚醒 (`Ctrl+Alt+T`) |
+| **Tapster.Launcher** | `src/Tapster.Launcher/Tapster.Launcher.csproj` | C# (.NET 8 LTS) | **綠色版啟動器**：純單檔免安裝封裝、自解壓雜湊校驗、單一執行個體喚醒 |
 
 ---
 

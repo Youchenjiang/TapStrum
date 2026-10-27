@@ -216,7 +216,7 @@ Script-List/automation/
     │       ├── Program.cs
     │       └── Tapster.Launcher.csproj
     │
-    └── Tapster.Fluent/           # [Tapster.Fluent] WinUI 3 現代化桌面應用程式
+    └── src/Tapster.Fluent/       # [Tapster.Fluent] WinUI 3 現代化桌面應用程式
         ├── Assets/               # 高解析圖示與向量資源
         ├── MainWindow.xaml(.cs)  # 標題列拖曳、置頂與全域喚醒控制
         ├── MainPage.xaml(.cs)    # 5 排實體虛擬鍵盤、各分頁獨立控制卡片、關於頁
