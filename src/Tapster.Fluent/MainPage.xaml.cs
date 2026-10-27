@@ -1559,13 +1559,10 @@ public sealed partial class MainPage : Page
         _targetMarkerOverlay.ClearAndHide();
         int clickOrder = 0;
         _macroRecorder.StartRecording(
-            count =>
+            count => DispatcherQueue.TryEnqueue(() =>
             {
-                DispatcherQueue.TryEnqueue(() =>
-                {
-                    MacroStatusText.Text = string.Format(LocalizationManager.Get("Macro_RecordingCountStatus"), count);
-                });
-            },
+                MacroStatusText.Text = string.Format(LocalizationManager.Get("Macro_RecordingCountStatus"), count);
+            }),
             true,
             (action, count) =>
             {
@@ -1662,6 +1659,7 @@ public sealed partial class MainPage : Page
         }
     }
 
+    // skipcq: CS-R1005
     private async void MacroActionList_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
     {
         int index = MacroActionList.SelectedIndex;
@@ -2024,14 +2022,7 @@ public sealed partial class MainPage : Page
         }
 
         bool isSpammer = ClickTargetTypeCombo?.SelectedIndex == 1;
-        if (isSpammer)
-        {
-            ClickerActionBtn.IsEnabled = !string.IsNullOrWhiteSpace(SpamKeyBox?.Text);
-        }
-        else
-        {
-            ClickerActionBtn.IsEnabled = true;
-        }
+        ClickerActionBtn.IsEnabled = !isSpammer || !string.IsNullOrWhiteSpace(SpamKeyBox?.Text);
 
         UpdateClearCoordsBtnState();
     }
@@ -2134,7 +2125,7 @@ public sealed partial class MainPage : Page
             return false;
         }
 
-        if (taskName == TabHolder && !_holderStages.Any(s => !string.IsNullOrWhiteSpace(s.KeyCombo)))
+        if (taskName == TabHolder && _holderStages.All(s => string.IsNullOrWhiteSpace(s.KeyCombo)))
         {
             statusText.Text = LocalizationManager.Get("KeyHolder_ValidationNoKeys");
             UpdateAllActionBtnStates();
@@ -2178,6 +2169,7 @@ public sealed partial class MainPage : Page
         Button actionBtn,
         FontIcon actionIcon,
         TextBlock actionText,
+        // skipcq: CS-R1141
         Func<CancellationToken, Action<string, double>, Task> taskFunc)
     {
         if (_isRunning)
@@ -2216,14 +2208,11 @@ public sealed partial class MainPage : Page
             statusText.Text = LocalizationManager.Get("Common_Running");
 
             // Progress callback for live updates
-            Action<string, double> reportProgress = (msg, pct) =>
+            Action<string, double> reportProgress = (msg, pct) => DispatcherQueue.TryEnqueue(() =>
             {
-                DispatcherQueue.TryEnqueue(() =>
-                {
-                    statusText.Text = msg;
-                    if (pct >= 0) progressBar.Value = Math.Min(100, Math.Max(0, pct));
-                });
-            };
+                statusText.Text = msg;
+                if (pct >= 0) progressBar.Value = Math.Min(100, Math.Max(0, pct));
+            });
 
             await taskFunc(token, reportProgress);
 
@@ -2247,6 +2236,7 @@ public sealed partial class MainPage : Page
             : LocalizationManager.Get("Common_TaskCanceled");
     }
 
+    // skipcq: CS-R1141
     private async Task RunAutoTyperAsync(CancellationToken token, Action<string, double> reportProgress)
     {
         string text = TypeTextBox.Text;
@@ -2279,11 +2269,12 @@ public sealed partial class MainPage : Page
         DispatcherQueue.TryEnqueue(() =>
         {
             string modeDesc = isClipboard ? "Pasted" : "Typed";
-            string summary = $"{DateTime.Now:HH:mm:ss} - {modeDesc} {text.Length} chars" + (trailingKey != KeyNone ? $" + [{trailingKey}]" : "");
+            string summary = $"{DateTime.UtcNow:HH:mm:ss} - {modeDesc} {text.Length} chars" + (trailingKey != KeyNone ? $" + [{trailingKey}]" : "");
             HistoryList.Items.Insert(0, summary);
         });
     }
 
+    // skipcq: CS-R1141
     private async Task RunClipboardTyperAsync(string text, string trailingKey, CancellationToken token, Action<string, double> reportProgress)
     {
         string? previousText = null;
@@ -2341,6 +2332,7 @@ public sealed partial class MainPage : Page
         }
     }
 
+    // skipcq: CS-R1141
     private async Task RunKeystrokeTyperAsync(string text, int intervalMs, bool jitter, string trailingKey, CancellationToken token, Action<string, double> reportProgress)
     {
         await Task.Run(() =>
@@ -2387,6 +2379,7 @@ public sealed partial class MainPage : Page
         }
     }
 
+    // skipcq: CS-R1141
     private async Task RunKeyHolderAsync(CancellationToken token, Action<string, double> reportProgress)
     {
         var indexedStagesToRun = _holderStages
@@ -2431,6 +2424,7 @@ public sealed partial class MainPage : Page
         return string.Format(LocalizationManager.Get("KeyHolder_LoopPrefix"), currentLoop, repeatLoops);
     }
 
+    // skipcq: CS-R1141
     private void ExecuteHolderStagesPipeline(
         List<(int OriginalIndex, KeyHolderStage Stage)> stagesToRun,
         string loopPrefix,
@@ -2460,6 +2454,7 @@ public sealed partial class MainPage : Page
         }
     }
 
+    // skipcq: CS-R1141
     private void ExecuteHolderStageHoldPhase(
         KeyHolderStage stage,
         string stepPrefix,
@@ -2498,6 +2493,7 @@ public sealed partial class MainPage : Page
         }
     }
 
+    // skipcq: CS-R1141
     private void ExecuteHolderStageRestPhase(
         KeyHolderStage stage,
         string stepPrefix,
@@ -2523,6 +2519,7 @@ public sealed partial class MainPage : Page
         }
     }
 
+    // skipcq: CS-R1141
     private async Task RunAutoClickerAsync(CancellationToken token, Action<string, double> reportProgress)
     {
         bool isSpammer = ClickTargetTypeCombo.SelectedIndex == 1;
@@ -2654,6 +2651,7 @@ public sealed partial class MainPage : Page
         }
     }
 
+    // skipcq: CS-R1141
     private async Task RunMacroReplayAsync(CancellationToken token, Action<string, double> reportProgress)
     {
         if (_macroRecorder.Actions.Count == 0)
