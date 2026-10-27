@@ -679,33 +679,28 @@ public sealed class TargetMarkerOverlay : IDisposable
             internal WndProc lpfnWndProc;
             internal int cbClsExtra;
             internal int cbWndExtra;
-            // skipcq: CS-W1057
-            internal IntPtr hInstance;
-            // skipcq: CS-W1057
-            internal IntPtr hIcon;
-            // skipcq: CS-W1057
-            internal IntPtr hCursor;
-            // skipcq: CS-W1057
-            internal IntPtr hbrBackground;
+            internal IntPtr hInstance; // skipcq: CS-W1057
+            internal IntPtr hIcon; // skipcq: CS-W1057
+            internal IntPtr hCursor; // skipcq: CS-W1057
+            internal IntPtr hbrBackground; // skipcq: CS-W1057
             internal string? lpszMenuName;
             internal string lpszClassName;
-            // skipcq: CS-W1057
-            internal IntPtr hIconSm;
+            internal IntPtr hIconSm; // skipcq: CS-W1057
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
         internal delegate IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         // skipcq: CS-W1059
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern IntPtr GetModuleHandleW(string? lpModuleName);
 
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         // skipcq: CS-W1059
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern ushort RegisterClassExW(ref WndClassEx lpwcx);
 
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         // skipcq: CS-W1059
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern IntPtr CreateWindowExW(
             int dwExStyle,
             string lpClassName,
@@ -720,52 +715,52 @@ public sealed class TargetMarkerOverlay : IDisposable
             IntPtr hInstance,
             IntPtr lpParam);
 
+        // skipcq: CS-W1059
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        // skipcq: CS-W1059
         internal static extern bool DestroyWindow(IntPtr hWnd);
 
+        // skipcq: CS-W1059
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        // skipcq: CS-W1059
         internal static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
+        // skipcq: CS-W1059
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        // skipcq: CS-W1059
         internal static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
+        // skipcq: CS-W1059
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        // skipcq: CS-W1059
         internal static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
 
+        // skipcq: CS-W1059
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        // skipcq: CS-W1059
         internal static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, [MarshalAs(UnmanagedType.Bool)] bool bErase);
 
-        [DllImport("user32.dll", SetLastError = true)]
         // skipcq: CS-W1059
+        [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool UpdateWindow(IntPtr hWnd);
 
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         // skipcq: CS-W1059
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern IntPtr DefWindowProcW(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam);
 
-        [DllImport("user32.dll", SetLastError = true)]
         // skipcq: CS-W1059
+        [DllImport("user32.dll", SetLastError = true)]
         internal static extern IntPtr BeginPaint(IntPtr hWnd, out Paintstruct lpPaint);
 
+        // skipcq: CS-W1059
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        // skipcq: CS-W1059
         internal static extern bool EndPaint(IntPtr hWnd, ref Paintstruct lpPaint);
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct Paintstruct
         {
-            internal IntPtr hdc;
+            internal IntPtr hdc; // skipcq: CS-W1057
             [MarshalAs(UnmanagedType.Bool)]
             internal bool fErase;
             internal Rect rcPaint;
@@ -777,50 +772,64 @@ public sealed class TargetMarkerOverlay : IDisposable
             internal byte[] rgbReserved;
         }
 
+        // skipcq: CS-W1059
         [DllImport("user32.dll")]
         internal static extern int GetSystemMetrics(int nIndex);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         internal static extern IntPtr CreateCompatibleDC(IntPtr hdc);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         internal static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int cx, int cy);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         internal static extern IntPtr SelectObject(IntPtr hdc, IntPtr hgdiobj);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool DeleteObject(IntPtr hObject);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool DeleteDC(IntPtr hdc);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         internal static extern IntPtr CreatePen(int fnPenStyle, int nWidth, uint crColor);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         internal static extern IntPtr CreateSolidBrush(uint crColor);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool Ellipse(IntPtr hdc, int left, int top, int right, int bottom);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool MoveToEx(IntPtr hdc, int x, int y, IntPtr lpPoint);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         internal static extern bool LineTo(IntPtr hdc, int x, int y);
 
+        // skipcq: CS-W1059, CS-R1138
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern int FillRect(IntPtr hDC, [In] ref Rect lprc, IntPtr hbr);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool BitBlt(IntPtr hdc, int x, int y, int cx, int cy, IntPtr hdcSrc, int x1, int y1, uint rop);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern IntPtr CreateFontW(
             int nHeight, int nWidth, int nEscapement, int nOrientation,
@@ -828,12 +837,15 @@ public sealed class TargetMarkerOverlay : IDisposable
             uint fdwCharSet, uint fdwOutputPrecision, uint fdwClipPrecision,
             uint fdwQuality, uint fdwPitchAndFamily, string lpszFace);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll")]
         internal static extern int SetBkMode(IntPtr hdc, int iBkMode);
 
+        // skipcq: CS-W1059
         [DllImport("gdi32.dll")]
         internal static extern uint SetTextColor(IntPtr hdc, uint crColor);
 
+        // skipcq: CS-W1059, CS-R1138
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         internal static extern int DrawTextW(IntPtr hdc, string lpchText, int cchText, ref Rect lprc, uint format);
 
