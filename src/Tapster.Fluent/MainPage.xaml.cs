@@ -1559,10 +1559,7 @@ public sealed partial class MainPage : Page
         _targetMarkerOverlay.ClearAndHide();
         int clickOrder = 0;
         _macroRecorder.StartRecording(
-            count => DispatcherQueue.TryEnqueue(() =>
-            {
-                MacroStatusText.Text = string.Format(LocalizationManager.Get("Macro_RecordingCountStatus"), count);
-            }),
+            count => DispatcherQueue.TryEnqueue(() => MacroStatusText.Text = string.Format(LocalizationManager.Get("Macro_RecordingCountStatus"), count)),
             true,
             (action, count) =>
             {
@@ -2407,7 +2404,7 @@ public sealed partial class MainPage : Page
                     currentLoop++;
                     bool isFinalLoop = (repeatLoops > 0 && currentLoop == repeatLoops);
                     string loopPrefix = FormatHolderLoopPrefix(currentLoop, repeatLoops);
-                    ExecuteHolderStagesPipeline(indexedStagesToRun, loopPrefix, isFinalLoop, token, reportProgress);
+                    ExecuteHolderStagesPipeline(indexedStagesToRun, loopPrefix, isFinalLoop, reportProgress, token);
                 }
             }
             finally
@@ -2424,13 +2421,12 @@ public sealed partial class MainPage : Page
         return string.Format(LocalizationManager.Get("KeyHolder_LoopPrefix"), currentLoop, repeatLoops);
     }
 
-    // skipcq: CS-R1141
     private void ExecuteHolderStagesPipeline(
         List<(int OriginalIndex, KeyHolderStage Stage)> stagesToRun,
         string loopPrefix,
         bool isFinalLoop,
-        CancellationToken token,
-        Action<string, double> reportProgress)
+        Action<string, double> reportProgress,
+        CancellationToken token)
     {
         for (int i = 0; i < stagesToRun.Count; i++)
         {
@@ -2445,21 +2441,20 @@ public sealed partial class MainPage : Page
                 : loopPrefix;
             bool isLastStepOfRun = isFinalLoop && (i == stagesToRun.Count - 1);
 
-            ExecuteHolderStageHoldPhase(stage, stepPrefix, token, reportProgress);
+            ExecuteHolderStageHoldPhase(stage, stepPrefix, reportProgress, token);
 
             if (!isLastStepOfRun)
             {
-                ExecuteHolderStageRestPhase(stage, stepPrefix, token, reportProgress);
+                ExecuteHolderStageRestPhase(stage, stepPrefix, reportProgress, token);
             }
         }
     }
 
-    // skipcq: CS-R1141
     private void ExecuteHolderStageHoldPhase(
         KeyHolderStage stage,
         string stepPrefix,
-        CancellationToken token,
-        Action<string, double> reportProgress)
+        Action<string, double> reportProgress,
+        CancellationToken token)
     {
         int durationMs = (int)(stage.HoldDurationSec * 1000);
         try
@@ -2493,12 +2488,11 @@ public sealed partial class MainPage : Page
         }
     }
 
-    // skipcq: CS-R1141
     private void ExecuteHolderStageRestPhase(
         KeyHolderStage stage,
         string stepPrefix,
-        CancellationToken token,
-        Action<string, double> reportProgress)
+        Action<string, double> reportProgress,
+        CancellationToken token)
     {
         if (stage.RestDurationSec <= 0 || token.IsCancellationRequested)
         {
@@ -2668,10 +2662,7 @@ public sealed partial class MainPage : Page
             .Select((act, idx) => new MarkerPoint(idx + 1, act.X, act.Y))
             .ToList();
 
-        DispatcherQueue.TryEnqueue(() =>
-        {
-            _targetMarkerOverlay.SetMarkers(clickPoints);
-        });
+        DispatcherQueue.TryEnqueue(() => _targetMarkerOverlay.SetMarkers(clickPoints));
 
         int currentClickInLoop = 0;
 
@@ -2691,10 +2682,7 @@ public sealed partial class MainPage : Page
                 {
                     currentClickInLoop++;
                     int thisClick = currentClickInLoop;
-                    DispatcherQueue.TryEnqueue(() =>
-                    {
-                        _targetMarkerOverlay.ShowClickRipple(action.X, action.Y, thisClick);
-                    });
+                    DispatcherQueue.TryEnqueue(() => _targetMarkerOverlay.ShowClickRipple(action.X, action.Y, thisClick));
                     _panicDetector.SyncProgrammaticPosition(action.X, action.Y);
                 }
                 else if (action.Type is MacroActionType.MouseMove)
@@ -2706,10 +2694,7 @@ public sealed partial class MainPage : Page
         }
         finally
         {
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                _targetMarkerOverlay.ClearAndHide();
-            });
+            DispatcherQueue.TryEnqueue(() => _targetMarkerOverlay.ClearAndHide());
         }
     }
 
@@ -2780,9 +2765,9 @@ public sealed partial class MainPage : Page
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S2325:Methods and properties that don't access instance data should be static", Justification = "XAML event handler")]
     private void AlwaysOnTopToggle_Toggled(object sender, RoutedEventArgs e)
     {
-        if (MainWindow.Instance != null && MainWindow.Instance.IsAlwaysOnTop != AlwaysOnTopToggle.IsOn)
+        if (MainWindow.Instance is { } mw && mw.IsAlwaysOnTop != AlwaysOnTopToggle.IsOn)
         {
-            MainWindow.Instance.SetAlwaysOnTop(AlwaysOnTopToggle.IsOn);
+            mw.SetAlwaysOnTop(AlwaysOnTopToggle.IsOn);
         }
     }
 
