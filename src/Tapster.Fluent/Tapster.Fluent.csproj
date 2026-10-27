@@ -64,7 +64,7 @@
   </Target>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Tapster\Tapster.csproj" />
+    <ProjectReference Include="..\Tapster\Tapster.csproj" />
   </ItemGroup>
 
 </Project>
