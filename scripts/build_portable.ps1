@@ -25,7 +25,7 @@ try {
 
     # 2. Publish Tapster.Fluent (Self-Contained & Trimmed)
     Write-Host "[Build] Compiling Tapster.Fluent core engine..." -ForegroundColor Yellow
-    dotnet publish "$root/Tapster.Fluent/Tapster.Fluent.csproj" `
+    dotnet publish "$root/src/Tapster.Fluent/Tapster.Fluent.csproj" `
         -c Release `
         -r win-x64 `
         --self-contained true `

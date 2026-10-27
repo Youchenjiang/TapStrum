@@ -44,10 +44,10 @@ $newProps = $content -replace '<Version>.*</Version>', "<Version>$newVersion</Ve
 [System.IO.File]::WriteAllText("$root/$propsPath", $newProps, $utf8NoBOM)
 Write-Host "[Props] Updated $propsPath -> $newVersion" -ForegroundColor Gray
 
-# 4. Update packaging/msix/AppxManifest.xml and Tapster.Fluent/Package.appxmanifest
+# 4. Update packaging/msix/AppxManifest.xml and src/Tapster.Fluent/Package.appxmanifest
 $manifests = @(
     "packaging/msix/AppxManifest.xml",
-    "Tapster.Fluent/Package.appxmanifest"
+    "src/Tapster.Fluent/Package.appxmanifest"
 )
 foreach ($mPath in $manifests) {
     if (Test-Path "$root/$mPath") {
