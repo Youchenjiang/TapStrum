@@ -1,9 +1,8 @@
 version = 1
 
 exclude_patterns = [
-  "src/Tapster.Fluent/App.xaml.cs",
-  "src/Tapster.Fluent/MainWindow.xaml.cs",
-  "scripts/build_common.ps1"
+  "src/Tapster.Fluent/**",
+  "scripts/**"
 ]
 
 test_patterns = [
