@@ -820,9 +820,9 @@ public sealed class TargetMarkerOverlay : IDisposable
         [DllImport("gdi32.dll", SetLastError = true)]
         internal static extern bool LineTo(IntPtr hdc, int x, int y);
 
-        // skipcq: CS-W1059, CS-R1138
+        // skipcq: CS-W1059
         [DllImport("user32.dll", SetLastError = true)]
-        internal static extern int FillRect(IntPtr hDC, [In] ref Rect lprc, IntPtr hbr);
+        internal static extern int FillRect(IntPtr hDC, [In] ref Rect lprc, IntPtr hbr); // skipcq: CS-R1138
 
         // skipcq: CS-W1059
         [DllImport("gdi32.dll", SetLastError = true)]
@@ -845,9 +845,9 @@ public sealed class TargetMarkerOverlay : IDisposable
         [DllImport("gdi32.dll")]
         internal static extern uint SetTextColor(IntPtr hdc, uint crColor);
 
-        // skipcq: CS-W1059, CS-R1138
+        // skipcq: CS-W1059
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        internal static extern int DrawTextW(IntPtr hdc, string lpchText, int cchText, ref Rect lprc, uint format);
+        internal static extern int DrawTextW(IntPtr hdc, string lpchText, int cchText, ref Rect lprc, uint format); // skipcq: CS-R1138
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct Rect
