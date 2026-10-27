@@ -2773,9 +2773,6 @@ public sealed partial class MainPage : Page
 
     private void OnMainWindowAlwaysOnTopChanged(bool isTop)
     {
-        DispatcherQueue.TryEnqueue(() =>
-        {
-            AlwaysOnTopToggle.IsOn = isTop;
-        });
+        DispatcherQueue.TryEnqueue(() => AlwaysOnTopToggle.IsOn = isTop);
     }
 }

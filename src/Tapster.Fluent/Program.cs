@@ -22,12 +22,8 @@ public static class Program
 
         // Listen for wake signals from secondary instances or the launcher
         singleInstanceService.StartWakeListener(() =>
-        {
             MainWindow.Instance?.DispatcherQueue.TryEnqueue(() =>
-            {
-                MainWindow.Instance?.BringToFront();
-            });
-        });
+                MainWindow.Instance?.BringToFront()));
 
         ComWrappersSupport.InitializeComWrappers();
         Application.Start((p) =>

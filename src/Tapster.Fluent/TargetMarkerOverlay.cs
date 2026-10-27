@@ -679,12 +679,17 @@ public sealed class TargetMarkerOverlay : IDisposable
             internal WndProc lpfnWndProc;
             internal int cbClsExtra;
             internal int cbWndExtra;
+            // skipcq: CS-W1057
             internal IntPtr hInstance;
+            // skipcq: CS-W1057
             internal IntPtr hIcon;
+            // skipcq: CS-W1057
             internal IntPtr hCursor;
+            // skipcq: CS-W1057
             internal IntPtr hbrBackground;
             internal string? lpszMenuName;
             internal string lpszClassName;
+            // skipcq: CS-W1057
             internal IntPtr hIconSm;
         }
 
@@ -692,12 +697,15 @@ public sealed class TargetMarkerOverlay : IDisposable
         internal delegate IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        // skipcq: CS-W1059
         internal static extern IntPtr GetModuleHandleW(string? lpModuleName);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        // skipcq: CS-W1059
         internal static extern ushort RegisterClassExW(ref WndClassEx lpwcx);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        // skipcq: CS-W1059
         internal static extern IntPtr CreateWindowExW(
             int dwExStyle,
             string lpClassName,
@@ -714,35 +722,44 @@ public sealed class TargetMarkerOverlay : IDisposable
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
+        // skipcq: CS-W1059
         internal static extern bool DestroyWindow(IntPtr hWnd);
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
+        // skipcq: CS-W1059
         internal static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
+        // skipcq: CS-W1059
         internal static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
+        // skipcq: CS-W1059
         internal static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
+        // skipcq: CS-W1059
         internal static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, [MarshalAs(UnmanagedType.Bool)] bool bErase);
 
         [DllImport("user32.dll", SetLastError = true)]
+        // skipcq: CS-W1059
         internal static extern bool UpdateWindow(IntPtr hWnd);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        // skipcq: CS-W1059
         internal static extern IntPtr DefWindowProcW(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", SetLastError = true)]
+        // skipcq: CS-W1059
         internal static extern IntPtr BeginPaint(IntPtr hWnd, out Paintstruct lpPaint);
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
+        // skipcq: CS-W1059
         internal static extern bool EndPaint(IntPtr hWnd, ref Paintstruct lpPaint);
 
         [StructLayout(LayoutKind.Sequential)]

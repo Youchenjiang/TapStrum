@@ -187,7 +187,7 @@ public sealed partial class MainWindow : Window
             return IntPtr.Zero;
         }
 
-        if (_hotkeyService != null && _hotkeyService.ProcessWindowMessage(uMsg, wParam))
+        if (_hotkeyService?.ProcessWindowMessage(uMsg, wParam) == true)
         {
             return IntPtr.Zero;
         }
