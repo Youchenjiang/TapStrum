@@ -72,14 +72,9 @@ public static class LocalizationManager
     {
         _currentLanguage = string.IsNullOrWhiteSpace(langCode) ? LangAuto : langCode;
 
-        if (string.Equals(_currentLanguage, LangAuto, StringComparison.OrdinalIgnoreCase))
-        {
-            _effectiveLanguage = ResolveSystemLanguage();
-        }
-        else
-        {
-            _effectiveLanguage = NormalizeLanguageCode(_currentLanguage);
-        }
+        _effectiveLanguage = string.Equals(_currentLanguage, LangAuto, StringComparison.OrdinalIgnoreCase)
+            ? ResolveSystemLanguage()
+            : NormalizeLanguageCode(_currentLanguage);
 
         LanguageChanged?.Invoke();
     }
