@@ -85,59 +85,43 @@ public partial class HolderViewModel : ViewModelBase
         StatusText = LocalizationManager.Get("Common_Running");
 
         _cts = new CancellationTokenSource();
-        var token = _cts.Token;
-        _panicDetector.Reset();
 
-        try
-        {
-            await RunCountdownAsync(DelaySeconds, (msg, pct) =>
-            {
-                RunOnUIThread(() =>
-                {
-                    StatusText = msg;
-                    ProgressPercentage = pct;
-                });
-            }, _panicDetector, token);
-
-            RunOnUIThread(() =>
-            {
-                ProgressPercentage = 100;
-                StatusText = LocalizationManager.Get("Common_Running");
-            });
-
-            int loops = Math.Max(1, RepeatLoops);
-            var options = new KeyHolderOptions
-            {
-                Stages = Stages.ToList(),
-                RepeatLoops = loops
-            };
-
-            await _holderService.RunAsync(
-                options,
-                token,
-                reportProgress: (msg, pct) => RunOnUIThread(() =>
-                {
-                    StatusText = msg;
-                    if (pct >= 0)
-                    {
-                        ProgressPercentage = Math.Min(100, Math.Max(0, pct));
-                    }
-                }),
-                onStageStarted: stageIdx => RunOnUIThread(() => RunningStageIndex = stageIdx),
-                onPipelineCompleted: () => RunOnUIThread(() => RunningStageIndex = -1),
-                panicDetector: _panicDetector);
-
-            Stop(LocalizationManager.Get("Common_Finished"));
-        }
-        catch (OperationCanceledException ex)
-        {
-            Stop(FormatCancellationMessage(ex));
-        }
-        catch (Exception ex)
-        {
-            Stop(string.Format(LocalizationManager.Get("Common_Error"), ex.Message));
-        }
+        await ExecuteAutomationTaskAsync(
+            DelaySeconds,
+            _panicDetector,
+            _cts,
+            ExecuteHolderCoreAsync,
+            UpdateProgress,
+            Stop);
     }
+
+    private async Task ExecuteHolderCoreAsync(CancellationToken token)
+    {
+        int loops = Math.Max(1, RepeatLoops);
+        var options = new KeyHolderOptions
+        {
+            Stages = Stages.ToList(),
+            RepeatLoops = loops
+        };
+
+        await _holderService.RunAsync(
+            options,
+            token,
+            reportProgress: UpdateProgress,
+            onStageStarted: stageIdx => RunOnUIThread(() => RunningStageIndex = stageIdx),
+            onPipelineCompleted: () => RunOnUIThread(() => RunningStageIndex = -1),
+            panicDetector: _panicDetector);
+    }
+
+    private void UpdateProgress(string msg, double pct) =>
+        RunOnUIThread(() =>
+        {
+            StatusText = msg;
+            if (pct >= 0)
+            {
+                ProgressPercentage = Math.Min(100, Math.Max(0, pct));
+            }
+        });
 
     [RelayCommand]
     public void Stop(string? message = null)

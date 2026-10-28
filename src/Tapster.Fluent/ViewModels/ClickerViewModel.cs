@@ -113,86 +113,72 @@ public partial class ClickerViewModel : ViewModelBase
         StatusText = LocalizationManager.Get("Common_Running");
 
         _cts = new CancellationTokenSource();
-        var token = _cts.Token;
-        _panicDetector.Reset();
 
-        try
+        await ExecuteAutomationTaskAsync(
+            DelaySeconds,
+            _panicDetector,
+            _cts,
+            ExecuteClickerCoreAsync,
+            UpdateProgress,
+            Stop);
+    }
+
+    private async Task ExecuteClickerCoreAsync(CancellationToken token)
+    {
+        string button = MouseButtonIndex switch
         {
-            await RunCountdownAsync(DelaySeconds, (msg, pct) =>
-            {
-                RunOnUIThread(() =>
-                {
-                    StatusText = msg;
-                    ProgressPercentage = pct;
-                });
-            }, _panicDetector, token);
+            1 => "right",
+            2 => "middle",
+            _ => "left"
+        };
 
-            RunOnUIThread(() =>
-            {
-                ProgressPercentage = 100;
-                StatusText = LocalizationManager.Get("Common_Running");
-            });
+        int intervalMs = Math.Max(5, (int)(IntervalSeconds * 1000));
+        int effectiveClicks = IsInfiniteClicks ? 0 : Math.Max(0, TotalClicks);
 
-            string button = MouseButtonIndex switch
-            {
-                1 => "right",
-                2 => "middle",
-                _ => "left"
-            };
+        int? x = TargetX.HasValue && !double.IsNaN(TargetX.Value) ? (int)TargetX.Value : null;
+        int? y = TargetY.HasValue && !double.IsNaN(TargetY.Value) ? (int)TargetY.Value : null;
 
-            int intervalMs = Math.Max(5, (int)(IntervalSeconds * 1000));
-            int effectiveClicks = IsInfiniteClicks ? 0 : Math.Max(0, TotalClicks);
-
-            int? x = TargetX.HasValue && !double.IsNaN(TargetX.Value) ? (int)TargetX.Value : null;
-            int? y = TargetY.HasValue && !double.IsNaN(TargetY.Value) ? (int)TargetY.Value : null;
-
-            var options = new AutoClickerOptions
-            {
-                IsSpammer = IsKeySpammer,
-                SpamKey = SpamKey.Trim(),
-                MouseButton = button,
-                IntervalMs = intervalMs,
-                TotalClicks = effectiveClicks,
-                TargetX = x,
-                TargetY = y,
-                JitterEnabled = JitterEnabled,
-                TimeJitterPct = TimeJitterPercent,
-                LocationJitterPx = LocationJitterPx,
-                IsHoldMode = IsHoldMode,
-                HotkeyVk = 0x75
-            };
-
-            await _clickerService.RunAsync(
-                options,
-                token,
-                reportProgress: (msg, pct) => RunOnUIThread(() =>
-                {
-                    StatusText = msg;
-                    if (pct >= 0)
-                    {
-                        ProgressPercentage = Math.Min(100, Math.Max(0, pct));
-                    }
-                }),
-                onPointClicked: (px, py) =>
-                {
-                    if (ShowTargetMarker && !IsKeySpammer && _onPointClicked is not null)
-                    {
-                        RunOnUIThread(() => _onPointClicked(px, py));
-                    }
-                },
-                panicDetector: _panicDetector);
-
-            Stop(LocalizationManager.Get("Common_Finished"));
-        }
-        catch (OperationCanceledException ex)
+        var options = new AutoClickerOptions
         {
-            Stop(FormatCancellationMessage(ex));
-        }
-        catch (Exception ex)
+            IsSpammer = IsKeySpammer,
+            SpamKey = SpamKey.Trim(),
+            MouseButton = button,
+            IntervalMs = intervalMs,
+            TotalClicks = effectiveClicks,
+            TargetX = x,
+            TargetY = y,
+            JitterEnabled = JitterEnabled,
+            TimeJitterPct = TimeJitterPercent,
+            LocationJitterPx = LocationJitterPx,
+            IsHoldMode = IsHoldMode,
+            HotkeyVk = 0x75
+        };
+
+        await _clickerService.RunAsync(
+            options,
+            token,
+            reportProgress: UpdateProgress,
+            onPointClicked: HandlePointClicked,
+            panicDetector: _panicDetector);
+    }
+
+    private void HandlePointClicked(int px, int py)
+    {
+        if (ShowTargetMarker && !IsKeySpammer && _onPointClicked is not null)
         {
-            Stop(string.Format(LocalizationManager.Get("Common_Error"), ex.Message));
+            RunOnUIThread(() => _onPointClicked(px, py));
         }
     }
+
+    private void UpdateProgress(string msg, double pct) =>
+        RunOnUIThread(() =>
+        {
+            StatusText = msg;
+            if (pct >= 0)
+            {
+                ProgressPercentage = Math.Min(100, Math.Max(0, pct));
+            }
+        });
 
     [RelayCommand]
     public void Stop(string? message = null)
@@ -216,13 +202,13 @@ public partial class ClickerViewModel : ViewModelBase
     [RelayCommand]
     public void ClearCoordinates()
     {
-        TargetX = null;
-        TargetY = null;
+        this.TargetX = null;
+        this.TargetY = null;
     }
 
     public void SetCoordinates(int x, int y)
     {
-        TargetX = x;
-        TargetY = y;
+        this.TargetX = x;
+        this.TargetY = y;
     }
 }

@@ -136,91 +136,16 @@ public partial class MacroViewModel : ViewModelBase
         StatusText = LocalizationManager.Get("Common_Running");
 
         _cts = new CancellationTokenSource();
-        var token = _cts.Token;
-        _panicDetector.Reset();
 
         try
         {
-            await RunCountdownAsync(DelaySeconds, (msg, pct) =>
-            {
-                RunOnUIThread(() =>
-                {
-                    StatusText = msg;
-                    ProgressPercentage = pct;
-                });
-            }, _panicDetector, token);
-
-            RunOnUIThread(() =>
-            {
-                ProgressPercentage = 100;
-                StatusText = LocalizationManager.Get("Common_Running");
-            });
-
-            var clickPoints = Actions
-                .Where(act => act.Type is MacroActionType.ClickLeft or MacroActionType.ClickRight or MacroActionType.ClickMiddle)
-                .Select((act, idx) => new MarkerPoint(idx + 1, act.X, act.Y))
-                .ToList();
-
-            if (_setMarkersCallback is not null)
-            {
-                RunOnUIThread(() => _setMarkersCallback(clickPoints));
-            }
-
-            int currentClickInLoop = 0;
-
-            await _recorder.ReplayAsync(
-                RepeatLoops,
-                Speed,
-                token,
-                progressCallback: (loop, step) =>
-                {
-                    if (step == 1)
-                    {
-                        currentClickInLoop = 0;
-                    }
-
-                    double pct = (double)step / Actions.Count * 100.0;
-                    string msg = string.Format(LocalizationManager.Get("Macro_ReplayingProgress"), loop, step, Actions.Count);
-                    RunOnUIThread(() =>
-                    {
-                        StatusText = msg;
-                        ProgressPercentage = pct;
-                    });
-                },
-                actionExecutingCallback: action =>
-                {
-                    if (action.Type is MacroActionType.ClickLeft or MacroActionType.ClickRight or MacroActionType.ClickMiddle)
-                    {
-                        currentClickInLoop++;
-                        int thisClick = currentClickInLoop;
-                        if (_onMarkerRippleCallback is not null)
-                        {
-                            RunOnUIThread(() => _onMarkerRippleCallback(action.X, action.Y, thisClick));
-                        }
-                        _panicDetector.SyncProgrammaticPosition(action.X, action.Y);
-                    }
-                    else if (action.Type is MacroActionType.MouseMove)
-                    {
-                        _panicDetector.SyncProgrammaticPosition(action.X, action.Y);
-                    }
-                },
-                checkPanicCallback: () =>
-                {
-                    if (_panicDetector.CheckPanic(out var reason))
-                    {
-                        throw new OperationCanceledException(reason ?? PanicDetector.EmergencyPanicMessage);
-                    }
-                });
-
-            Stop(LocalizationManager.Get("Common_Finished"));
-        }
-        catch (OperationCanceledException ex)
-        {
-            Stop(FormatCancellationMessage(ex));
-        }
-        catch (Exception ex)
-        {
-            Stop(string.Format(LocalizationManager.Get("Common_Error"), ex.Message));
+            await ExecuteAutomationTaskAsync(
+                DelaySeconds,
+                _panicDetector,
+                _cts,
+                ExecuteMacroCoreAsync,
+                UpdateProgress,
+                Stop);
         }
         finally
         {
@@ -230,6 +155,71 @@ public partial class MacroViewModel : ViewModelBase
             }
         }
     }
+
+    private async Task ExecuteMacroCoreAsync(CancellationToken token)
+    {
+        var clickPoints = Actions
+            .Where(act => act.Type is MacroActionType.ClickLeft or MacroActionType.ClickRight or MacroActionType.ClickMiddle)
+            .Select((act, idx) => new MarkerPoint(idx + 1, act.X, act.Y))
+            .ToList();
+
+        if (_setMarkersCallback is not null)
+        {
+            RunOnUIThread(() => _setMarkersCallback(clickPoints));
+        }
+
+        int currentClickInLoop = 0;
+
+        await _recorder.ReplayAsync(
+            RepeatLoops,
+            Speed,
+            token,
+            progressCallback: (loop, step) =>
+            {
+                if (step == 1)
+                {
+                    currentClickInLoop = 0;
+                }
+
+                double pct = (double)step / Actions.Count * 100.0;
+                string msg = string.Format(LocalizationManager.Get("Macro_ReplayingProgress"), loop, step, Actions.Count);
+                UpdateProgress(msg, pct);
+            },
+            actionExecutingCallback: action =>
+            {
+                if (action.Type is MacroActionType.ClickLeft or MacroActionType.ClickRight or MacroActionType.ClickMiddle)
+                {
+                    currentClickInLoop++;
+                    int thisClick = currentClickInLoop;
+                    if (_onMarkerRippleCallback is not null)
+                    {
+                        RunOnUIThread(() => _onMarkerRippleCallback(action.X, action.Y, thisClick));
+                    }
+                    _panicDetector.SyncProgrammaticPosition(action.X, action.Y);
+                }
+                else if (action.Type is MacroActionType.MouseMove)
+                {
+                    _panicDetector.SyncProgrammaticPosition(action.X, action.Y);
+                }
+            },
+            checkPanicCallback: () =>
+            {
+                if (_panicDetector.CheckPanic(out var reason))
+                {
+                    throw new OperationCanceledException(reason ?? PanicDetector.EmergencyPanicMessage);
+                }
+            });
+    }
+
+    private void UpdateProgress(string msg, double pct) =>
+        RunOnUIThread(() =>
+        {
+            StatusText = msg;
+            if (pct >= 0)
+            {
+                ProgressPercentage = Math.Min(100, Math.Max(0, pct));
+            }
+        });
 
     [RelayCommand]
     public void Stop(string? message = null)

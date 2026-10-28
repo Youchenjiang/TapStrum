@@ -96,76 +96,63 @@ public partial class TyperViewModel : ViewModelBase
         StatusText = LocalizationManager.Get("Common_Running");
 
         _cts = new CancellationTokenSource();
-        var token = _cts.Token;
-        _panicDetector.Reset();
 
-        try
-        {
-            await RunCountdownAsync(DelaySeconds, (msg, pct) =>
-            {
-                RunOnUIThread(() =>
-                {
-                    StatusText = msg;
-                    ProgressPercentage = pct;
-                });
-            }, _panicDetector, token);
-
-            RunOnUIThread(() =>
-            {
-                ProgressPercentage = 100;
-                StatusText = LocalizationManager.Get("Common_Running");
-            });
-
-            string trailingKey = TrailingKeyIndex switch
-            {
-                1 => KeyEnter,
-                2 => KeyTab,
-                _ => KeyNone
-            };
-
-            int intervalMs = Math.Max(5, (int)(IntervalSeconds * 1000));
-            var options = new AutoTyperOptions
-            {
-                Text = Text,
-                Mode = IsClipboardMode ? AutoTyperMode.Clipboard : AutoTyperMode.Keystroke,
-                IntervalMs = intervalMs,
-                JitterEnabled = JitterEnabled,
-                TrailingKey = trailingKey
-            };
-
-            await _typerService.RunAsync(
-                options,
-                token,
-                reportProgress: (msg, pct) => RunOnUIThread(() =>
-                {
-                    StatusText = msg;
-                    if (pct >= 0)
-                    {
-                        ProgressPercentage = Math.Min(100, Math.Max(0, pct));
-                    }
-                }),
-                clipboardService: _clipboardService,
-                panicDetector: _panicDetector);
-
-            RunOnUIThread(() =>
-            {
-                string modeDesc = IsClipboardMode ? "Pasted" : "Typed";
-                string summary = $"{DateTime.UtcNow:HH:mm:ss} - {modeDesc} {Text.Length} chars" +
-                                 (trailingKey != KeyNone ? $" + [{trailingKey}]" : "");
-                History.Insert(0, summary);
-            });
-
-            Stop(LocalizationManager.Get("Common_Finished"));
-        }
-        catch (OperationCanceledException ex)
-        {
-            Stop(FormatCancellationMessage(ex));
-        }
-        catch (Exception ex)
-        {
-            Stop(string.Format(LocalizationManager.Get("Common_Error"), ex.Message));
-        }
+        await ExecuteAutomationTaskAsync(
+            DelaySeconds,
+            _panicDetector,
+            _cts,
+            ExecuteTyperCoreAsync,
+            UpdateProgress,
+            Stop);
     }
+
+    private async Task ExecuteTyperCoreAsync(CancellationToken token)
+    {
+        string trailingKey = TrailingKeyIndex switch
+        {
+            1 => KeyEnter,
+            2 => KeyTab,
+            _ => KeyNone
+        };
+
+        int intervalMs = Math.Max(5, (int)(IntervalSeconds * 1000));
+        var options = new AutoTyperOptions
+        {
+            Text = Text,
+            Mode = IsClipboardMode ? AutoTyperMode.Clipboard : AutoTyperMode.Keystroke,
+            IntervalMs = intervalMs,
+            JitterEnabled = JitterEnabled,
+            TrailingKey = trailingKey
+        };
+
+        await _typerService.RunAsync(
+            options,
+            token,
+            reportProgress: UpdateProgress,
+            clipboardService: _clipboardService,
+            panicDetector: _panicDetector);
+
+        RecordHistory(trailingKey);
+    }
+
+    private void RecordHistory(string trailingKey) =>
+        RunOnUIThread(() =>
+        {
+            string modeDesc = IsClipboardMode ? "Pasted" : "Typed";
+            string summary = $"{DateTime.UtcNow:HH:mm:ss} - {modeDesc} {Text.Length} chars" +
+                             (trailingKey != KeyNone ? $" + [{trailingKey}]" : "");
+            History.Insert(0, summary);
+        });
+
+    private void UpdateProgress(string msg, double pct) =>
+        RunOnUIThread(() =>
+        {
+            StatusText = msg;
+            if (pct >= 0)
+            {
+                ProgressPercentage = Math.Min(100, Math.Max(0, pct));
+            }
+        });
 
     [RelayCommand]
     public void Stop(string? message = null)

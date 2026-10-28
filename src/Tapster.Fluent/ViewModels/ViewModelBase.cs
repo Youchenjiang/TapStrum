@@ -75,4 +75,38 @@ public abstract partial class ViewModelBase : ObservableObject
 
         return LocalizationManager.Get("Common_TaskCanceled");
     }
+
+    /// <summary>
+    /// Executes an automation task preceded by a countdown, handling cancellation, panic, and progress states.
+    /// </summary>
+    protected static async Task ExecuteAutomationTaskAsync(
+        double delaySeconds,
+        PanicDetector panicDetector,
+        CancellationTokenSource cts,
+        Func<CancellationToken, Task> taskBody,
+        Action<string, double> progressReporter,
+        Action<string?> stopHandler)
+    {
+        var token = cts.Token;
+        panicDetector.Reset();
+
+        try
+        {
+            await RunCountdownAsync(delaySeconds, progressReporter, panicDetector, token);
+
+            progressReporter(LocalizationManager.Get("Common_Running"), 100);
+
+            await taskBody(token);
+
+            stopHandler(LocalizationManager.Get("Common_Finished"));
+        }
+        catch (OperationCanceledException ex)
+        {
+            stopHandler(FormatCancellationMessage(ex));
+        }
+        catch (Exception ex)
+        {
+            stopHandler(string.Format(LocalizationManager.Get("Common_Error"), ex.Message));
+        }
+    }
 }
