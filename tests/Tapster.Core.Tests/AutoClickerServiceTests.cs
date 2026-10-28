@@ -10,7 +10,7 @@ namespace Tapster.Core.Tests;
 public class AutoClickerServiceTests
 {
     [Fact]
-    public async Task RunAsync_NullOptions_ThrowsArgumentNullException()
+    public async Task RunAsync_NullOptions_ThrowsArgumentNullExceptionAsync()
     {
         var service = new AutoClickerService();
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
@@ -18,7 +18,7 @@ public class AutoClickerServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_FiniteClicks_ExecutesExpectedCountAndReportsProgress()
+    public async Task RunAsync_FiniteClicks_ExecutesExpectedCountAndReportsProgressAsync()
     {
         int clickCount = 0;
         var progressReports = new List<(string Message, double Percentage)>();
@@ -30,7 +30,7 @@ public class AutoClickerServiceTests
             getPositionFunc: () => (100, 200),
             spamAction: key => { },
             isKeyDownFunc: vk => true,
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var options = new AutoClickerOptions
         {
@@ -53,7 +53,7 @@ public class AutoClickerServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_InfiniteClicks_TerminatesOnCancellation()
+    public async Task RunAsync_InfiniteClicks_TerminatesOnCancellationAsync()
     {
         int clickCount = 0;
         using var cts = new CancellationTokenSource();
@@ -71,7 +71,7 @@ public class AutoClickerServiceTests
             getPositionFunc: () => (50, 50),
             spamAction: key => { },
             isKeyDownFunc: vk => true,
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var options = new AutoClickerOptions
         {
@@ -86,7 +86,7 @@ public class AutoClickerServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_HoldMode_StopsWhenKeyReleased()
+    public async Task RunAsync_HoldMode_StopsWhenKeyReleasedAsync()
     {
         int clickCount = 0;
         bool keyHeld = true;
@@ -104,7 +104,7 @@ public class AutoClickerServiceTests
             getPositionFunc: () => (0, 0),
             spamAction: key => { },
             isKeyDownFunc: vk => keyHeld,
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var options = new AutoClickerOptions
         {
@@ -120,7 +120,7 @@ public class AutoClickerServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_SpammerMode_InvokesSpamAction()
+    public async Task RunAsync_SpammerMode_InvokesSpamActionAsync()
     {
         var spammedKeys = new List<string>();
 
@@ -130,7 +130,7 @@ public class AutoClickerServiceTests
             getPositionFunc: () => (0, 0),
             spamAction: spammedKeys.Add,
             isKeyDownFunc: vk => true,
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var options = new AutoClickerOptions
         {
@@ -147,7 +147,7 @@ public class AutoClickerServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_TargetCoordinates_AppliesLocationJitterAndInvokesClickAt()
+    public async Task RunAsync_TargetCoordinates_AppliesLocationJitterAndInvokesClickAtAsync()
     {
         var clickedCoords = new List<(int X, int Y, string Button)>();
 
@@ -157,7 +157,7 @@ public class AutoClickerServiceTests
             getPositionFunc: () => (0, 0),
             spamAction: key => { },
             isKeyDownFunc: vk => true,
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var options = new AutoClickerOptions
         {
@@ -177,7 +177,7 @@ public class AutoClickerServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_PanicDetected_ThrowsOperationCanceledException()
+    public async Task RunAsync_PanicDetected_ThrowsOperationCanceledExceptionAsync()
     {
         int escCall = 0;
         bool[] escSequence = [true, false, true, false, true];
@@ -190,10 +190,10 @@ public class AutoClickerServiceTests
             getPositionFunc: () => (0, 0),
             spamAction: key => { },
             isKeyDownFunc: vk => true,
-            sleepAction: (ms, token, pd) =>
+            sleepAction: (ms, pd, token) =>
             {
                 // Verify sleep with panic check throws when panic detected
-                if (pd != null && pd.CheckPanic(out var reason))
+                if (pd is not null && pd.CheckPanic(out var reason))
                 {
                     throw new OperationCanceledException(reason ?? PanicDetector.EmergencyPanicMessage);
                 }

@@ -23,7 +23,7 @@ public class AutoTyperServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_NullOrEmptyText_ThrowsInvalidOperationException()
+    public async Task RunAsync_NullOrEmptyText_ThrowsInvalidOperationExceptionAsync()
     {
         var service = new AutoTyperService();
         var options = new AutoTyperOptions { Text = "" };
@@ -33,7 +33,7 @@ public class AutoTyperServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_KeystrokeMode_TypesAllCharactersInOrder()
+    public async Task RunAsync_KeystrokeMode_TypesAllCharactersInOrderAsync()
     {
         var sb = new StringBuilder();
         var progressReports = new List<(string Msg, double Pct)>();
@@ -43,7 +43,7 @@ public class AutoTyperServiceTests
             tapAction: k => { },
             pasteAction: () => { },
             isEscPressedFunc: () => false,
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var options = new AutoTyperOptions
         {
@@ -61,7 +61,7 @@ public class AutoTyperServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_KeystrokeMode_AppliesTrailingEnterOrTab()
+    public async Task RunAsync_KeystrokeMode_AppliesTrailingEnterOrTabAsync()
     {
         var tappedKeys = new List<string>();
 
@@ -70,7 +70,7 @@ public class AutoTyperServiceTests
             tapAction: k => tappedKeys.Add(k),
             pasteAction: () => { },
             isEscPressedFunc: () => false,
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var options = new AutoTyperOptions
         {
@@ -86,7 +86,7 @@ public class AutoTyperServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_ClipboardMode_SetsContentPastesAndRestores()
+    public async Task RunAsync_ClipboardMode_SetsContentPastesAndRestoresAsync()
     {
         var mockClipboard = new MockClipboardService { Content = "OriginalClipboard" };
         bool pasteCalled = false;
@@ -101,7 +101,7 @@ public class AutoTyperServiceTests
                 Assert.Equal("PayloadToPaste", mockClipboard.Content);
             },
             isEscPressedFunc: () => false,
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var options = new AutoTyperOptions
         {
@@ -123,7 +123,7 @@ public class AutoTyperServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_PanicDetected_ThrowsOperationCanceledException()
+    public async Task RunAsync_PanicDetected_ThrowsOperationCanceledExceptionAsync()
     {
         int escCall = 0;
         bool[] escSequence = [true, false, true, false, true];
@@ -135,9 +135,9 @@ public class AutoTyperServiceTests
             tapAction: k => { },
             pasteAction: () => { },
             isEscPressedFunc: () => false,
-            sleepAction: (ms, token, pd) =>
+            sleepAction: (ms, pd, token) =>
             {
-                if (pd != null && pd.CheckPanic(out var reason))
+                if (pd is not null && pd.CheckPanic(out var reason))
                 {
                     throw new OperationCanceledException(reason ?? PanicDetector.EmergencyPanicMessage);
                 }

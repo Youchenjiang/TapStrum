@@ -11,7 +11,7 @@ namespace Tapster.Core.Tests;
 public class KeyHolderServiceTests
 {
     [Fact]
-    public async Task RunAsync_NullOrEmptyStages_ThrowsInvalidOperationException()
+    public async Task RunAsync_NullOrEmptyStages_ThrowsInvalidOperationExceptionAsync()
     {
         var service = new KeyHolderService();
         var options = new KeyHolderOptions { Stages = Array.Empty<KeyHolderStage>() };
@@ -21,7 +21,7 @@ public class KeyHolderServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_ExecutesHoldAndRestPhasesInOrder()
+    public async Task RunAsync_ExecutesHoldAndRestPhasesInOrderAsync()
     {
         var pressed = new List<string>();
         var released = new List<string>();
@@ -33,7 +33,7 @@ public class KeyHolderServiceTests
             pressAction: pressed.Add,
             releaseAction: released.Add,
             releaseAllModifiersAction: () => modifierReleases++,
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var stages = new List<KeyHolderStage>
         {
@@ -67,7 +67,7 @@ public class KeyHolderServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_RepeatLoops_ExecutesExactLoops()
+    public async Task RunAsync_RepeatLoops_ExecutesExactLoopsAsync()
     {
         int pressCount = 0;
 
@@ -75,7 +75,7 @@ public class KeyHolderServiceTests
             pressAction: k => pressCount++,
             releaseAction: k => { },
             releaseAllModifiersAction: () => { },
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var options = new KeyHolderOptions
         {
@@ -89,7 +89,7 @@ public class KeyHolderServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_InfiniteLoops_StopsOnCancellation()
+    public async Task RunAsync_InfiniteLoops_StopsOnCancellationAsync()
     {
         int pressCount = 0;
         using var cts = new CancellationTokenSource();
@@ -105,7 +105,7 @@ public class KeyHolderServiceTests
             },
             releaseAction: k => { },
             releaseAllModifiersAction: () => { },
-            sleepAction: (ms, token, pd) => { });
+            sleepAction: (ms, pd, token) => { });
 
         var options = new KeyHolderOptions
         {
@@ -119,7 +119,7 @@ public class KeyHolderServiceTests
     }
 
     [Fact]
-    public async Task RunAsync_PanicDetected_ThrowsOperationCanceledException()
+    public async Task RunAsync_PanicDetected_ThrowsOperationCanceledExceptionAsync()
     {
         int escCall = 0;
         bool[] escSequence = [true, false, true, false, true];
@@ -130,9 +130,9 @@ public class KeyHolderServiceTests
             pressAction: k => { },
             releaseAction: k => { },
             releaseAllModifiersAction: () => { },
-            sleepAction: (ms, token, pd) =>
+            sleepAction: (ms, pd, token) =>
             {
-                if (pd != null && pd.CheckPanic(out var reason))
+                if (pd is not null && pd.CheckPanic(out var reason))
                 {
                     throw new OperationCanceledException(reason ?? PanicDetector.EmergencyPanicMessage);
                 }
