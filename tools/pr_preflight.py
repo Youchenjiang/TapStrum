@@ -19,6 +19,22 @@ SUBJECT = re.compile(rf"^(?:{ALLOWED_TYPES})(?:\((?:{ALLOWED_SCOPES})\))?: [a-z0
 BODY_NUMBER = re.compile(r"1[.)][ \t]+")
 CHECKLIST_SECTION = "## Review Checklist"
 REQUIRED_SECTIONS = ("## Summary", "## Changes", "## Validation", CHECKLIST_SECTION)
+SECTION_MAPPINGS = {
+    "## Summary": ("## Summary",),
+    "## Changes": ("## Changes", "## Key Changes"),
+    "## Validation": ("## Validation", "## Verification", "## How to Verify (Verification)", "## How to Verify"),
+    "## Review Checklist": ("## Review Checklist", "## Pre-Submission Checklist"),
+}
+FORBIDDEN_METADATA_CHECKLIST = re.compile(
+    r"(?mi)^[ \t]*- \[[ xX]\] \*\*(Assignee|Label|Milestone)\*\*:"
+)
+MANDATORY_CHECKLIST_PATTERNS = [
+    (re.compile(r"(?mi)^[ \t]*- \[[xX]\] .*?atomic commits.*?", re.IGNORECASE), "Atomic commits (passed the Revert Test)"),
+    (re.compile(r"(?mi)^[ \t]*- \[[xX]\] .*?conventional commits.*?", re.IGNORECASE), "Commit headers follow Conventional Commits"),
+    (re.compile(r"(?mi)^[ \t]*- \[[xX]\] .*?numbered.*?(?:technical)?.*?body.*?", re.IGNORECASE), "Numbered technical body included in commits"),
+    (re.compile(r"(?mi)^[ \t]*- \[[xX]\] .*?self-reviewed.*?", re.IGNORECASE), "Self-reviewed locally"),
+    (re.compile(r"(?mi)^[ \t]*- \[[xX]\] .*?documentation.*?", re.IGNORECASE), "Documentation / comments updated accordingly"),
+]
 PLACEHOLDER = re.compile(r"(?i)\b(?:todo|tbd|placeholder|describe the|assign the|add an appropriate|choose the|not run: full pre-push)\b")
 VAGUE = {"update", "misc", "stuff", "changes", "fix bug", "bug fix"}
 GIT_TIMEOUT = 30
@@ -86,17 +102,36 @@ def _live_metadata_errors(metadata):
     return errors
 
 
+def _checklist_errors(lines):
+    errors = []
+    if match := FORBIDDEN_METADATA_CHECKLIST.search(lines):
+        errors.append(f"PR checklist must not contain fake metadata checkboxes ({match.group(1)}); manage metadata via GitHub PR attributes")
+    for pattern, description in MANDATORY_CHECKLIST_PATTERNS:
+        if not pattern.search(lines):
+            errors.append(f"missing completed checklist item: {description}")
+    errors.extend(_provider_acknowledgement_errors(lines))
+    return errors
+
+
 def validate_pr_body(body, metadata=None):
     errors = []
     sections = _split_pr_sections(body)
-    for heading in REQUIRED_SECTIONS:
-        if heading not in sections:
-            errors.append(heading)
+    checklist_lines = None
+    for canonical_name, aliases in SECTION_MAPPINGS.items():
+        found = next((alias for alias in aliases if alias in sections), None)
+        if not found:
+            errors.append(canonical_name)
             continue
-        content = "\n".join(sections[heading]).strip()
-        if not content or (heading != CHECKLIST_SECTION and PLACEHOLDER.search(content)):
-            errors.append(f"empty or placeholder {heading}")
-    errors.extend(_provider_acknowledgement_errors("\n".join(sections.get(CHECKLIST_SECTION, []))))
+        content = "\n".join(sections[found]).strip()
+        if not content:
+            errors.append(f"empty or placeholder {found}")
+        elif canonical_name != CHECKLIST_SECTION and PLACEHOLDER.search(content):
+            errors.append(f"empty or placeholder {found}")
+        elif canonical_name == CHECKLIST_SECTION:
+            checklist_lines = sections[found]
+
+    if checklist_lines is not None:
+        errors.extend(_checklist_errors("\n".join(checklist_lines)))
     if metadata is not None:
         errors.extend(_live_metadata_errors(metadata))
     return errors
