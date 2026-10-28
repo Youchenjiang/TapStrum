@@ -44,10 +44,19 @@ public static class LocalizationManager
 
     public static event Action? LanguageChanged;
 
+    /// <summary>
+    /// Gets the user-configured language code or 'auto'.
+    /// </summary>
     public static string CurrentLanguage => _currentLanguage;
 
+    /// <summary>
+    /// Gets the resolved effective language code applied to UI resources.
+    /// </summary>
     public static string EffectiveLanguage => _effectiveLanguage;
 
+    /// <summary>
+    /// Gets the dictionary of loaded locale string tables.
+    /// </summary>
     public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Translations { get; } =
         new ReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>(
             RawTranslations.ToDictionary(
@@ -55,6 +64,9 @@ public static class LocalizationManager
                 kvp => (IReadOnlyDictionary<string, string>)new ReadOnlyDictionary<string, string>(kvp.Value),
                 StringComparer.OrdinalIgnoreCase));
 
+    /// <summary>
+    /// Returns the localized display name corresponding to a language code.
+    /// </summary>
     public static string GetLanguageDisplayName(string code)
     {
         return code switch
@@ -68,6 +80,9 @@ public static class LocalizationManager
         };
     }
 
+    /// <summary>
+    /// Sets the application active language and notifies registered listeners.
+    /// </summary>
     public static void SetLanguage(string langCode)
     {
         _currentLanguage = string.IsNullOrWhiteSpace(langCode) ? LangAuto : langCode;
@@ -79,6 +94,9 @@ public static class LocalizationManager
         LanguageChanged?.Invoke();
     }
 
+    /// <summary>
+    /// Retrieves the localized string for a specified resource key.
+    /// </summary>
     public static string Get(string key)
     {
         if (RawTranslations.TryGetValue(_effectiveLanguage, out var dict) && dict.TryGetValue(key, out var val))

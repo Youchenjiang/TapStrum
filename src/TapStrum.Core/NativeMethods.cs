@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace Tapster;
 
-public static partial class NativeMethods
+internal static partial class NativeMethods
 {
     // ── SendInput ─────────────────────────────────────────────────────────────
     internal const uint INPUT_MOUSE = 0;
@@ -69,18 +69,18 @@ public static partial class NativeMethods
     // ── GetCursorPos ──────────────────────────────────────────────────────────
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool GetCursorPos(out POINT lpPoint);
+    internal static partial bool GetCursorPos(out POINT lpPoint);
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct POINT
+    internal struct POINT
     {
-        public int X;
-        public int Y;
+        internal int X;
+        internal int Y;
     }
 
     // ── GetAsyncKeyState ──────────────────────────────────────────────────────
     [LibraryImport("user32.dll")]
-    public static partial short GetAsyncKeyState(int vKey);
+    internal static partial short GetAsyncKeyState(int vKey);
 
     // ── Virtual key codes ─────────────────────────────────────────────────────
     internal const int VK_LBUTTON = 0x01;
@@ -88,154 +88,154 @@ public static partial class NativeMethods
     internal const int VK_MBUTTON = 0x04;
 
     // ── Hotkey & Window Management ──────────────────────────────────────────────
-    public const int WM_HOTKEY = 0x0312;
-    public const uint MOD_ALT = 0x0001;
-    public const uint MOD_CONTROL = 0x0002;
-    public const uint MOD_SHIFT = 0x0004;
-    public const uint MOD_WIN = 0x0008;
-    public const uint MOD_NOREPEAT = 0x4000;
-    public const int SW_RESTORE = 9;
-    public const int SW_HIDE = 0;
-    public const int SW_SHOW = 5;
-    public const uint WM_GETMINMAXINFO = 0x0024;
+    internal const int WM_HOTKEY = 0x0312;
+    internal const uint MOD_ALT = 0x0001;
+    internal const uint MOD_CONTROL = 0x0002;
+    internal const uint MOD_SHIFT = 0x0004;
+    internal const uint MOD_WIN = 0x0008;
+    internal const uint MOD_NOREPEAT = 0x4000;
+    internal const int SW_RESTORE = 9;
+    internal const int SW_HIDE = 0;
+    internal const int SW_SHOW = 5;
+    internal const uint WM_GETMINMAXINFO = 0x0024;
 
     [StructLayout(LayoutKind.Sequential)]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "S101:Types should be named in PascalCase", Justification = "Win32 MINMAXINFO struct name")]
-    public struct MINMAXINFO
+    internal struct MINMAXINFO
     {
-        public POINT ptReserved;
-        public POINT ptMaxSize;
-        public POINT ptMaxPosition;
-        public POINT ptMinTrackSize;
-        public POINT ptMaxTrackSize;
+        internal POINT ptReserved;
+        internal POINT ptMaxSize;
+        internal POINT ptMaxPosition;
+        internal POINT ptMinTrackSize;
+        internal POINT ptMaxTrackSize;
     }
 
     [LibraryImport("user32.dll")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S4200:Native methods should be wrapped", Justification = "Win32 P/Invoke interop method")]
-    public static partial uint GetDpiForWindow(IntPtr hWnd);
+    internal static partial uint GetDpiForWindow(IntPtr hWnd);
 
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+    internal static partial bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
 
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool UnregisterHotKey(IntPtr hWnd, int id);
+    internal static partial bool UnregisterHotKey(IntPtr hWnd, int id);
 
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool SetForegroundWindow(IntPtr hWnd);
+    internal static partial bool SetForegroundWindow(IntPtr hWnd);
 
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    internal static partial bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
-    public const int ASFW_ANY = -1;
+    internal const int ASFW_ANY = -1;
 
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S4200:Native methods should be wrapped", Justification = "Win32 P/Invoke interop method")]
-    public static partial bool AllowSetForegroundWindow(int dwProcessId);
+    internal static partial bool AllowSetForegroundWindow(int dwProcessId);
 
     // ── System Tray (Shell_NotifyIcon) ──────────────────────────────────────────
-    public const uint NIM_ADD = 0x00000000;
-    public const uint NIM_MODIFY = 0x00000001;
-    public const uint NIM_DELETE = 0x00000002;
-    public const uint NIM_SETVERSION = 0x00000004;
+    internal const uint NIM_ADD = 0x00000000;
+    internal const uint NIM_MODIFY = 0x00000001;
+    internal const uint NIM_DELETE = 0x00000002;
+    internal const uint NIM_SETVERSION = 0x00000004;
 
-    public const uint NIF_MESSAGE = 0x00000001;
-    public const uint NIF_ICON = 0x00000002;
-    public const uint NIF_TIP = 0x00000004;
-    public const uint NIF_STATE = 0x00000008;
-    public const uint NIF_INFO = 0x00000010;
+    internal const uint NIF_MESSAGE = 0x00000001;
+    internal const uint NIF_ICON = 0x00000002;
+    internal const uint NIF_TIP = 0x00000004;
+    internal const uint NIF_STATE = 0x00000008;
+    internal const uint NIF_INFO = 0x00000010;
 
-    public const uint NOTIFYICON_VERSION_4 = 4;
-    public const uint WM_USER = 0x0400;
-    public const uint WM_TRAYICON = WM_USER + 0x5413;
+    internal const uint NOTIFYICON_VERSION_4 = 4;
+    internal const uint WM_USER = 0x0400;
+    internal const uint WM_TRAYICON = WM_USER + 0x5413;
 
-    public const uint WM_LBUTTONDOWN = 0x0201;
-    public const uint WM_LBUTTONUP = 0x0202;
-    public const uint WM_LBUTTONDBLCLK = 0x0203;
-    public const uint WM_RBUTTONDOWN = 0x0204;
-    public const uint WM_RBUTTONUP = 0x0205;
-    public const uint WM_CONTEXTMENU = 0x007B;
+    internal const uint WM_LBUTTONDOWN = 0x0201;
+    internal const uint WM_LBUTTONUP = 0x0202;
+    internal const uint WM_LBUTTONDBLCLK = 0x0203;
+    internal const uint WM_RBUTTONDOWN = 0x0204;
+    internal const uint WM_RBUTTONUP = 0x0205;
+    internal const uint WM_CONTEXTMENU = 0x007B;
 
-    public const uint MF_STRING = 0x00000000;
-    public const uint MF_CHECKED = 0x00000008;
-    public const uint MF_UNCHECKED = 0x00000000;
-    public const uint MF_SEPARATOR = 0x00000800;
-    public const uint TPM_RETURNCMD = 0x0100;
-    public const uint TPM_RIGHTBUTTON = 0x0002;
+    internal const uint MF_STRING = 0x00000000;
+    internal const uint MF_CHECKED = 0x00000008;
+    internal const uint MF_UNCHECKED = 0x00000000;
+    internal const uint MF_SEPARATOR = 0x00000800;
+    internal const uint TPM_RETURNCMD = 0x0100;
+    internal const uint TPM_RIGHTBUTTON = 0x0002;
 
-    public const uint IMAGE_ICON = 1;
-    public const uint LR_LOADFROMFILE = 0x00000010;
-    public const uint LR_DEFAULTSIZE = 0x00000040;
+    internal const uint IMAGE_ICON = 1;
+    internal const uint LR_LOADFROMFILE = 0x00000010;
+    internal const uint LR_DEFAULTSIZE = 0x00000040;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    public struct NOTIFYICONDATAW
+    internal struct NOTIFYICONDATAW
     {
-        public uint cbSize;
-        public IntPtr hWnd;
-        public uint uID;
-        public uint uFlags;
-        public uint uCallbackMessage;
-        public IntPtr hIcon;
+        internal uint cbSize;
+        internal IntPtr hWnd;
+        internal uint uID;
+        internal uint uFlags;
+        internal uint uCallbackMessage;
+        internal IntPtr hIcon;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-        public string szTip;
-        public uint dwState;
-        public uint dwStateMask;
+        internal string szTip;
+        internal uint dwState;
+        internal uint dwStateMask;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
-        public string szInfo;
-        public uint uVersionOrTimeout;
+        internal string szInfo;
+        internal uint uVersionOrTimeout;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
-        public string szInfoTitle;
-        public uint dwInfoFlags;
-        public Guid guidItem;
-        public IntPtr hBalloonIcon;
+        internal string szInfoTitle;
+        internal uint dwInfoFlags;
+        internal Guid guidItem;
+        internal IntPtr hBalloonIcon;
     }
 
     [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool Shell_NotifyIconW(uint dwMessage, ref NOTIFYICONDATAW lpData);
+    internal static extern bool Shell_NotifyIconW(uint dwMessage, ref NOTIFYICONDATAW lpData);
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    public static extern IntPtr LoadImageW(IntPtr hInst, string name, uint type, int cx, int cy, uint fuLoad);
+    internal static extern IntPtr LoadImageW(IntPtr hInst, string name, uint type, int cx, int cy, uint fuLoad);
 
     [DllImport("user32.dll", SetLastError = true)]
-    public static extern IntPtr CreatePopupMenu();
+    internal static extern IntPtr CreatePopupMenu();
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool AppendMenuW(IntPtr hMenu, uint uFlags, UIntPtr uIDNewItem, string lpNewItem);
+    internal static extern bool AppendMenuW(IntPtr hMenu, uint uFlags, UIntPtr uIDNewItem, string lpNewItem);
 
     [DllImport("user32.dll", SetLastError = true)]
-    public static extern uint TrackPopupMenuEx(IntPtr hMenu, uint uFlags, int x, int y, IntPtr hWnd, IntPtr lpTPMParams);
+    internal static extern uint TrackPopupMenuEx(IntPtr hMenu, uint uFlags, int x, int y, IntPtr hWnd, IntPtr lpTPMParams);
 
     [DllImport("user32.dll", SetLastError = true)]
-    public static extern bool DestroyMenu(IntPtr hMenu);
+    internal static extern bool DestroyMenu(IntPtr hMenu);
 
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool DestroyIcon(IntPtr hIcon);
+    internal static extern bool DestroyIcon(IntPtr hIcon);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-    public delegate IntPtr SubclassProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam, UIntPtr uIdSubclass, IntPtr dwRefData);
+    internal delegate IntPtr SubclassProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam, UIntPtr uIdSubclass, IntPtr dwRefData);
 
     [DllImport("comctl32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool SetWindowSubclass(IntPtr hWnd, SubclassProc pfnSubclass, UIntPtr uIdSubclass, IntPtr dwRefData);
+    internal static extern bool SetWindowSubclass(IntPtr hWnd, SubclassProc pfnSubclass, UIntPtr uIdSubclass, IntPtr dwRefData);
 
     [DllImport("comctl32.dll", SetLastError = true)]
-    public static extern IntPtr DefSubclassProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam);
+    internal static extern IntPtr DefSubclassProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam);
 
     [DllImport("comctl32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool RemoveWindowSubclass(IntPtr hWnd, SubclassProc pfnSubclass, UIntPtr uIdSubclass);
+    internal static extern bool RemoveWindowSubclass(IntPtr hWnd, SubclassProc pfnSubclass, UIntPtr uIdSubclass);
 
-    public const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
-    public const int DWMWA_CAPTION_COLOR = 35;
-    public const int DWMWA_TEXT_COLOR = 36;
-    public const int DWMWA_SYSTEMBACKDROP_TYPE = 38;
+    internal const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+    internal const int DWMWA_CAPTION_COLOR = 35;
+    internal const int DWMWA_TEXT_COLOR = 36;
+    internal const int DWMWA_SYSTEMBACKDROP_TYPE = 38;
 
     [DllImport("dwmapi.dll", PreserveSig = true)]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
@@ -243,12 +243,12 @@ public static partial class NativeMethods
     [DllImport("dwmapi.dll", PreserveSig = true)]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref uint pvAttribute, int cbAttribute);
 
-    public static int SetWindowAttribute(IntPtr hwnd, int dwAttribute, int pvAttribute)
+    internal static int SetWindowAttribute(IntPtr hwnd, int dwAttribute, int pvAttribute)
     {
         return DwmSetWindowAttribute(hwnd, dwAttribute, ref pvAttribute, sizeof(int));
     }
 
-    public static int SetWindowAttribute(IntPtr hwnd, int dwAttribute, uint pvAttribute)
+    internal static int SetWindowAttribute(IntPtr hwnd, int dwAttribute, uint pvAttribute)
     {
         return DwmSetWindowAttribute(hwnd, dwAttribute, ref pvAttribute, sizeof(uint));
     }
@@ -259,48 +259,48 @@ public static partial class NativeMethods
     internal static extern bool SetCursorPos(int X, int Y);
 
     // ── Low-Level Hooks (WH_KEYBOARD_LL / WH_MOUSE_LL) ─────────────────────────
-    public const int WH_KEYBOARD_LL = 13;
-    public const int WH_MOUSE_LL = 14;
+    internal const int WH_KEYBOARD_LL = 13;
+    internal const int WH_MOUSE_LL = 14;
 
-    public const int WM_KEYDOWN = 0x0100;
-    public const int WM_KEYUP = 0x0101;
-    public const int WM_SYSKEYDOWN = 0x0104;
-    public const int WM_SYSKEYUP = 0x0105;
-    public const int WM_MOUSEMOVE = 0x0200;
-    public const int WM_QUIT = 0x0012;
+    internal const int WM_KEYDOWN = 0x0100;
+    internal const int WM_KEYUP = 0x0101;
+    internal const int WM_SYSKEYDOWN = 0x0104;
+    internal const int WM_SYSKEYUP = 0x0105;
+    internal const int WM_MOUSEMOVE = 0x0200;
+    internal const int WM_QUIT = 0x0012;
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-    public delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
+    internal delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct Kbdllhookstruct
+    internal struct Kbdllhookstruct
     {
-        public uint vkCode;
-        public uint scanCode;
-        public uint flags;
-        public uint time;
-        public UIntPtr dwExtraInfo;
+        internal uint vkCode;
+        internal uint scanCode;
+        internal uint flags;
+        internal uint time;
+        internal UIntPtr dwExtraInfo;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct Msllhookstruct
+    internal struct Msllhookstruct
     {
-        public POINT pt;
-        public uint mouseData;
-        public uint flags;
-        public uint time;
-        public UIntPtr dwExtraInfo;
+        internal POINT pt;
+        internal uint mouseData;
+        internal uint flags;
+        internal uint time;
+        internal UIntPtr dwExtraInfo;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct Msg
+    internal struct Msg
     {
-        public IntPtr hwnd;
-        public uint message;
-        public IntPtr wParam;
-        public IntPtr lParam;
-        public uint time;
-        public POINT pt;
+        internal IntPtr hwnd;
+        internal uint message;
+        internal IntPtr wParam;
+        internal IntPtr lParam;
+        internal uint time;
+        internal POINT pt;
     }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]

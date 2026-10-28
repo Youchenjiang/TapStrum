@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Tapster;
 
+/// <summary>
+/// Specifies the type of recorded input action.
+/// </summary>
 public enum MacroActionType
 {
     ClickLeft,
@@ -19,6 +22,9 @@ public enum MacroActionType
     TypeText
 }
 
+/// <summary>
+/// Represents a captured or scheduled macro automation action.
+/// </summary>
 public class MacroAction
 {
     public MacroActionType Type { get; set; }
@@ -28,6 +34,9 @@ public class MacroAction
     public long DelayMs { get; set; }
 }
 
+/// <summary>
+/// Records and replays keyboard and mouse automation action sequences.
+/// </summary>
 public class MacroRecorder
 {
     private readonly List<MacroAction> _actions = new();
@@ -130,6 +139,7 @@ public class MacroRecorder
                         RecordCapturedAction(MacroActionType.ClickMiddle, hookStruct.pt.X, hookStruct.pt.Y, string.Empty, now);
                         break;
                     default:
+                        // Ignore unhandled window messages during recording
                         break;
                 }
             }
@@ -180,8 +190,8 @@ public class MacroRecorder
 
     private void RecordCapturedAction(MacroActionType type, int x, int y, string data, long now)
     {
-        MacroAction action;
-        int totalCount;
+        MacroAction action = null!;
+        int totalCount = 0;
         lock (_actions)
         {
             if (!_isRecording) return;
@@ -263,7 +273,7 @@ public class MacroRecorder
         Action<MacroAction>? actionExecutingCallback = null,
         Action? checkPanicCallback = null)
     {
-        List<MacroAction> actionsSnapshot;
+        List<MacroAction> actionsSnapshot = [];
         lock (_actions)
         {
             actionsSnapshot = new List<MacroAction>(_actions);
@@ -283,7 +293,7 @@ public class MacroRecorder
                 var action = actionsSnapshot[i];
                 progressCallback?.Invoke(currentLoop, i + 1);
 
-                await ReplaySingleStepAsync(action, speedMultiplier, token, actionExecutingCallback, checkPanicCallback);
+                await ReplaySingleStepAsync(action, speedMultiplier, actionExecutingCallback, checkPanicCallback, token);
             }
         }
     }
@@ -291,9 +301,9 @@ public class MacroRecorder
     private static async Task ReplaySingleStepAsync(
         MacroAction action,
         double speedMultiplier,
-        CancellationToken token,
         Action<MacroAction>? actionExecutingCallback,
-        Action? checkPanicCallback)
+        Action? checkPanicCallback,
+        CancellationToken token)
     {
         CheckReplaySafety(token, checkPanicCallback);
 

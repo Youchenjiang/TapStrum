@@ -128,6 +128,22 @@ public static partial class Keyboard
         _ = GetAsyncKeyState(0x1B);
     }
 
+    private static readonly Dictionary<int, string> KeyNames = new()
+    {
+        [0x10] = "shift", [0xA0] = "shift", [0xA1] = "shift",
+        [0x11] = "ctrl", [0xA2] = "ctrl", [0xA3] = "ctrl",
+        [0x12] = "alt", [0xA4] = "alt", [0xA5] = "alt",
+        [0x5B] = "win", [0x5C] = "win",
+        [0x0D] = "enter", [0x20] = "space", [0x09] = "tab", [0x1B] = "esc",
+        [0x08] = "backspace", [0x2E] = "delete", [0x2D] = "insert",
+        [0x24] = "home", [0x23] = "end", [0x21] = "pageup", [0x22] = "pagedown",
+        [0x14] = "capslock", [0x26] = "up", [0x28] = "down", [0x25] = "left", [0x27] = "right",
+        [0x2C] = "printscreen", [0x13] = "pause", [0x90] = "numlock", [0x91] = "scrolllock",
+        [0x6A] = "multiply", [0x6B] = "add", [0x6D] = "subtract", [0x6E] = "decimal", [0x6F] = "divide",
+        [0xC0] = "`", [0xBD] = "-", [0xBB] = "=", [0xDB] = "[", [0xDD] = "]", [0xDC] = "\\",
+        [0xBA] = ";", [0xDE] = "'", [0xBC] = ",", [0xBE] = ".", [0xBF] = "/"
+    };
+
     /// <summary>
     /// Maps a virtual key code to a friendly key name string.
     /// </summary>
@@ -138,50 +154,7 @@ public static partial class Keyboard
         if (vk >= 0x60 && vk <= 0x69) return $"num{vk - 0x60}";
         if (vk >= 0x70 && vk <= 0x7B) return $"f{vk - 0x70 + 1}";
 
-        return vk switch
-        {
-            0x10 or 0xA0 or 0xA1 => "shift",
-            0x11 or 0xA2 or 0xA3 => "ctrl",
-            0x12 or 0xA4 or 0xA5 => "alt",
-            0x5B or 0x5C => "win",
-            0x0D => "enter",
-            0x20 => "space",
-            0x09 => "tab",
-            0x1B => "esc",
-            0x08 => "backspace",
-            0x2E => "delete",
-            0x2D => "insert",
-            0x24 => "home",
-            0x23 => "end",
-            0x21 => "pageup",
-            0x22 => "pagedown",
-            0x14 => "capslock",
-            0x26 => "up",
-            0x28 => "down",
-            0x25 => "left",
-            0x27 => "right",
-            0x2C => "printscreen",
-            0x13 => "pause",
-            0x90 => "numlock",
-            0x91 => "scrolllock",
-            0x6A => "multiply",
-            0x6B => "add",
-            0x6D => "subtract",
-            0x6E => "decimal",
-            0x6F => "divide",
-            0xC0 => "`",
-            0xBD => "-",
-            0xBB => "=",
-            0xDB => "[",
-            0xDD => "]",
-            0xDC => "\\",
-            0xBA => ";",
-            0xDE => "'",
-            0xBC => ",",
-            0xBE => ".",
-            0xBF => "/",
-            _ => $"vk_{vk}"
-        };
+        return KeyNames.TryGetValue(vk, out var name) ? name : $"vk_{vk}";
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
