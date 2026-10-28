@@ -2118,6 +2118,19 @@ public sealed partial class MainPage : Page
             RunMacroReplayAsync);
     }
 
+    public void TriggerTyperAction() => TyperActionBtn_Click(this, new RoutedEventArgs());
+    public void TriggerHolderAction() => HolderActionBtn_Click(this, new RoutedEventArgs());
+    public void TriggerClickerAction() => ClickerActionBtn_Click(this, new RoutedEventArgs());
+    public void TriggerMacroAction() => MacroActionBtn_Click(this, new RoutedEventArgs());
+    public void TriggerRecordMacro() => RecordMacroBtn_Click(this, new RoutedEventArgs());
+    public void TriggerClearMacro() => ClearMacroBtn_Click(this, new RoutedEventArgs());
+    public void TriggerEditAction() => EditActionBtn_Click(this, new RoutedEventArgs());
+    public void TriggerDeleteAction() => DeleteActionBtn_Click(this, new RoutedEventArgs());
+    public void TriggerAddStep() => AddStepBtn_Click(this, new RoutedEventArgs());
+    public void TriggerCaptureKey() => CaptureKeyBtn_Click(this, new RoutedEventArgs());
+    public void TriggerClearActiveStepKeys() => ClearActiveStepKeysBtn_Click(this, new RoutedEventArgs());
+    public bool HasValidHolderKeys() => _holderStages.Any(s => !string.IsNullOrWhiteSpace(s.KeyCombo));
+
     private bool ValidatePreflightTaskInputs(string taskName, TextBlock statusText)
     {
         if (taskName == TabTyper && string.IsNullOrWhiteSpace(TypeTextBox.Text))
