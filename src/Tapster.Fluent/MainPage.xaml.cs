@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.DataTransfer;
 using Tapster;
+using Tapster.Services;
 
 namespace Tapster_Fluent;
 
@@ -36,6 +37,10 @@ public sealed partial class MainPage : Page
     private bool _isCapturingKey = false;
     private readonly TargetMarkerOverlay _targetMarkerOverlay = new();
     private readonly PanicDetector _panicDetector = new();
+    private readonly IAutoClickerService _autoClickerService = new AutoClickerService();
+    private readonly IAutoTyperService _autoTyperService = new AutoTyperService();
+    private readonly IKeyHolderService _keyHolderService = new KeyHolderService();
+    private readonly IClipboardService _clipboardService = new WinRTClipboardService();
     private readonly Dictionary<string, List<Button>> _keyboardButtons = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<KeyHolderStage> _holderStages = new();
     private int _activeStageIndex = 0;
@@ -2233,6 +2238,28 @@ public sealed partial class MainPage : Page
             : LocalizationManager.Get("Common_TaskCanceled");
     }
 
+    private sealed class WinRTClipboardService : IClipboardService
+    {
+        public async Task<string?> GetTextAsync()
+        {
+            var content = Clipboard.GetContent();
+            if (content.Contains(StandardDataFormats.Text))
+            {
+                return await content.GetTextAsync();
+            }
+            return null;
+        }
+
+        public Task SetTextAsync(string text)
+        {
+            var package = new DataPackage();
+            package.SetText(text);
+            Clipboard.SetContent(package);
+            Clipboard.Flush();
+            return Task.CompletedTask;
+        }
+    }
+
     // skipcq: CS-R1141
     private async Task RunAutoTyperAsync(CancellationToken token, Action<string, double> reportProgress)
     {
@@ -2251,17 +2278,25 @@ public sealed partial class MainPage : Page
             _ => KeyNone
         };
 
-        if (isClipboard)
+        double interval = TypeIntervalBox.Value;
+        int intervalMs = (int)(interval * 1000);
+        bool jitter = TypeJitterCheck.IsChecked.GetValueOrDefault();
+
+        var options = new AutoTyperOptions
         {
-            await RunClipboardTyperAsync(text, trailingKey, token, reportProgress);
-        }
-        else
-        {
-            double interval = TypeIntervalBox.Value;
-            int intervalMs = (int)(interval * 1000);
-            bool jitter = TypeJitterCheck.IsChecked.GetValueOrDefault();
-            await RunKeystrokeTyperAsync(text, intervalMs, jitter, trailingKey, token, reportProgress);
-        }
+            Text = text,
+            Mode = isClipboard ? AutoTyperMode.Clipboard : AutoTyperMode.Keystroke,
+            IntervalMs = intervalMs,
+            JitterEnabled = jitter,
+            TrailingKey = trailingKey
+        };
+
+        await _autoTyperService.RunAsync(
+            options,
+            token,
+            reportProgress,
+            clipboardService: _clipboardService,
+            panicDetector: _panicDetector);
 
         DispatcherQueue.TryEnqueue(() =>
         {
@@ -2272,245 +2307,26 @@ public sealed partial class MainPage : Page
     }
 
     // skipcq: CS-R1141
-    private async Task RunClipboardTyperAsync(string text, string trailingKey, CancellationToken token, Action<string, double> reportProgress)
-    {
-        string? previousText = null;
-        try
-        {
-            var currentContent = Clipboard.GetContent();
-            if (currentContent.Contains(StandardDataFormats.Text))
-            {
-                previousText = await currentContent.GetTextAsync();
-            }
-        }
-        catch
-        {
-            // Ignore failure to read previous clipboard content
-        }
-
-        var package = new DataPackage();
-        package.SetText(text);
-        Clipboard.SetContent(package);
-
-        try
-        {
-            await Task.Run(() =>
-            {
-                token.ThrowIfCancellationRequested();
-                CheckPanicSafety();
-                reportProgress(string.Format(LocalizationManager.Get("Typer_PastingClipboard"), text.Length), 50);
-
-                Keyboard.Paste();
-
-                token.ThrowIfCancellationRequested();
-                CheckPanicSafety();
-
-                ApplyTrailingKey(trailingKey, token);
-                reportProgress(string.Format(LocalizationManager.Get("Typer_PastedClipboard"), text.Length), 100);
-            }, token);
-        }
-        finally
-        {
-            if (!string.IsNullOrEmpty(previousText))
-            {
-                await Task.Delay(150, CancellationToken.None);
-                try
-                {
-                    var restorePackage = new DataPackage();
-                    restorePackage.SetText(previousText);
-                    Clipboard.SetContent(restorePackage);
-                    Clipboard.Flush();
-                }
-                catch
-                {
-                    // Ignore failure to restore clipboard
-                }
-            }
-        }
-    }
-
-    // skipcq: CS-R1141
-    private async Task RunKeystrokeTyperAsync(string text, int intervalMs, bool jitter, string trailingKey, CancellationToken token, Action<string, double> reportProgress)
-    {
-        await Task.Run(() =>
-        {
-            for (int i = 0; i < text.Length; i++)
-            {
-                token.ThrowIfCancellationRequested();
-                CheckPanicSafety();
-                Keyboard.Type(text[i]);
-
-                int charIndex = i + 1;
-                reportProgress(string.Format(LocalizationManager.Get("Typer_TypingChar"), charIndex, text.Length), (double)charIndex / text.Length * 100);
-
-                int sleepMs = jitter && intervalMs > 0
-                    ? JitterHelper.ApplyTimeJitter(intervalMs, 15, minIntervalMs: 1)
-                    : intervalMs;
-
-                if (sleepMs > 0)
-                {
-                    SleepWithPanicCheck(sleepMs, token);
-                }
-            }
-
-            token.ThrowIfCancellationRequested();
-            CheckPanicSafety();
-            ApplyTrailingKey(trailingKey, token);
-        }, token);
-    }
-
-    private static void ApplyTrailingKey(string trailingKey, CancellationToken token)
-    {
-        if (token.IsCancellationRequested || Keyboard.IsEscPressed())
-        {
-            return;
-        }
-
-        if (trailingKey is KeyEnter or KeyTab)
-        {
-            Thread.Sleep(50);
-            if (!token.IsCancellationRequested && !Keyboard.IsEscPressed())
-            {
-                Keyboard.Tap(trailingKey);
-            }
-        }
-    }
-
-    // skipcq: CS-R1141
     private async Task RunKeyHolderAsync(CancellationToken token, Action<string, double> reportProgress)
     {
-        var indexedStagesToRun = _holderStages
-            .Select((stage, index) => (OriginalIndex: index, Stage: stage.Clone()))
-            .Where(x => !string.IsNullOrWhiteSpace(x.Stage.KeyCombo))
-            .ToList();
-
-        if (indexedStagesToRun.Count == 0)
-        {
-            throw new InvalidOperationException("No valid steps in pipeline!");
-        }
-
         double repeatVal = HolderRepeatBox.Value;
         int repeatLoops = (!double.IsNaN(repeatVal) && !double.IsInfinity(repeatVal) && repeatVal >= 0)
             ? (int)Math.Floor(repeatVal)
             : 1;
 
-        await Task.Run(() =>
+        var options = new KeyHolderOptions
         {
-            try
-            {
-                int currentLoop = 0;
-                while (!token.IsCancellationRequested && (repeatLoops == 0 || currentLoop < repeatLoops))
-                {
-                    currentLoop++;
-                    bool isFinalLoop = (repeatLoops > 0 && currentLoop == repeatLoops);
-                    string loopPrefix = FormatHolderLoopPrefix(currentLoop, repeatLoops);
-                    ExecuteHolderStagesPipeline(indexedStagesToRun, loopPrefix, isFinalLoop, reportProgress, token);
-                }
-            }
-            finally
-            {
-                DispatcherQueue.TryEnqueue(ClearRunningStageHighlight);
-            }
-        }, token);
-    }
+            Stages = _holderStages,
+            RepeatLoops = repeatLoops
+        };
 
-    private static string FormatHolderLoopPrefix(int currentLoop, int repeatLoops)
-    {
-        if (repeatLoops == 1) return "";
-        if (repeatLoops == 0) return string.Format(LocalizationManager.Get("KeyHolder_LoopInfinitePrefix"), currentLoop);
-        return string.Format(LocalizationManager.Get("KeyHolder_LoopPrefix"), currentLoop, repeatLoops);
-    }
-
-    private void ExecuteHolderStagesPipeline(
-        List<(int OriginalIndex, KeyHolderStage Stage)> stagesToRun,
-        string loopPrefix,
-        bool isFinalLoop,
-        Action<string, double> reportProgress,
-        CancellationToken token)
-    {
-        for (int i = 0; i < stagesToRun.Count; i++)
-        {
-            token.ThrowIfCancellationRequested();
-            CheckPanicSafety();
-
-            var (originalIdx, stage) = stagesToRun[i];
-            DispatcherQueue.TryEnqueue(() => HighlightRunningStage(originalIdx));
-
-            string stepPrefix = stagesToRun.Count > 1
-                ? $"{loopPrefix}{string.Format(LocalizationManager.Get("KeyHolder_StepPrefix"), i + 1, stagesToRun.Count)}"
-                : loopPrefix;
-            bool isLastStepOfRun = isFinalLoop && (i == stagesToRun.Count - 1);
-
-            ExecuteHolderStageHoldPhase(stage, stepPrefix, reportProgress, token);
-
-            if (!isLastStepOfRun)
-            {
-                ExecuteHolderStageRestPhase(stage, stepPrefix, reportProgress, token);
-            }
-        }
-    }
-
-    private void ExecuteHolderStageHoldPhase(
-        KeyHolderStage stage,
-        string stepPrefix,
-        Action<string, double> reportProgress,
-        CancellationToken token)
-    {
-        int durationMs = (int)(stage.HoldDurationSec * 1000);
-        try
-        {
-            Keyboard.Press(stage.KeyCombo);
-            int elapsedMs = 0;
-            const int checkIntervalMs = 50;
-
-            while (!token.IsCancellationRequested && (durationMs <= 0 || elapsedMs < durationMs))
-            {
-                CheckPanicSafety();
-
-                if (durationMs > 0)
-                {
-                    double pct = (double)elapsedMs / durationMs * 100;
-                    reportProgress(string.Format(LocalizationManager.Get("KeyHolder_HoldingDuration"), stepPrefix, stage.KeyCombo, elapsedMs / 1000.0, stage.HoldDurationSec), pct);
-                }
-                else
-                {
-                    reportProgress(string.Format(LocalizationManager.Get("KeyHolder_HoldingContinuously"), stepPrefix, stage.KeyCombo), 100);
-                }
-
-                SleepWithPanicCheck(checkIntervalMs, token);
-                elapsedMs += checkIntervalMs;
-            }
-        }
-        finally
-        {
-            Keyboard.Release(stage.KeyCombo);
-            Keyboard.ReleaseAllModifiers();
-        }
-    }
-
-    private void ExecuteHolderStageRestPhase(
-        KeyHolderStage stage,
-        string stepPrefix,
-        Action<string, double> reportProgress,
-        CancellationToken token)
-    {
-        if (stage.RestDurationSec <= 0 || token.IsCancellationRequested)
-        {
-            return;
-        }
-
-        int restMs = (int)(stage.RestDurationSec * 1000);
-        int restElapsedMs = 0;
-        const int checkIntervalMs = 50;
-
-        while (!token.IsCancellationRequested && restElapsedMs < restMs)
-        {
-            CheckPanicSafety();
-            double pct = (double)restElapsedMs / restMs * 100;
-            reportProgress(string.Format(LocalizationManager.Get("KeyHolder_RestingDuration"), stepPrefix, restElapsedMs / 1000.0, stage.RestDurationSec), pct);
-            SleepWithPanicCheck(checkIntervalMs, token);
-            restElapsedMs += checkIntervalMs;
-        }
+        await _keyHolderService.RunAsync(
+            options,
+            token,
+            reportProgress,
+            onStageStarted: originalIdx => DispatcherQueue.TryEnqueue(() => HighlightRunningStage(originalIdx)),
+            onPipelineCompleted: () => DispatcherQueue.TryEnqueue(ClearRunningStageHighlight),
+            panicDetector: _panicDetector);
     }
 
     // skipcq: CS-R1141
@@ -2531,7 +2347,6 @@ public sealed partial class MainPage : Page
         double intervalSec = ClickIntervalBox.Value;
         int intervalMs = Math.Max(5, (int)(intervalSec * 1000));
         int totalClicks = (int)ClickCountBox.Value;
-        bool infinite = totalClicks <= 0;
 
         int? targetX = double.IsNaN(ClickXBox.Value) ? null : (int)ClickXBox.Value;
         int? targetY = double.IsNaN(ClickYBox.Value) ? null : (int)ClickYBox.Value;
@@ -2540,109 +2355,37 @@ public sealed partial class MainPage : Page
         double timeJitterPct = TimeJitterBox.Value;
         double locJitterPx = LocationJitterBox.Value;
 
-        // Ensure target marker overlay is fresh and visible
         UpdateTargetMarkerOverlay();
-
         bool markerEnabled = ShowTargetMarkerCheck.IsChecked.GetValueOrDefault(false) && !isSpammer;
-        const int HOTKEY_VK = 0x75;
 
-        await Task.Run(() =>
+        var options = new AutoClickerOptions
         {
-            int count = 0;
-            while (!token.IsCancellationRequested && (infinite || count < totalClicks))
-            {
-                CheckPanicSafety();
+            IsSpammer = isSpammer,
+            SpamKey = spamKey,
+            MouseButton = button,
+            IntervalMs = intervalMs,
+            TotalClicks = totalClicks,
+            TargetX = targetX,
+            TargetY = targetY,
+            JitterEnabled = jitterEnabled,
+            TimeJitterPct = timeJitterPct,
+            LocationJitterPx = locJitterPx,
+            IsHoldMode = isHoldMode,
+            HotkeyVk = 0x75
+        };
 
-                // If Hold-to-Click is enabled, automatically stop when the hotkey (F6) is released
-                if (isHoldMode && !KeySpammer.IsKeyDown(HOTKEY_VK))
+        await _autoClickerService.RunAsync(
+            options,
+            token,
+            reportProgress,
+            onPointClicked: (x, y) =>
+            {
+                if (markerEnabled)
                 {
-                    break;
+                    DispatcherQueue.TryEnqueue(() => _targetMarkerOverlay.ShowClickRipple(x, y));
                 }
-
-                ExecuteSingleClickIteration(isSpammer, spamKey, targetX, targetY, locJitterPx, markerEnabled, button);
-                count++;
-
-                ReportClickProgress(isSpammer, spamKey, count, totalClicks, infinite, reportProgress);
-
-                int sleepMs = jitterEnabled && timeJitterPct > 0
-                    ? JitterHelper.ApplyTimeJitter(intervalMs, timeJitterPct)
-                    : intervalMs;
-
-                if (sleepMs > 0)
-                {
-                    SleepWithPanicCheck(sleepMs, token);
-                }
-            }
-        }, token);
-    }
-
-    private void ExecuteSingleClickIteration(
-        bool isSpammer,
-        string spamKey,
-        int? targetX,
-        int? targetY,
-        double locJitterPx,
-        bool markerEnabled,
-        string button)
-    {
-        if (isSpammer)
-        {
-            KeySpammer.Spam(spamKey);
-            return;
-        }
-
-        if (targetX.HasValue && targetY.HasValue)
-        {
-            var (clickX, clickY) = JitterHelper.ApplyLocationJitter(targetX.Value, targetY.Value, locJitterPx);
-            if (markerEnabled)
-            {
-                DispatcherQueue.TryEnqueue(() => _targetMarkerOverlay.ShowClickRipple(clickX, clickY));
-            }
-            _panicDetector.SyncProgrammaticPosition(clickX, clickY);
-            Mouse.ClickAt(clickX, clickY, button);
-            _panicDetector.SyncProgrammaticPosition(clickX, clickY);
-        }
-        else
-        {
-            var (curX, curY) = Mouse.GetPosition();
-            if (markerEnabled)
-            {
-                DispatcherQueue.TryEnqueue(() => _targetMarkerOverlay.ShowClickRipple(curX, curY));
-            }
-            Mouse.Click(button);
-        }
-    }
-
-    private static void ReportClickProgress(
-        bool isSpammer,
-        string spamKey,
-        int count,
-        int totalClicks,
-        bool infinite,
-        Action<string, double> reportProgress)
-    {
-        if (isSpammer)
-        {
-            if (!infinite)
-            {
-                reportProgress(string.Format(LocalizationManager.Get("Clicker_SpammingKey"), spamKey, count, totalClicks), (double)count / totalClicks * 100);
-            }
-            else
-            {
-                reportProgress(string.Format(LocalizationManager.Get("Clicker_SpammingKeyInfinite"), spamKey, count), 100);
-            }
-        }
-        else
-        {
-            if (!infinite)
-            {
-                reportProgress(string.Format(LocalizationManager.Get("Clicker_ClickingCount"), count, totalClicks), (double)count / totalClicks * 100);
-            }
-            else
-            {
-                reportProgress(string.Format(LocalizationManager.Get("Clicker_ClickingInfinite"), count), 100);
-            }
-        }
+            },
+            panicDetector: _panicDetector);
     }
 
     // skipcq: CS-R1141
