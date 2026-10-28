@@ -34,7 +34,7 @@ FORBIDDEN_METADATA_CHECKLIST = re.compile(
 MANDATORY_CHECKLIST_PATTERNS = [
     (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*atomic commits", re.IGNORECASE), "Atomic commits (passed the Revert Test)"),
     (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*conventional commits", re.IGNORECASE), "Commit headers follow Conventional Commits"),
-    (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*numbered[^\r\n]*body", re.IGNORECASE), "Numbered technical body included in commits"),
+    (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*\bnumbered (?:technical )?body\b", re.IGNORECASE), "Numbered technical body included in commits"),
     (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*self-reviewed", re.IGNORECASE), "Self-reviewed locally"),
     (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*documentation", re.IGNORECASE), "Documentation / comments updated accordingly"),
 ]
