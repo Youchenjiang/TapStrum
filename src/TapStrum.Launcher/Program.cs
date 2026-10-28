@@ -119,7 +119,8 @@ internal static class Program
         try
         {
             var processes = Process.GetProcessesByName("TapStrum.Fluent")
-                .Concat(Process.GetProcessesByName("Tapster.Fluent"));
+                .Concat(Process.GetProcessesByName("Tapster.Fluent"))
+                .ToArray();
             foreach (var p in processes)
             {
                 try
@@ -139,7 +140,8 @@ internal static class Program
         try
         {
             var processes = Process.GetProcessesByName("TapStrum.Fluent")
-                .Concat(Process.GetProcessesByName("Tapster.Fluent"));
+                .Concat(Process.GetProcessesByName("Tapster.Fluent"))
+                .ToArray();
             if (processes.Length == 0) return false;
 
             AllowSetForegroundWindow(ASFW_ANY);
