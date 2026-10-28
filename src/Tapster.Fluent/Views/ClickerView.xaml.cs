@@ -246,14 +246,7 @@ public sealed partial class ClickerView : UserControl
         }
 
         bool isSpammer = ClickTargetTypeCombo.SelectedIndex == 1;
-        if (isSpammer)
-        {
-            ClickerActionBtn.IsEnabled = !string.IsNullOrWhiteSpace(SpamKeyBox.Text);
-        }
-        else
-        {
-            ClickerActionBtn.IsEnabled = true;
-        }
+        ClickerActionBtn.IsEnabled = !isSpammer || !string.IsNullOrWhiteSpace(SpamKeyBox.Text);
     }
 
     public void UpdateClearCoordsBtnState()

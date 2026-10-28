@@ -51,10 +51,7 @@ public sealed partial class MainPage : Page
         MacroPanel.ViewModel = ViewModel.Macro;
         SettingsPanel.DataContext = ViewModel.Settings;
 
-        SettingsPanel.NavigateToAboutRequested += (_, _) =>
-        {
-            NavView.SelectedItem = NavItemAbout;
-        };
+        SettingsPanel.NavigateToAboutRequested += (_, _) => NavView.SelectedItem = NavItemAbout;
 
         NavView.SelectedItem = NavItemTyper;
     }
@@ -89,15 +86,13 @@ public sealed partial class MainPage : Page
 
     private void UpdateTargetMarkerOverlay()
     {
-        bool showMarker = ViewModel.SelectedNavigationTag == TabClicker &&
-                          ViewModel.Clicker.ShowTargetMarker &&
-                          !ViewModel.Clicker.IsKeySpammer &&
-                          ViewModel.Clicker.TargetX.HasValue &&
-                          ViewModel.Clicker.TargetY.HasValue;
-
-        if (showMarker)
+        if (ViewModel.SelectedNavigationTag == TabClicker &&
+            ViewModel.Clicker.ShowTargetMarker &&
+            !ViewModel.Clicker.IsKeySpammer &&
+            ViewModel.Clicker.TargetX is double targetX &&
+            ViewModel.Clicker.TargetY is double targetY)
         {
-            _targetMarkerOverlay.Update((int)ViewModel.Clicker.TargetX!.Value, (int)ViewModel.Clicker.TargetY!.Value, ViewModel.Clicker.LocationJitterPx, true);
+            _targetMarkerOverlay.Update((int)targetX, (int)targetY, ViewModel.Clicker.LocationJitterPx, true);
         }
         else
         {
