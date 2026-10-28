@@ -154,20 +154,19 @@ timeline
 
 ---
 
-### [Phase 4] 多語系與 Microsoft Store 上架合規 (Store Readiness & i18n) — `規劃中 📌`
+### [Phase 4] 多語系與 Microsoft Store 上架合規 (Store Readiness & i18n) — `進行中 🚧`
 > **目標**：對齊微軟商店政策（Microsoft Store Policies），通過自動化與人工審核並上架。
 
-- [ ] **[P4-1] 5 國語言原生本地化支援 (Multi-language i18n)**
-  - **規格**：導入 WinUI 3 `Resources.resw` 標準多語系架構，支援動態語系切換：
+- [x] **[P4-1] 多語系原生本地化支援 (Multi-language i18n)**
+  - **規格**：導入內嵌 JSON 資源與 Trim/AOT 安全的 `JsonDocument.Parse` 動態語系架構，支援動態語系切換：
     - 繁體中文 (`zh-TW`)
     - 英文 (`en-US`)
     - 簡體中文 (`zh-CN`)
     - 日本語 (`ja-JP`)
-    - 韓語 (`ko-KR`)
 - [x] **[P4-2] MSIX 封裝與自動簽署 (MSIX Packaging & Signing)**
   - **規則**：建立 `packaging/msix/AppxManifest.xml`（宣告 `runFullTrust`）與全套視覺資產；實作 `scripts/build_msix.ps1` 透過 `makeappx.exe` 打包與 `signtool.exe` 自動化測試憑證簽署，產出標準 `.msix` 安裝套件（33.9MB）。
 - [ ] **[P4-3] Microsoft Store 文案與上架素材 (Store Listings & Assets)**
-  - **規格**：撰寫 5 國語言商店文案、準備 1920x1080 高解析功能截圖；建立正式隱私權政策 (`PRIVACY.md`)，聲明「不收集、不傳輸任何使用者按鍵記錄，100% 本機處理」。
+  - **規格**：撰寫多語言商店文案、準備 1920x1080 高解析功能截圖；建立正式隱私權政策 (`PRIVACY.md`)，聲明「不收集、不傳輸任何使用者按鍵記錄，100% 本機處理」。
 
 ---
 
@@ -175,8 +174,8 @@ timeline
 > **目標**：比照 Clickra 建立全自動化構建、簽署、發布管線與雙軌發行模式。
 
 - [ ] **[P5-1] GitHub Actions 自動化建置管線 (`.github/workflows/build.yml`)**
-  - **規格**：在 Windows Runner 上自動編譯 `Tapster.Fluent` 與 `Tapster.Core`，執行單元測試與品質檢查。
-- [x] **[P5-2] 純單檔可攜式啟動器與自動同步 (`Tapster.Launcher`)**
+  - **規格**：在 Windows Runner 上自動編譯 `TapStrum.Fluent` 與 `TapStrum.Core`，執行單元測試與品質檢查。
+- [x] **[P5-2] 純單檔可攜式啟動器與自動同步 (`TapStrum.Launcher`)**
   - **規則**：實作純單一 `.exe` 啟動器（43.1MB），內建 Payload 解壓、SHA-256 特徵碼比對自動同步機制；更新前自動平穩釋放舊程序以防止 DLL 檔案鎖定，並支援單一實例智慧喚醒。
 - [x] **[P5-3] 編譯程序防護與構建伺服器清理 (Build Process Guard & Server Shutdown)**
   - **規則**：全域關閉 MSBuild NodeReuse 與 SharedCompilation，在所有打包腳本加入 `finally { Stop-BuildServers }` 自動關閉伺服器防殘留，確保使用者開發環境 100% 乾淨無背景 `.NET Host` 佔用。
@@ -191,38 +190,35 @@ timeline
 ## 專案架構與品質規範 (Architecture & Quality Gates)
 
 ```
-Script-List/automation/
-├── tapster/                      # [Legacy] Python 原版 (已封存為歷史參考)
-│   ├── tapster_cli.py
-│   ├── tapster_gui.py
-│   └── Tapster_Lite.spec
+TapStrum/
+├── TapStrum.sln                  # 現代化 Visual Studio 解決方案 (相容 Tapster.sln)
+├── Directory.Build.props         # MSBuild 全域防護 (NodeReuse=false)
+├── docs/                         # 架構規範與發展藍圖
+│   ├── ARCHITECTURE.md
+│   └── ROADMAP.md
+├── src/
+│   ├── TapStrum.Core/            # [Core] 零依賴底層自動化引擎與領域服務
+│   │   ├── Services/             # 業務服務層 (Clicker, Holder, Typer, Settings)
+│   │   ├── Resources/            # 內嵌 JSON 多語系字串資源 (zh-TW, en-US, ja-JP, zh-CN)
+│   │   ├── Keyboard.cs
+│   │   ├── Mouse.cs
+│   │   ├── MacroRecorder.cs
+│   │   ├── LocalizationManager.cs
+│   │   └── NativeMethods.cs
+│   │
+│   ├── TapStrum.Fluent/          # [Fluent] WinUI 3 + MVVM 現代化桌面應用程式
+│   │   ├── Views/                # 模組化 XAML 視圖 (Clicker, Holder, Macro, Typer, Settings, About)
+│   │   ├── ViewModels/           # CommunityToolkit.Mvvm 視圖模型
+│   │   ├── Assets/               # 高解析度圖示與向量資源
+│   │   ├── MainWindow.xaml(.cs)  # 視窗宿主、標題列拖曳、置頂與全域喚醒控制
+│   │   └── MainPage.xaml(.cs)    # 輕量級導航容器 (NavigationView)
+│   │
+│   └── TapStrum.Launcher/        # [Launcher] 純單檔啟動器 (SHA-256 自動同步)
+│       └── Program.cs
 │
-└── tapster-native/               # [Active] 現代化 Native 解決方案
-    ├── Tapster.sln
-    ├── Directory.Build.props     # MSBuild 全域防護 (NodeReuse=false)
-    ├── docs/
-    │   └── ROADMAP.md            # 本發展藍圖文件
-    ├── src/
-    │   ├── TapStrum/              # [Tapster.Core] 零依賴底層自動化引擎 (.NET 8/10)
-    │   │   ├── AutoTyper.cs
-    │   │   ├── AutoClicker.cs
-    │   │   ├── KeyHolder.cs
-    │   │   ├── MacroRecorder.cs
-    │   │   ├── Keyboard.cs
-    │   │   ├── Mouse.cs
-    │   │   └── NativeMethods.cs
-    │   │
-    │   └── Tapster.Launcher/     # [Tapster.Launcher] 純單檔啟動器 (SHA-256 自動同步)
-    │       ├── Program.cs
-    │       └── Tapster.Launcher.csproj
-    │
-    └── src/Tapster.Fluent/       # [Tapster.Fluent] WinUI 3 現代化桌面應用程式
-        ├── Assets/               # 高解析圖示與向量資源
-        ├── MainWindow.xaml(.cs)  # 標題列拖曳、置頂與全域喚醒控制
-        ├── MainPage.xaml(.cs)    # 5 排實體虛擬鍵盤、各分頁獨立控制卡片、關於頁
-        ├── AppSettings.cs        # 偏好設定持久化 (%LOCALAPPDATA%\TapStrum\settings.json)
-        ├── UpdateIcon.ps1        # Post-build Win32 PE 資源注入腳本
-        └── Tapster.Fluent.csproj # 專案設定與自動化構建目標
+└── tests/
+    ├── TapStrum.Core.Tests/      # Core 領域服務與引擎單元測試 (xUnit)
+    └── TapStrum.Fluent.Tests/    # WinUI 視圖模型解耦單元測試 (xUnit)
 ```
 
 ### 品質與設計原則
