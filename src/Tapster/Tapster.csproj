@@ -15,4 +15,8 @@
     <InternalsVisibleTo Include="Tapster.Fluent" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\*.json" />
+  </ItemGroup>
+
 </Project>
