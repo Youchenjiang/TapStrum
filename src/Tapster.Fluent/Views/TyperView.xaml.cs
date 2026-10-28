@@ -16,7 +16,14 @@ public sealed partial class TyperView : UserControl
     public TyperViewModel? ViewModel
     {
         get => DataContext as TyperViewModel;
-        set => DataContext = value;
+        set
+        {
+            DataContext = value;
+            if (value is not null)
+            {
+                SyncFromViewModel();
+            }
+        }
     }
 
     public TyperView()
@@ -90,13 +97,6 @@ public sealed partial class TyperView : UserControl
             SyncToViewModel();
             await ViewModel.ToggleAsync();
             SyncFromViewModel();
-            return;
-        }
-
-        // Fallback to legacy MainPage task runner if ViewModel not attached
-        if (MainPage.Instance is { } mp)
-        {
-            mp.TriggerTyperAction();
         }
     }
 

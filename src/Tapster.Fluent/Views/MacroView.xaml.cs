@@ -14,7 +14,14 @@ public sealed partial class MacroView : UserControl
     public MacroViewModel? ViewModel
     {
         get => DataContext as MacroViewModel;
-        set => DataContext = value;
+        set
+        {
+            DataContext = value;
+            if (value is not null)
+            {
+                SyncFromViewModel();
+            }
+        }
     }
 
     public MacroView()
@@ -49,51 +56,32 @@ public sealed partial class MacroView : UserControl
 
     private void RecordMacroBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (ViewModel is not null)
-        {
-            if (ViewModel.IsRecording)
-            {
-                ViewModel.StopRecording();
-                RecordMacroText.Text = LocalizationManager.Get("Macro_RecordStart");
-                RecordIcon.Glyph = "\uE7C8";
-            }
-            else
-            {
-                ViewModel.StartRecording();
-                RecordMacroText.Text = LocalizationManager.Get("Macro_RecordStop");
-                RecordIcon.Glyph = "\uE71A";
-            }
-            SyncFromViewModel();
-            return;
-        }
+        if (ViewModel is null) return;
 
-        if (MainPage.Instance is { } mp)
+        if (ViewModel.IsRecording)
         {
-            mp.TriggerRecordMacro();
+            ViewModel.StopRecording();
+            RecordMacroText.Text = LocalizationManager.Get("Macro_RecordStart");
+            RecordIcon.Glyph = "\uE7C8";
         }
+        else
+        {
+            ViewModel.StartRecording();
+            RecordMacroText.Text = LocalizationManager.Get("Macro_RecordStop");
+            RecordIcon.Glyph = "\uE71A";
+        }
+        SyncFromViewModel();
     }
 
     private void ClearMacroBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (ViewModel is not null)
-        {
-            ViewModel.ClearActions();
-            SyncFromViewModel();
-            return;
-        }
-
-        if (MainPage.Instance is { } mp)
-        {
-            mp.TriggerClearMacro();
-        }
+        ViewModel?.ClearActions();
+        SyncFromViewModel();
     }
 
     private void EditActionBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (MainPage.Instance is { } mp)
-        {
-            mp.TriggerEditAction();
-        }
+        // Edit step hook
     }
 
     private void DeleteActionBtn_Click(object sender, RoutedEventArgs e)
@@ -103,12 +91,6 @@ public sealed partial class MacroView : UserControl
         {
             ViewModel.DeleteAction(idx);
             SyncFromViewModel();
-            return;
-        }
-
-        if (MainPage.Instance is { } mp)
-        {
-            mp.TriggerDeleteAction();
         }
     }
 
@@ -124,12 +106,6 @@ public sealed partial class MacroView : UserControl
             SyncToViewModel();
             await ViewModel.TogglePlayAsync();
             SyncFromViewModel();
-            return;
-        }
-
-        if (MainPage.Instance is { } mp)
-        {
-            mp.TriggerMacroAction();
         }
     }
 

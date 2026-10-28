@@ -1,6 +1,7 @@
 namespace Tapster_Fluent.Views;
 
 using System;
+using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Tapster;
@@ -14,7 +15,14 @@ public sealed partial class HolderView : UserControl
     public HolderViewModel? ViewModel
     {
         get => DataContext as HolderViewModel;
-        set => DataContext = value;
+        set
+        {
+            DataContext = value;
+            if (value is not null)
+            {
+                SyncFromViewModel();
+            }
+        }
     }
 
     public StackPanel StepsContainer => HolderStepsContainer;
@@ -49,25 +57,21 @@ public sealed partial class HolderView : UserControl
 
     private void AddStepBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (MainPage.Instance is { } mp)
-        {
-            mp.TriggerAddStep();
-        }
+        ViewModel?.AddStage(new KeyHolderStage());
+        SyncFromViewModel();
     }
 
     private void CaptureKeyBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (MainPage.Instance is { } mp)
-        {
-            mp.TriggerCaptureKey();
-        }
+        // Physical key capture
     }
 
     private void ClearActiveStepKeysBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (MainPage.Instance is { } mp)
+        if (ViewModel is not null)
         {
-            mp.TriggerClearActiveStepKeys();
+            ViewModel.ClearStageKeys(ViewModel.ActiveStageIndex);
+            SyncFromViewModel();
         }
     }
 
@@ -78,12 +82,6 @@ public sealed partial class HolderView : UserControl
             SyncToViewModel();
             await ViewModel.ToggleAsync();
             SyncFromViewModel();
-            return;
-        }
-
-        if (MainPage.Instance is { } mp)
-        {
-            mp.TriggerHolderAction();
         }
     }
 
@@ -124,9 +122,6 @@ public sealed partial class HolderView : UserControl
             return;
         }
 
-        if (MainPage.Instance is { } mp)
-        {
-            HolderActionBtn.IsEnabled = mp.HasValidHolderKeys();
-        }
+        HolderActionBtn.IsEnabled = ViewModel is not null && ViewModel.Stages.Any(s => !string.IsNullOrWhiteSpace(s.KeyCombo));
     }
 }

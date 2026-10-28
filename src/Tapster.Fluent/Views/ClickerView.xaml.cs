@@ -16,7 +16,14 @@ public sealed partial class ClickerView : UserControl
     public ClickerViewModel? ViewModel
     {
         get => DataContext as ClickerViewModel;
-        set => DataContext = value;
+        set
+        {
+            DataContext = value;
+            if (value is not null)
+            {
+                SyncFromViewModel();
+            }
+        }
     }
 
     public ClickerView()
@@ -187,12 +194,6 @@ public sealed partial class ClickerView : UserControl
             SyncToViewModel();
             await ViewModel.ToggleAsync();
             SyncFromViewModel();
-            return;
-        }
-
-        if (MainPage.Instance is { } mp)
-        {
-            mp.TriggerClickerAction();
         }
     }
 
