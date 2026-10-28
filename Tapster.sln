@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tapster.Launcher", "src\Tapster.Launcher\Tapster.Launcher.csproj", "{8A2972DF-0EBB-443B-BDF0-26457187196C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tapster.Fluent.Tests", "tests\Tapster.Fluent.Tests\Tapster.Fluent.Tests.csproj", "{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,18 @@ Global
 		{8A2972DF-0EBB-443B-BDF0-26457187196C}.Release|x64.Build.0 = Release|Any CPU
 		{8A2972DF-0EBB-443B-BDF0-26457187196C}.Release|x86.ActiveCfg = Release|Any CPU
 		{8A2972DF-0EBB-443B-BDF0-26457187196C}.Release|x86.Build.0 = Release|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Debug|x64.Build.0 = Debug|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Debug|x86.Build.0 = Debug|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Release|x64.ActiveCfg = Release|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Release|x64.Build.0 = Release|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Release|x86.ActiveCfg = Release|Any CPU
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,5 +94,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3ED91355-8E1B-464C-81FC-59CEC9E8758D} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{8A2972DF-0EBB-443B-BDF0-26457187196C} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{46BD45C2-3B0E-4BE4-A2A9-F08FDEC8C361} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

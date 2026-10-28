@@ -6,5 +6,6 @@
     <!-- Disable MSBuild node reuse and shared compilation background daemons -->
     <UseSharedCompilation>false</UseSharedCompilation>
     <NodeReuse>false</NodeReuse>
+    <NoWarn>$(NoWarn);S2325;CA1822</NoWarn>
   </PropertyGroup>
 </Project>
