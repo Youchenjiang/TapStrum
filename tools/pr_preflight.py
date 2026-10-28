@@ -29,14 +29,14 @@ SECTION_MAPPINGS = {
     CHECKLIST_SECTION: (CHECKLIST_SECTION, "## Pre-Submission Checklist"),
 }
 FORBIDDEN_METADATA_CHECKLIST = re.compile(
-    r"(?m)^[ \t]*- \[[ xX]\] \*\*([Aa]ssignee|[Ll]abel|[Mm]ilestone)\*\*:"
+    r"(?mi)^[ \t]*- \[[ x]\] \*\*(Assignee|Label|Milestone)\*\*:"
 )
 MANDATORY_CHECKLIST_PATTERNS = [
-    (re.compile(r"(?m)^[ \t]*- \[[xX]\] .*(?i:atomic commits)"), "Atomic commits (passed the Revert Test)"),
-    (re.compile(r"(?m)^[ \t]*- \[[xX]\] .*(?i:conventional commits)"), "Commit headers follow Conventional Commits"),
-    (re.compile(r"(?m)^[ \t]*- \[[xX]\] .*(?i:numbered).*(?i:body)"), "Numbered technical body included in commits"),
-    (re.compile(r"(?m)^[ \t]*- \[[xX]\] .*(?i:self-reviewed)"), "Self-reviewed locally"),
-    (re.compile(r"(?m)^[ \t]*- \[[xX]\] .*(?i:documentation)"), "Documentation / comments updated accordingly"),
+    (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*atomic commits", re.IGNORECASE), "Atomic commits (passed the Revert Test)"),
+    (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*conventional commits", re.IGNORECASE), "Commit headers follow Conventional Commits"),
+    (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*numbered[^\r\n]*body", re.IGNORECASE), "Numbered technical body included in commits"),
+    (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*self-reviewed", re.IGNORECASE), "Self-reviewed locally"),
+    (re.compile(r"(?m)^[ \t]*- \[x\] [^\r\n]*documentation", re.IGNORECASE), "Documentation / comments updated accordingly"),
 ]
 PLACEHOLDER = re.compile(r"(?i)\b(?:todo|tbd|placeholder|describe the|assign the|add an appropriate|choose the|not run: full pre-push)\b")
 VAGUE = {"update", "misc", "stuff", "changes", "fix bug", "bug fix"}
