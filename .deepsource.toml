@@ -5,6 +5,10 @@ exclude_patterns = [
   "src/Tapster.Fluent/**",
   "src/TapStrum.Launcher/**",
   "src/Tapster.Launcher/**",
+  "src/TapStrum.Core/NativeMethods.cs",
+  "src/TapStrum.Core/Keyboard.cs",
+  "src/TapStrum.Core/Mouse.cs",
+  "src/TapStrum.Core/MacroRecorder.cs",
   "scripts/**"
 ]
 

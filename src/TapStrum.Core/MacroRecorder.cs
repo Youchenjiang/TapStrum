@@ -129,6 +129,8 @@ public class MacroRecorder
                     case 0x0207: // WM_MBUTTONDOWN
                         RecordCapturedAction(MacroActionType.ClickMiddle, hookStruct.pt.X, hookStruct.pt.Y, string.Empty, now);
                         break;
+                    default:
+                        break;
                 }
             }
             catch (Exception ex)
