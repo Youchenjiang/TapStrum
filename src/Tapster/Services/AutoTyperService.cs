@@ -14,7 +14,7 @@ public sealed class AutoTyperService : IAutoTyperService
     private readonly Action<string> _tapAction;
     private readonly Action _pasteAction;
     private readonly Func<bool> _isEscPressedFunc;
-    private readonly Action<int, CancellationToken, PanicDetector?> _sleepAction;
+    private readonly Action<int, PanicDetector?, CancellationToken> _sleepAction;
 
     /// <summary>
     /// Initializes a new instance of <see cref="AutoTyperService"/> with standard hardware simulation drivers.
@@ -25,7 +25,7 @@ public sealed class AutoTyperService : IAutoTyperService
             tapAction: Keyboard.Tap,
             pasteAction: Keyboard.Paste,
             isEscPressedFunc: Keyboard.IsEscPressed,
-            sleepAction: SleepWithPanicCheck)
+            sleepAction: PanicSafetyHelper.SleepWithPanicCheck)
     {
     }
 
@@ -37,7 +37,7 @@ public sealed class AutoTyperService : IAutoTyperService
         Action<string> tapAction,
         Action pasteAction,
         Func<bool> isEscPressedFunc,
-        Action<int, CancellationToken, PanicDetector?> sleepAction)
+        Action<int, PanicDetector?, CancellationToken> sleepAction)
     {
         _typeAction = typeAction ?? throw new ArgumentNullException(nameof(typeAction));
         _tapAction = tapAction ?? throw new ArgumentNullException(nameof(tapAction));
@@ -63,25 +63,25 @@ public sealed class AutoTyperService : IAutoTyperService
 
         if (options.Mode == AutoTyperMode.Clipboard)
         {
-            await RunClipboardAsync(options, cancellationToken, reportProgress, clipboardService, panicDetector).ConfigureAwait(false);
+            await RunClipboardAsync(options, reportProgress, clipboardService, panicDetector, cancellationToken).ConfigureAwait(false);
         }
         else
         {
-            await RunKeystrokesAsync(options, cancellationToken, reportProgress, panicDetector).ConfigureAwait(false);
+            await RunKeystrokesAsync(options, reportProgress, panicDetector, cancellationToken).ConfigureAwait(false);
         }
     }
 
     private async Task RunClipboardAsync(
         AutoTyperOptions options,
-        CancellationToken cancellationToken,
         Action<string, double>? reportProgress,
         IClipboardService? clipboardService,
-        PanicDetector? panicDetector)
+        PanicDetector? panicDetector,
+        CancellationToken cancellationToken)
     {
         string text = options.Text;
         string? previousText = null;
 
-        if (clipboardService != null)
+        if (clipboardService is not null)
         {
             try
             {
@@ -100,7 +100,7 @@ public sealed class AutoTyperService : IAutoTyperService
             await Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                CheckPanicSafety(panicDetector);
+                PanicSafetyHelper.CheckPanicSafety(panicDetector);
                 reportProgress?.Invoke(
                     string.Format(LocalizationManager.Get("Typer_PastingClipboard"), text.Length),
                     50);
@@ -108,7 +108,7 @@ public sealed class AutoTyperService : IAutoTyperService
                 _pasteAction();
 
                 cancellationToken.ThrowIfCancellationRequested();
-                CheckPanicSafety(panicDetector);
+                PanicSafetyHelper.CheckPanicSafety(panicDetector);
 
                 ApplyTrailingKey(options.TrailingKey, cancellationToken);
                 reportProgress?.Invoke(
@@ -118,7 +118,7 @@ public sealed class AutoTyperService : IAutoTyperService
         }
         finally
         {
-            if (clipboardService != null && !string.IsNullOrEmpty(previousText))
+            if (clipboardService is not null && !string.IsNullOrEmpty(previousText))
             {
                 await Task.Delay(150, CancellationToken.None).ConfigureAwait(false);
                 try
@@ -135,9 +135,9 @@ public sealed class AutoTyperService : IAutoTyperService
 
     private async Task RunKeystrokesAsync(
         AutoTyperOptions options,
-        CancellationToken cancellationToken,
         Action<string, double>? reportProgress,
-        PanicDetector? panicDetector)
+        PanicDetector? panicDetector,
+        CancellationToken cancellationToken)
     {
         string text = options.Text;
         int intervalMs = Math.Max(0, options.IntervalMs);
@@ -147,7 +147,7 @@ public sealed class AutoTyperService : IAutoTyperService
             for (int i = 0; i < text.Length; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                CheckPanicSafety(panicDetector);
+                PanicSafetyHelper.CheckPanicSafety(panicDetector);
                 _typeAction(text[i]);
 
                 int charIndex = i + 1;
@@ -161,12 +161,12 @@ public sealed class AutoTyperService : IAutoTyperService
 
                 if (sleepMs > 0)
                 {
-                    _sleepAction(sleepMs, cancellationToken, panicDetector);
+                    _sleepAction(sleepMs, panicDetector, cancellationToken);
                 }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            CheckPanicSafety(panicDetector);
+            PanicSafetyHelper.CheckPanicSafety(panicDetector);
             ApplyTrailingKey(options.TrailingKey, cancellationToken);
         }, cancellationToken).ConfigureAwait(false);
     }
@@ -186,28 +186,6 @@ public sealed class AutoTyperService : IAutoTyperService
             {
                 _tapAction(trailingKey.ToLowerInvariant());
             }
-        }
-    }
-
-    private static void CheckPanicSafety(PanicDetector? panicDetector)
-    {
-        if (panicDetector != null && panicDetector.CheckPanic(out var reason))
-        {
-            throw new OperationCanceledException(reason ?? PanicDetector.EmergencyPanicMessage);
-        }
-    }
-
-    private static void SleepWithPanicCheck(int totalMs, CancellationToken token, PanicDetector? panicDetector)
-    {
-        const int stepMs = 20;
-        int elapsed = 0;
-        while (elapsed < totalMs)
-        {
-            token.ThrowIfCancellationRequested();
-            CheckPanicSafety(panicDetector);
-            int chunk = Math.Min(stepMs, totalMs - elapsed);
-            Thread.Sleep(chunk);
-            elapsed += chunk;
         }
     }
 }

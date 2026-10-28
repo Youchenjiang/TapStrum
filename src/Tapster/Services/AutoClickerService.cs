@@ -15,7 +15,7 @@ public sealed class AutoClickerService : IAutoClickerService
     private readonly Func<(int X, int Y)> _getPositionFunc;
     private readonly Action<string> _spamAction;
     private readonly Func<int, bool> _isKeyDownFunc;
-    private readonly Action<int, CancellationToken, PanicDetector?> _sleepAction;
+    private readonly Action<int, PanicDetector?, CancellationToken> _sleepAction;
 
     /// <summary>
     /// Initializes a new instance of <see cref="AutoClickerService"/> with standard hardware simulation drivers.
@@ -27,7 +27,7 @@ public sealed class AutoClickerService : IAutoClickerService
             getPositionFunc: Mouse.GetPosition,
             spamAction: KeySpammer.Spam,
             isKeyDownFunc: KeySpammer.IsKeyDown,
-            sleepAction: SleepWithPanicCheck)
+            sleepAction: PanicSafetyHelper.SleepWithPanicCheck)
     {
     }
 
@@ -40,7 +40,7 @@ public sealed class AutoClickerService : IAutoClickerService
         Func<(int X, int Y)> getPositionFunc,
         Action<string> spamAction,
         Func<int, bool> isKeyDownFunc,
-        Action<int, CancellationToken, PanicDetector?> sleepAction)
+        Action<int, PanicDetector?, CancellationToken> sleepAction)
     {
         _clickAtAction = clickAtAction ?? throw new ArgumentNullException(nameof(clickAtAction));
         _clickAction = clickAction ?? throw new ArgumentNullException(nameof(clickAction));
@@ -69,7 +69,7 @@ public sealed class AutoClickerService : IAutoClickerService
             int count = 0;
             while (!cancellationToken.IsCancellationRequested && (infinite || count < totalClicks))
             {
-                CheckPanicSafety(panicDetector);
+                PanicSafetyHelper.CheckPanicSafety(panicDetector);
 
                 if (options.IsHoldMode && !_isKeyDownFunc(options.HotkeyVk))
                 {
@@ -87,7 +87,7 @@ public sealed class AutoClickerService : IAutoClickerService
 
                 if (sleepMs > 0)
                 {
-                    _sleepAction(sleepMs, cancellationToken, panicDetector);
+                    _sleepAction(sleepMs, panicDetector, cancellationToken);
                 }
             }
         }, cancellationToken).ConfigureAwait(false);
@@ -132,7 +132,7 @@ public sealed class AutoClickerService : IAutoClickerService
         bool infinite,
         Action<string, double>? reportProgress)
     {
-        if (reportProgress == null) return;
+        if (reportProgress is null) return;
 
         if (options.IsSpammer)
         {
@@ -171,28 +171,6 @@ public sealed class AutoClickerService : IAutoClickerService
                     count);
                 reportProgress(message, 100);
             }
-        }
-    }
-
-    private static void CheckPanicSafety(PanicDetector? panicDetector)
-    {
-        if (panicDetector != null && panicDetector.CheckPanic(out var reason))
-        {
-            throw new OperationCanceledException(reason ?? PanicDetector.EmergencyPanicMessage);
-        }
-    }
-
-    private static void SleepWithPanicCheck(int totalMs, CancellationToken token, PanicDetector? panicDetector)
-    {
-        const int stepMs = 20;
-        int elapsed = 0;
-        while (elapsed < totalMs)
-        {
-            token.ThrowIfCancellationRequested();
-            CheckPanicSafety(panicDetector);
-            int chunk = Math.Min(stepMs, totalMs - elapsed);
-            Thread.Sleep(chunk);
-            elapsed += chunk;
         }
     }
 }

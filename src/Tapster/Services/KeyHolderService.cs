@@ -15,7 +15,7 @@ public sealed class KeyHolderService : IKeyHolderService
     private readonly Action<string> _pressAction;
     private readonly Action<string> _releaseAction;
     private readonly Action _releaseAllModifiersAction;
-    private readonly Action<int, CancellationToken, PanicDetector?> _sleepAction;
+    private readonly Action<int, PanicDetector?, CancellationToken> _sleepAction;
 
     /// <summary>
     /// Initializes a new instance of <see cref="KeyHolderService"/> with default keyboard drivers.
@@ -25,7 +25,7 @@ public sealed class KeyHolderService : IKeyHolderService
             pressAction: Keyboard.Press,
             releaseAction: Keyboard.Release,
             releaseAllModifiersAction: Keyboard.ReleaseAllModifiers,
-            sleepAction: SleepWithPanicCheck)
+            sleepAction: PanicSafetyHelper.SleepWithPanicCheck)
     {
     }
 
@@ -36,7 +36,7 @@ public sealed class KeyHolderService : IKeyHolderService
         Action<string> pressAction,
         Action<string> releaseAction,
         Action releaseAllModifiersAction,
-        Action<int, CancellationToken, PanicDetector?> sleepAction)
+        Action<int, PanicDetector?, CancellationToken> sleepAction)
     {
         _pressAction = pressAction ?? throw new ArgumentNullException(nameof(pressAction));
         _releaseAction = releaseAction ?? throw new ArgumentNullException(nameof(releaseAction));
@@ -113,7 +113,7 @@ public sealed class KeyHolderService : IKeyHolderService
         for (int i = 0; i < stagesToRun.Count; i++)
         {
             token.ThrowIfCancellationRequested();
-            CheckPanicSafety(panicDetector);
+            PanicSafetyHelper.CheckPanicSafety(panicDetector);
 
             var (originalIdx, stage) = stagesToRun[i];
             onStageStarted?.Invoke(originalIdx);
@@ -148,7 +148,7 @@ public sealed class KeyHolderService : IKeyHolderService
 
             while (!token.IsCancellationRequested && (durationMs <= 0 || elapsedMs < durationMs))
             {
-                CheckPanicSafety(panicDetector);
+                PanicSafetyHelper.CheckPanicSafety(panicDetector);
 
                 if (durationMs > 0)
                 {
@@ -164,7 +164,7 @@ public sealed class KeyHolderService : IKeyHolderService
                         100);
                 }
 
-                _sleepAction(checkIntervalMs, token, panicDetector);
+                _sleepAction(checkIntervalMs, panicDetector, token);
                 elapsedMs += checkIntervalMs;
             }
         }
@@ -193,35 +193,13 @@ public sealed class KeyHolderService : IKeyHolderService
 
         while (!token.IsCancellationRequested && restElapsedMs < restMs)
         {
-            CheckPanicSafety(panicDetector);
+            PanicSafetyHelper.CheckPanicSafety(panicDetector);
             double pct = (double)restElapsedMs / restMs * 100;
             reportProgress?.Invoke(
                 string.Format(LocalizationManager.Get("KeyHolder_RestingDuration"), stepPrefix, restElapsedMs / 1000.0, stage.RestDurationSec),
                 pct);
-            _sleepAction(checkIntervalMs, token, panicDetector);
+            _sleepAction(checkIntervalMs, panicDetector, token);
             restElapsedMs += checkIntervalMs;
-        }
-    }
-
-    private static void CheckPanicSafety(PanicDetector? panicDetector)
-    {
-        if (panicDetector != null && panicDetector.CheckPanic(out var reason))
-        {
-            throw new OperationCanceledException(reason ?? PanicDetector.EmergencyPanicMessage);
-        }
-    }
-
-    private static void SleepWithPanicCheck(int totalMs, CancellationToken token, PanicDetector? panicDetector)
-    {
-        const int stepMs = 20;
-        int elapsed = 0;
-        while (elapsed < totalMs)
-        {
-            token.ThrowIfCancellationRequested();
-            CheckPanicSafety(panicDetector);
-            int chunk = Math.Min(stepMs, totalMs - elapsed);
-            Thread.Sleep(chunk);
-            elapsed += chunk;
         }
     }
 }
