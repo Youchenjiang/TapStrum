@@ -64,7 +64,7 @@ public class HolderViewModelTests
     }
 
     [Fact]
-    public async Task StartAsync_ValidationFails_WhenStagesEmptyOrNoKeys()
+    public async Task StartAsync_ValidationFails_WhenStagesEmptyOrNoKeysAsync()
     {
         var mockService = new MockHolderService();
         var vm = new HolderViewModel(mockService)
@@ -80,7 +80,7 @@ public class HolderViewModelTests
     }
 
     [Fact]
-    public async Task StartAsync_ExecutesPipelineAndUpdatesRunningIndex()
+    public async Task StartAsync_ExecutesPipelineAndUpdatesRunningIndexAsync()
     {
         var mockService = new MockHolderService();
         var vm = new HolderViewModel(mockService)

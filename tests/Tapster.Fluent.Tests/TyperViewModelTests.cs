@@ -66,7 +66,7 @@ public class TyperViewModelTests
     }
 
     [Fact]
-    public async Task PasteTextAsync_RetrievesFromClipboardService()
+    public async Task PasteTextAsync_RetrievesFromClipboardServiceAsync()
     {
         var mockClipboard = new MockClipboardService { Content = "Clipboard text" };
         var vm = new TyperViewModel(clipboardService: mockClipboard);
@@ -76,7 +76,7 @@ public class TyperViewModelTests
     }
 
     [Fact]
-    public async Task StartAsync_ValidationFails_WhenTextIsEmpty()
+    public async Task StartAsync_ValidationFails_WhenTextIsEmptyAsync()
     {
         var mockService = new MockTyperService();
         var vm = new TyperViewModel(mockService)
@@ -93,7 +93,7 @@ public class TyperViewModelTests
     }
 
     [Fact]
-    public async Task StartAsync_ExecutesServiceAndAddsToHistory()
+    public async Task StartAsync_ExecutesServiceAndAddsToHistoryAsync()
     {
         var mockService = new MockTyperService();
         var vm = new TyperViewModel(mockService)

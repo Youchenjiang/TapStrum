@@ -68,7 +68,7 @@ public class ClickerViewModelTests
     }
 
     [Fact]
-    public async Task StartAsync_ValidationFails_WhenKeySpammerWithoutKey()
+    public async Task StartAsync_ValidationFails_WhenKeySpammerWithoutKeyAsync()
     {
         var mockService = new MockClickerService();
         var vm = new ClickerViewModel(mockService)
@@ -86,7 +86,7 @@ public class ClickerViewModelTests
     }
 
     [Fact]
-    public async Task StartAsync_ExecutesServiceAndInvokesCallback()
+    public async Task StartAsync_ExecutesServiceAndInvokesCallbackAsync()
     {
         var mockService = new MockClickerService();
         (int X, int Y)? clickedPoint = null;
@@ -114,7 +114,7 @@ public class ClickerViewModelTests
     }
 
     [Fact]
-    public async Task ToggleAsync_StartsAndStopsTask()
+    public async Task ToggleAsync_StartsAndStopsTaskAsync()
     {
         var mockService = new MockClickerService();
         var vm = new ClickerViewModel(mockService)

@@ -41,7 +41,7 @@ public class MacroViewModelTests
     }
 
     [Fact]
-    public async Task PlayAsync_ValidationFails_WhenActionsEmpty()
+    public async Task PlayAsync_ValidationFails_WhenActionsEmptyAsync()
     {
         var vm = new MacroViewModel
         {
