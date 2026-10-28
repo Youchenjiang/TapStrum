@@ -26,12 +26,12 @@ try {
 
     # 2. Publish Tapster.Fluent
     Write-Host "[Build] Compiling Tapster.Fluent for MSIX (self-contained .NET runtime)..." -ForegroundColor Yellow
-    $fluentBuildDir = "$root/Tapster.Fluent/bin/Release"
-    $fluentObjDir = "$root/Tapster.Fluent/obj/Release"
+    $fluentBuildDir = "$root/src/Tapster.Fluent/bin/Release"
+    $fluentObjDir = "$root/src/Tapster.Fluent/obj/Release"
     if (Test-Path $fluentBuildDir) { Remove-Item -Recurse -Force $fluentBuildDir }
     if (Test-Path $fluentObjDir) { Remove-Item -Recurse -Force $fluentObjDir }
 
-    dotnet publish "$root/Tapster.Fluent/Tapster.Fluent.csproj" `
+    dotnet publish "$root/src/Tapster.Fluent/Tapster.Fluent.csproj" `
         -c Release `
         -r win-x64 `
         --self-contained true `
@@ -47,7 +47,7 @@ try {
     Write-Host "[Layout] Assembling package files into $layoutDir..." -ForegroundColor Yellow
     Copy-Item "$packagingDir/AppxManifest.xml" "$layoutDir/AppxManifest.xml" -Force
     Sync-WindowsAppRuntimeDependency `
-        -ProjectPath "$root/Tapster.Fluent/Tapster.Fluent.csproj" `
+        -ProjectPath "$root/src/Tapster.Fluent/Tapster.Fluent.csproj" `
         -ManifestPath "$layoutDir/AppxManifest.xml"
 
     Copy-Item -Recurse "$packagingDir/Assets" "$layoutDir/" -Force
@@ -55,9 +55,9 @@ try {
         Copy-Item -Recurse "$packagingDir/Strings" "$layoutDir/" -Force
     }
 
-    $publishMatches = Get-ChildItem "$root/Tapster.Fluent/bin/Release/net8.0-windows*/win-x64/publish" -Directory -ErrorAction SilentlyContinue
+    $publishMatches = Get-ChildItem "$root/src/Tapster.Fluent/bin/Release/net8.0-windows*/win-x64/publish" -Directory -ErrorAction SilentlyContinue
     $fluentPublishSource = if ($publishMatches) { $publishMatches[0].FullName } else {
-        (Get-ChildItem "$root/Tapster.Fluent/bin/Release/net8.0-windows*/win-x64" -Directory -ErrorAction SilentlyContinue)[0].FullName
+        (Get-ChildItem "$root/src/Tapster.Fluent/bin/Release/net8.0-windows*/win-x64" -Directory -ErrorAction SilentlyContinue)[0].FullName
     }
 
     # Fail-safe exclusion list for non-runtime AI, debug, and unneeded platform binaries
@@ -94,8 +94,8 @@ try {
         Copy-Item "$runtimeSource/WebView2Loader.dll" "$runtimeTarget/" -ErrorAction SilentlyContinue
     }
 
-    if (Test-Path "$root/Tapster.Fluent/app.ico") {
-        Copy-Item "$root/Tapster.Fluent/app.ico" "$layoutDir/app.ico" -Force
+    if (Test-Path "$root/src/Tapster.Fluent/app.ico") {
+        Copy-Item "$root/src/Tapster.Fluent/app.ico" "$layoutDir/app.ico" -Force
     }
 
     # Completeness verification gate: ensure critical runtime and payload files are present
@@ -125,8 +125,8 @@ try {
         Copy-Item "$runtimeSource/WebView2Loader.dll" "$runtimeTarget/" -ErrorAction SilentlyContinue
     }
 
-    if (Test-Path "$root/Tapster.Fluent/app.ico") {
-        Copy-Item "$root/Tapster.Fluent/app.ico" "$layoutDir/app.ico" -Force
+    if (Test-Path "$root/src/Tapster.Fluent/app.ico") {
+        Copy-Item "$root/src/Tapster.Fluent/app.ico" "$layoutDir/app.ico" -Force
     }
 
     # 4. Pack MSIX using makeappx.exe

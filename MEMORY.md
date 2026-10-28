@@ -57,7 +57,7 @@
 - **Project**: TapStrum (Native & Fluent 鍵鼠自動化助手)
 - **Preset**: desktop (Windows / .NET 8+ / WinUI 3 / WinAppSDK / NativeAOT)
 - **Core Engine (`src/Tapster/`)**: Pure Win32 P/Invoke (`SendInput`, `GetAsyncKeyState`), Unicode UTF-16 input, microsecond timing, zero bloat, offline only.
-- **Modern UI (`Tapster.Fluent/`)**: WinUI 3 + Windows App SDK, Mica material, realistic 5-row keyboard layout, per-panel self-contained control cards, Win32 system tray resident, global wake hotkey (`Ctrl + Alt + T`).
+- **Modern UI (`src/Tapster.Fluent/`)**: WinUI 3 + Windows App SDK, Mica material, realistic 5-row keyboard layout, per-panel self-contained control cards, Win32 system tray resident, global wake hotkey (`Ctrl + Alt + T`).
 - **Single-File Launcher (`src/Tapster.Launcher/`)**: Standalone executable with embedded payload, SHA-256 integrity auto-sync, graceful instance shutdown.
 - **Packaging (`packaging/`, `scripts/`)**: Dual-track release (`scripts/build_portable.ps1` -> `TapStrum.exe`, `scripts/build_msix.ps1` -> `TapStrum-*.msix`).
 

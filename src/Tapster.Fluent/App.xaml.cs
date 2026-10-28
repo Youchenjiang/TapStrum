@@ -10,10 +10,7 @@ public partial class App : Application
 
     public App()
     {
-        UnhandledException += (sender, e) =>
-        {
-            LogCrash("UnhandledException: " + e.Exception);
-        };
+        UnhandledException += (sender, e) => LogCrash("UnhandledException: " + e.Exception);
 
         try
         {
@@ -63,7 +60,7 @@ public partial class App : Application
         try
         {
             string path = Path.Join(Path.GetTempPath(), "tapster_crash.log");
-            File.AppendAllText(path, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}{Environment.NewLine}");
+            File.AppendAllText(path, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] {message}{Environment.NewLine}");
         }
         catch (Exception ex)
         {

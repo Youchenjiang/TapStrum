@@ -99,17 +99,24 @@ class PrPreflightTests(unittest.TestCase):
                       validate_message("fix(core): repair\n\n1. 修正流程與權限問題，並驗證測試"))
 
     def test_pr_body_requires_provider_acknowledgement(self):
-        body = "## Summary\nText\n## Changes\n- A\n## Validation\n- B\n## Review Checklist\n"
+        body = ("## Summary\nText\n## Changes\n- A\n## Validation\n- B\n## Review Checklist\n"
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n")
         self.assertIn("completed External provider acknowledgement required", validate_pr_body(body))
-        complete = body + ("- [x] **Assignee**: @owner\n"
-                           "- [x] **Label**: agent\n"
-                           "- [x] **Milestone**: Milestone 1\n"
-                           "- [x] **External provider**: No new provider.\n")
+        complete = body + "- [x] **External provider**: No new provider.\n"
         self.assertEqual([], validate_pr_body(complete))
 
     def test_review_prompts_are_optional_but_provider_acknowledgement_is_not(self):
         body = ("## Summary\nA\n## Changes\nB\n## Validation\nC\n"
                 "## Review Checklist\n"
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
                 "- [ ] **Behavior**: not applicable to this documentation change\n"
                 "- [x] **External provider**: No new provider.\n")
         self.assertEqual([], validate_pr_body(body))
@@ -118,9 +125,58 @@ class PrPreflightTests(unittest.TestCase):
                       validate_pr_body(unchecked))
         self.assertIn("## Review Checklist", validate_pr_body(body.replace("## Review Checklist", "## PR Metadata")))
 
+    def test_pr_body_rejects_fake_metadata_checkboxes(self):
+        body = ("## Summary\nA\n## Changes\nB\n## Validation\nC\n## Review Checklist\n"
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
+                "- [x] **Assignee**: @maintainer\n"
+                "- [x] **External provider**: None\n")
+        errors = validate_pr_body(body)
+        self.assertTrue(any("fake metadata checkboxes (Assignee)" in e for e in errors))
+
+    def test_pr_body_rejects_missing_mandatory_checklist_items(self):
+        body = ("## Summary\nA\n## Changes\nB\n## Validation\nC\n## Review Checklist\n"
+                "- [ ] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
+                "- [x] **External provider**: None\n")
+        errors = validate_pr_body(body)
+        self.assertIn("missing completed checklist item: Atomic commits (passed the Revert Test)", errors)
+
+    def test_pr_body_accepts_pre_submission_checklist_heading(self):
+        body = ("## Summary\nA\n## Changes\nB\n## Validation\nC\n## Pre-Submission Checklist\n"
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
+                "- [x] **External provider**: None\n")
+        self.assertEqual([], validate_pr_body(body))
+
+    def test_pr_body_accepts_key_changes_and_verification_headings(self):
+        body = ("## Summary\nA\n## Key Changes\nB\n## How to Verify (Verification)\nC\n## Pre-Submission Checklist\n"
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
+                "- [x] **External provider**: None\n")
+        self.assertEqual([], validate_pr_body(body))
+
     def test_real_github_metadata_is_checked_without_self_reported_checkboxes(self):
         body = ("## Summary\nA\n## Changes\nB\n## Validation\nC\n"
-                "## Review Checklist\n- [x] **External provider**: No new provider.\n")
+                "## Review Checklist\n"
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
+                "- [x] **External provider**: No new provider.\n")
         self.assertEqual([], validate_pr_body(body, {"labels": [{"name": "agent"}],
                                                        "milestone": {"title": "Plan"}}))
         self.assertIn("GitHub PR requires at least one label",
@@ -129,20 +185,24 @@ class PrPreflightTests(unittest.TestCase):
     def test_rejects_unfinished_metadata_and_placeholders(self):
         body = ("## Summary\nText\n## Changes\n- Describe the change.\n"
                 "## Validation\n- PASS\n## Review Checklist\n"
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
                 "- [ ] **Assignee**: assign the PR owner when publishing.\n"
-                "- [ ] **Label**: add an appropriate agent label.\n"
-                "- [ ] **Milestone**: choose the current milestone.\n"
                 "- [x] **External provider**: No new provider.\n")
         errors = validate_pr_body(body)
         self.assertIn("empty or placeholder ## Changes", errors)
-        self.assertNotIn("completed Assignee metadata required", errors)
-        self.assertNotIn("completed Label metadata required", errors)
-        self.assertNotIn("completed Milestone metadata required", errors)
+        self.assertTrue(any("fake metadata checkboxes" in e for e in errors))
 
     def test_rejects_empty_sections(self):
         body = ("## Summary\n\n## Changes\n\n## Validation\n\n## Review Checklist\n"
-                "- [x] **Assignee**: owner\n- [x] **Label**: agent\n"
-                "- [x] **Milestone**: Roadmap\n"
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
                 "- [x] **External provider**: no new provider\n")
         errors = validate_pr_body(body)
         self.assertIn("empty or placeholder ## Summary", errors)
@@ -151,22 +211,35 @@ class PrPreflightTests(unittest.TestCase):
     def test_multiline_html_comment_and_uppercase_checkboxes(self):
         body = ("## Summary\n<!-- hidden\nnot content -->\nActual change\n"
                 "## Changes\n- Genuine change\n## Validation\nPASS\n## Review Checklist\n"
-                "- [X] **Assignee**: @maintainer\n- [X] **Label**: agent\n"
-                "- [X] **Milestone**: Plan\n- [X] **External provider**: No new provider\n")
+                "- [X] Atomic commits (passed the Revert Test)\n"
+                "- [X] Commit headers follow Conventional Commits\n"
+                "- [X] Numbered technical body included in commits\n"
+                "- [X] Self-reviewed locally\n"
+                "- [X] Documentation / comments updated accordingly\n"
+                "- [X] **External provider**: No new provider\n")
         self.assertEqual([], validate_pr_body(body))
         self.assertIn("empty or placeholder ## Summary", validate_pr_body(body.replace("Actual change", "")))
 
     def test_milestone_exemption_requires_eligible_label(self):
         body = ("## Summary\nA\n## Changes\nB\n## Validation\nC\n## Review Checklist\n"
-                "- [x] **Assignee**: @owner\n- [x] **Label**: docs\n"
-                "- [x] **Milestone**: N/A\n- [x] **External provider**: none\n")
-        self.assertEqual([], validate_pr_body(body))
-        self.assertEqual([], validate_pr_body(body.replace("**Label**: docs", "**Label**: agent")))
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
+                "- [x] **External provider**: none\n")
+        self.assertEqual([], validate_pr_body(body, {"labels": [{"name": "docs"}], "milestone": None}))
+        self.assertIn("GitHub PR requires milestone unless exempt",
+                      validate_pr_body(body, {"labels": [{"name": "agent"}], "milestone": None}))
 
     def test_real_metadata_overrides_draft_checkboxes_and_exemption(self):
         body = ("## Summary\nA\n## Changes\nB\n## Validation\nC\n## Review Checklist\n"
-                "- [ ] **Assignee**: pending\n- [ ] **Label**: pending\n"
-                "- [ ] **Milestone**: pending\n- [x] **External provider**: none\n")
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
+                "- [x] **External provider**: none\n")
         self.assertEqual([], validate_pr_body(body, {"labels": [{"name": "docs"}], "milestone": None}))
         self.assertIn("GitHub PR requires milestone unless exempt",
                       validate_pr_body(body, {"labels": [{"name": "agent"}], "milestone": None}))
@@ -204,8 +277,12 @@ class PrPreflightTests(unittest.TestCase):
         with TemporaryDirectory() as directory:
             body_file = Path(directory) / "body.md"
             body_file.write_text("## Summary\nA\n## Changes\nB\n## Validation\nC\n"
-                                 "## Review Checklist\n- [X] **Assignee**: @owner\n"
-                                 "- [X] **Label**: docs\n- [X] **Milestone**: N/A\n"
+                                 "## Review Checklist\n"
+                                 "- [X] Atomic commits (passed the Revert Test)\n"
+                                 "- [X] Commit headers follow Conventional Commits\n"
+                                 "- [X] Numbered technical body included in commits\n"
+                                 "- [X] Self-reviewed locally\n"
+                                 "- [X] Documentation / comments updated accordingly\n"
                                  "- [X] **External provider**: none\n", encoding="utf-8")
             def command(*args):
                 if args[0] == "status":

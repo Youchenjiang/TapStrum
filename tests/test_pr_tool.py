@@ -253,8 +253,12 @@ class PrToolTests(unittest.TestCase):
             body = Path(folder) / "pr.md"
             body.write_text(
                 "## Summary\nA\n## Changes\nB\n## Validation\nC\n## Review Checklist\n"
-                "- [x] **Assignee**: @owner\n- [x] **Label**: agent\n"
-                "- [x] **Milestone**: Plan\n- [x] **External provider**: none\n",
+                "- [x] Atomic commits (passed the Revert Test)\n"
+                "- [x] Commit headers follow Conventional Commits\n"
+                "- [x] Numbered technical body included in commits\n"
+                "- [x] Self-reviewed locally\n"
+                "- [x] Documentation / comments updated accordingly\n"
+                "- [x] **External provider**: none\n",
                 encoding="utf-8")
             with patch.object(pr_preflight, "_github_metadata") as github:
                 self.assertEqual(0, pr_tool.main(["prepare", "--initial", "--body-file", str(body)]))

@@ -97,7 +97,8 @@ public sealed class SystemTrayManager : IDisposable
                 _onToggleVisibility();
                 return IntPtr.Zero;
             }
-            else if (mouseMsg == NativeMethods.WM_RBUTTONUP || mouseMsg == NativeMethods.WM_CONTEXTMENU)
+
+            if (mouseMsg == NativeMethods.WM_RBUTTONUP || mouseMsg == NativeMethods.WM_CONTEXTMENU)
             {
                 ShowContextMenu();
                 return IntPtr.Zero;

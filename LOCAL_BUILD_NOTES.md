@@ -35,13 +35,13 @@ dotnet build-server shutdown
 > **MSBuild Worker Cleanup**: Always execute `dotnet build-server shutdown` after local builds to prevent persistent background compiler processes (`VBCSCompiler.exe`, `MSBuild.exe`) from holding file locks on generated `.dll` and `.exe` binaries.
 
 ### 2.2 Running Individual Projects
-- **WPF Lightweight Native Utility**:
-  ```powershell
-  dotnet run --project src/Tapster.Gui/Tapster.Gui.csproj -c Release
-  ```
 - **Modern Fluent WinUI 3 Dashboard**:
   ```powershell
-  dotnet run --project Tapster.Fluent/Tapster.Fluent.csproj -c Release
+  dotnet run --project src/Tapster.Fluent/Tapster.Fluent.csproj -c Release
+  ```
+- **Portable Single-File Launcher**:
+  ```powershell
+  dotnet run --project src/Tapster.Launcher/Tapster.Launcher.csproj -c Release
   ```
 
 ---

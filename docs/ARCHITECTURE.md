@@ -2,13 +2,13 @@
 
 ## 1. System Overview
 
-TapStrum is a modern, high-performance Windows automation assistant engineered for deterministic keyboard and mouse emulation, macro recording/replay, and continuous action holding. It provides a dual-interface architecture: a lightweight WPF utility interface (`Tapster.Gui`) and an acrylic/mica-styled Windows 11 Fluent application (`Tapster.Fluent`), both powered by a unified unmanaged Win32 driver engine (`Tapster.Core`).
+TapStrum is a modern, high-performance Windows automation assistant engineered for deterministic keyboard and mouse emulation, macro recording/replay, and continuous action holding. It provides an acrylic/mica-styled Windows 11 Fluent application (`src/Tapster.Fluent`) with a portable native bootstrapper (`src/Tapster.Launcher`), both powered by a unified unmanaged Win32 driver engine (`src/Tapster`).
 
 ```mermaid
 flowchart TD
     subgraph UI_Hosts ["User Interface Hosts"]
         FluentHost["Tapster.Fluent<br>(WinUI 3 / Windows App SDK)"]
-        GuiHost["Tapster.Gui<br>(WPF / Native .NET 8)"]
+        LauncherHost["Tapster.Launcher<br>(Single-File Bootstrapper)"]
     end
 
     subgraph Core_Engine ["Tapster.Core (Pure Win32 Engine)"]
@@ -25,7 +25,7 @@ flowchart TD
     end
 
     FluentHost -->|Direct In-Process Call| Core_Engine
-    GuiHost -->|Direct In-Process Call| Core_Engine
+    LauncherHost -->|Extracts & Launches| FluentHost
     KeyboardSub --> Win32Interop
     MouseSub --> Win32Interop
     MacroSub --> Win32Interop
@@ -58,10 +58,9 @@ flowchart TD
   - Global hotkey listener (`Ctrl + Alt + T`) registered via `RegisterHotKey` for instantaneous wake-up without polling.
   - Responsive Mica backdrop material and dynamic Theme switching (Light / Dark).
 
-### 2.3 `Tapster.Gui` (Lightweight Native WPF Host)
-- **Framework**: WPF targeting .NET 8 (Windows Desktop).
-- **Purpose**: Minimal memory footprint (~25 MB working set), single-window operational view, instantaneous startup time (<100ms).
-- **Virtual Keyboard Grid**: Interactive 5-row visual keyboard layout mapped to virtual key names, providing visual active/held state styling.
+### 2.3 `Tapster.Launcher` (Portable Native Bootstrapper)
+- **Framework**: .NET 8 Self-Contained Single-File Executable.
+- **Purpose**: Zero-dependency portable distribution, SHA-256 payload integrity verification, single-instance activation and foreground handoff.
 
 ---
 
