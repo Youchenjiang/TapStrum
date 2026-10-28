@@ -17,23 +17,26 @@ except Exception:
     ALLOWED_SCOPES = "cli|core|shell|msix|docs|ci|deps|store|agent|tools|packaging|fluent|build|release"
 SUBJECT = re.compile(rf"^(?:{ALLOWED_TYPES})(?:\((?:{ALLOWED_SCOPES})\))?: [a-z0-9].*$")
 BODY_NUMBER = re.compile(r"1[.)][ \t]+")
+SUMMARY_SECTION = "## Summary"
+CHANGES_SECTION = "## Changes"
+VALIDATION_SECTION = "## Validation"
 CHECKLIST_SECTION = "## Review Checklist"
-REQUIRED_SECTIONS = ("## Summary", "## Changes", "## Validation", CHECKLIST_SECTION)
+REQUIRED_SECTIONS = (SUMMARY_SECTION, CHANGES_SECTION, VALIDATION_SECTION, CHECKLIST_SECTION)
 SECTION_MAPPINGS = {
-    "## Summary": ("## Summary",),
-    "## Changes": ("## Changes", "## Key Changes"),
-    "## Validation": ("## Validation", "## Verification", "## How to Verify (Verification)", "## How to Verify"),
-    "## Review Checklist": ("## Review Checklist", "## Pre-Submission Checklist"),
+    SUMMARY_SECTION: (SUMMARY_SECTION,),
+    CHANGES_SECTION: (CHANGES_SECTION, "## Key Changes"),
+    VALIDATION_SECTION: (VALIDATION_SECTION, "## Verification", "## How to Verify (Verification)", "## How to Verify"),
+    CHECKLIST_SECTION: (CHECKLIST_SECTION, "## Pre-Submission Checklist"),
 }
 FORBIDDEN_METADATA_CHECKLIST = re.compile(
-    r"(?mi)^[ \t]*- \[[ xX]\] \*\*(Assignee|Label|Milestone)\*\*:"
+    r"(?m)^[ \t]*- \[[ xX]\] \*\*([Aa]ssignee|[Ll]abel|[Mm]ilestone)\*\*:"
 )
 MANDATORY_CHECKLIST_PATTERNS = [
-    (re.compile(r"(?mi)^[ \t]*- \[[xX]\] .*?atomic commits.*?", re.IGNORECASE), "Atomic commits (passed the Revert Test)"),
-    (re.compile(r"(?mi)^[ \t]*- \[[xX]\] .*?conventional commits.*?", re.IGNORECASE), "Commit headers follow Conventional Commits"),
-    (re.compile(r"(?mi)^[ \t]*- \[[xX]\] .*?numbered.*?(?:technical)?.*?body.*?", re.IGNORECASE), "Numbered technical body included in commits"),
-    (re.compile(r"(?mi)^[ \t]*- \[[xX]\] .*?self-reviewed.*?", re.IGNORECASE), "Self-reviewed locally"),
-    (re.compile(r"(?mi)^[ \t]*- \[[xX]\] .*?documentation.*?", re.IGNORECASE), "Documentation / comments updated accordingly"),
+    (re.compile(r"(?m)^[ \t]*- \[[xX]\] .*(?i:atomic commits)"), "Atomic commits (passed the Revert Test)"),
+    (re.compile(r"(?m)^[ \t]*- \[[xX]\] .*(?i:conventional commits)"), "Commit headers follow Conventional Commits"),
+    (re.compile(r"(?m)^[ \t]*- \[[xX]\] .*(?i:numbered).*(?i:body)"), "Numbered technical body included in commits"),
+    (re.compile(r"(?m)^[ \t]*- \[[xX]\] .*(?i:self-reviewed)"), "Self-reviewed locally"),
+    (re.compile(r"(?m)^[ \t]*- \[[xX]\] .*(?i:documentation)"), "Documentation / comments updated accordingly"),
 ]
 PLACEHOLDER = re.compile(r"(?i)\b(?:todo|tbd|placeholder|describe the|assign the|add an appropriate|choose the|not run: full pre-push)\b")
 VAGUE = {"update", "misc", "stuff", "changes", "fix bug", "bug fix"}
