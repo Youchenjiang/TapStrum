@@ -29,16 +29,23 @@ public sealed class PanicDetector
     private bool _lastEscDown;
     private readonly Queue<long> _escPressTimestamps = new();
 
+    private readonly Func<(int X, int Y)> _getPositionFunc;
+    private readonly Func<bool> _isEscPressedFunc;
+
     public PanicDetector(
         double shakeSpeedThreshold = DefaultShakeSpeedThreshold,
         double minShakeDistance = DefaultMinShakeDistance,
         int tripleEscWindowMs = DefaultTripleEscWindowMs,
-        int maxSampleIntervalMs = DefaultMaxSampleIntervalMs)
+        int maxSampleIntervalMs = DefaultMaxSampleIntervalMs,
+        Func<(int X, int Y)>? getPositionFunc = null,
+        Func<bool>? isEscPressedFunc = null)
     {
         _shakeSpeedThreshold = shakeSpeedThreshold;
         _minShakeDistance = minShakeDistance;
         _tripleEscWindowMs = tripleEscWindowMs;
         _maxSampleIntervalMs = maxSampleIntervalMs;
+        _getPositionFunc = getPositionFunc ?? Mouse.GetPosition;
+        _isEscPressedFunc = isEscPressedFunc ?? Keyboard.IsEscPressed;
     }
 
     /// <summary>
@@ -140,8 +147,8 @@ public sealed class PanicDetector
     public bool CheckPanic(out string? reason)
     {
         long now = Environment.TickCount64;
-        var (curX, curY) = Mouse.GetPosition();
-        bool isEsc = Keyboard.IsEscPressed();
+        var (curX, curY) = _getPositionFunc();
+        bool isEsc = _isEscPressedFunc();
 
         if (CheckMouseShake(curX, curY, now))
         {
