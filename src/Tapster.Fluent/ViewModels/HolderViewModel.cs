@@ -11,13 +11,11 @@ using Tapster;
 using Tapster.Services;
 
 /// <summary>
-/// ViewModel managing the multi-stage Key-Holder sequence pipeline and execution state.
+/// ViewModel managing the Key-Holder pipeline stages, loop iterations, and execution state.
 /// </summary>
-public partial class HolderViewModel : ViewModelBase
+public partial class HolderViewModel : TaskViewModelBase
 {
     private readonly IKeyHolderService _holderService;
-    private readonly PanicDetector _panicDetector;
-    private CancellationTokenSource? _cts;
 
     public ObservableCollection<KeyHolderStage> Stages { get; } = new();
 
@@ -30,26 +28,13 @@ public partial class HolderViewModel : ViewModelBase
     [ObservableProperty]
     private int _repeatLoops = 1;
 
-    [ObservableProperty]
-    private double _delaySeconds = 3.0;
-
-    [ObservableProperty]
-    private bool _isRunning;
-
-    [ObservableProperty]
-    private string _statusText = string.Empty;
-
-    [ObservableProperty]
-    private double _progressPercentage;
-
     public HolderViewModel(
         IKeyHolderService? holderService = null,
         PanicDetector? panicDetector = null,
         Action<Action>? dispatcher = null)
-        : base(dispatcher)
+        : base(panicDetector, dispatcher)
     {
         _holderService = holderService ?? new KeyHolderService();
-        _panicDetector = panicDetector ?? new PanicDetector();
     }
 
     [RelayCommand]
@@ -79,20 +64,8 @@ public partial class HolderViewModel : ViewModelBase
             return;
         }
 
-        IsRunning = true;
         RunningStageIndex = -1;
-        ProgressPercentage = 0;
-        StatusText = LocalizationManager.Get("Common_Running");
-
-        _cts = new CancellationTokenSource();
-
-        await ExecuteAutomationTaskAsync(
-            DelaySeconds,
-            _panicDetector,
-            _cts,
-            ExecuteHolderCoreAsync,
-            UpdateProgress,
-            Stop);
+        await RunAutomationWorkflowAsync(ExecuteHolderCoreAsync);
     }
 
     private async Task ExecuteHolderCoreAsync(CancellationToken token)
@@ -110,50 +83,22 @@ public partial class HolderViewModel : ViewModelBase
             reportProgress: UpdateProgress,
             onStageStarted: stageIdx => RunOnUIThread(() => RunningStageIndex = stageIdx),
             onPipelineCompleted: () => RunOnUIThread(() => RunningStageIndex = -1),
-            panicDetector: _panicDetector);
+            panicDetector: PanicDetectorInstance);
     }
 
-    private void UpdateProgress(string msg, double pct) =>
-        RunOnUIThread(() =>
-        {
-            StatusText = msg;
-            if (pct >= 0)
-            {
-                ProgressPercentage = Math.Min(100, Math.Max(0, pct));
-            }
-        });
-
-    [RelayCommand]
-    public void Stop(string? message = null)
+    public override void Stop(string? message = null)
     {
-        _cts?.Cancel();
-        _cts?.Dispose();
-        _cts = null;
-
-        IsRunning = false;
+        base.Stop(message);
         RunningStageIndex = -1;
-        ProgressPercentage = 0;
         Keyboard.ReleaseAllModifiers();
-
-        if (message is not null)
-        {
-            StatusText = message;
-        }
-        else if (string.IsNullOrEmpty(StatusText) || StatusText == LocalizationManager.Get("Common_Running"))
-        {
-            StatusText = LocalizationManager.Get("Common_StoppedByUser");
-        }
     }
 
-    [RelayCommand]
-    public void AddStage(KeyHolderStage? stage = null)
+    public void AddStage(KeyHolderStage stage)
     {
-        var newStage = stage ?? new KeyHolderStage();
-        Stages.Add(newStage);
+        Stages.Add(stage);
         ActiveStageIndex = Stages.Count - 1;
     }
 
-    [RelayCommand]
     public void RemoveStage(int index)
     {
         if (index >= 0 && index < Stages.Count)
@@ -166,7 +111,6 @@ public partial class HolderViewModel : ViewModelBase
         }
     }
 
-    [RelayCommand]
     public void ClearStageKeys(int index)
     {
         if (index >= 0 && index < Stages.Count)

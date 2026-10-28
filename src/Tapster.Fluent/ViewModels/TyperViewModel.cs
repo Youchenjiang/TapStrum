@@ -10,18 +10,18 @@ using Tapster;
 using Tapster.Services;
 
 /// <summary>
-/// ViewModel managing the Auto-Typer UI state, input history, and typing pipeline.
+/// ViewModel managing the Auto-Typer UI state, text history, and clipboard/keystroke execution.
 /// </summary>
-public partial class TyperViewModel : ViewModelBase
+public partial class TyperViewModel : TaskViewModelBase
 {
-    private const string KeyNone = "none";
     private const string KeyEnter = "enter";
     private const string KeyTab = "tab";
+    private const string KeyNone = "none";
 
     private readonly IAutoTyperService _typerService;
     private readonly IClipboardService? _clipboardService;
-    private readonly PanicDetector _panicDetector;
-    private CancellationTokenSource? _cts;
+
+    public ObservableCollection<string> History { get; } = new();
 
     [ObservableProperty]
     private string _text = string.Empty;
@@ -38,30 +38,15 @@ public partial class TyperViewModel : ViewModelBase
     [ObservableProperty]
     private bool _jitterEnabled;
 
-    [ObservableProperty]
-    private double _delaySeconds = 3.0;
-
-    [ObservableProperty]
-    private bool _isRunning;
-
-    [ObservableProperty]
-    private string _statusText = string.Empty;
-
-    [ObservableProperty]
-    private double _progressPercentage;
-
-    public ObservableCollection<string> History { get; } = new();
-
     public TyperViewModel(
         IAutoTyperService? typerService = null,
         IClipboardService? clipboardService = null,
         PanicDetector? panicDetector = null,
         Action<Action>? dispatcher = null)
-        : base(dispatcher)
+        : base(panicDetector, dispatcher)
     {
         _typerService = typerService ?? new AutoTyperService();
         _clipboardService = clipboardService;
-        _panicDetector = panicDetector ?? new PanicDetector();
     }
 
     [RelayCommand]
@@ -91,19 +76,7 @@ public partial class TyperViewModel : ViewModelBase
             return;
         }
 
-        IsRunning = true;
-        ProgressPercentage = 0;
-        StatusText = LocalizationManager.Get("Common_Running");
-
-        _cts = new CancellationTokenSource();
-
-        await ExecuteAutomationTaskAsync(
-            DelaySeconds,
-            _panicDetector,
-            _cts,
-            ExecuteTyperCoreAsync,
-            UpdateProgress,
-            Stop);
+        await RunAutomationWorkflowAsync(ExecuteTyperCoreAsync);
     }
 
     private async Task ExecuteTyperCoreAsync(CancellationToken token)
@@ -130,7 +103,7 @@ public partial class TyperViewModel : ViewModelBase
             token,
             reportProgress: UpdateProgress,
             clipboardService: _clipboardService,
-            panicDetector: _panicDetector);
+            panicDetector: PanicDetectorInstance);
 
         RecordHistory(trailingKey);
     }
@@ -143,35 +116,6 @@ public partial class TyperViewModel : ViewModelBase
                              (trailingKey != KeyNone ? $" + [{trailingKey}]" : "");
             History.Insert(0, summary);
         });
-
-    private void UpdateProgress(string msg, double pct) =>
-        RunOnUIThread(() =>
-        {
-            StatusText = msg;
-            if (pct >= 0)
-            {
-                ProgressPercentage = Math.Min(100, Math.Max(0, pct));
-            }
-        });
-
-    [RelayCommand]
-    public void Stop(string? message = null)
-    {
-        _cts?.Cancel();
-        _cts?.Dispose();
-        _cts = null;
-
-        IsRunning = false;
-        ProgressPercentage = 0;
-        if (message is not null)
-        {
-            StatusText = message;
-        }
-        else if (string.IsNullOrEmpty(StatusText) || StatusText == LocalizationManager.Get("Common_Running"))
-        {
-            StatusText = LocalizationManager.Get("Common_StoppedByUser");
-        }
-    }
 
     [RelayCommand]
     public void ClearText()

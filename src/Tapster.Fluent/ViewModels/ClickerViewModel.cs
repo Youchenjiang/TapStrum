@@ -11,12 +11,10 @@ using Tapster.Services;
 /// <summary>
 /// ViewModel managing the Auto-Clicker and Key-Spammer UI state and execution pipeline.
 /// </summary>
-public partial class ClickerViewModel : ViewModelBase
+public partial class ClickerViewModel : TaskViewModelBase
 {
     private readonly IAutoClickerService _clickerService;
-    private readonly PanicDetector _panicDetector;
     private readonly Action<int, int>? _onPointClicked;
-    private CancellationTokenSource? _cts;
 
     [ObservableProperty]
     private double _intervalSeconds = 0.1;
@@ -57,27 +55,14 @@ public partial class ClickerViewModel : ViewModelBase
     [ObservableProperty]
     private double? _targetY;
 
-    [ObservableProperty]
-    private double _delaySeconds = 3.0;
-
-    [ObservableProperty]
-    private bool _isRunning;
-
-    [ObservableProperty]
-    private string _statusText = string.Empty;
-
-    [ObservableProperty]
-    private double _progressPercentage;
-
     public ClickerViewModel(
         IAutoClickerService? clickerService = null,
         PanicDetector? panicDetector = null,
         Action<int, int>? onPointClicked = null,
         Action<Action>? dispatcher = null)
-        : base(dispatcher)
+        : base(panicDetector, dispatcher)
     {
         _clickerService = clickerService ?? new AutoClickerService();
-        _panicDetector = panicDetector ?? new PanicDetector();
         _onPointClicked = onPointClicked;
     }
 
@@ -108,19 +93,7 @@ public partial class ClickerViewModel : ViewModelBase
             return;
         }
 
-        IsRunning = true;
-        ProgressPercentage = 0;
-        StatusText = LocalizationManager.Get("Common_Running");
-
-        _cts = new CancellationTokenSource();
-
-        await ExecuteAutomationTaskAsync(
-            DelaySeconds,
-            _panicDetector,
-            _cts,
-            ExecuteClickerCoreAsync,
-            UpdateProgress,
-            Stop);
+        await RunAutomationWorkflowAsync(ExecuteClickerCoreAsync);
     }
 
     private async Task ExecuteClickerCoreAsync(CancellationToken token)
@@ -159,7 +132,7 @@ public partial class ClickerViewModel : ViewModelBase
             token,
             reportProgress: UpdateProgress,
             onPointClicked: HandlePointClicked,
-            panicDetector: _panicDetector);
+            panicDetector: PanicDetectorInstance);
     }
 
     private void HandlePointClicked(int px, int py)
@@ -167,35 +140,6 @@ public partial class ClickerViewModel : ViewModelBase
         if (ShowTargetMarker && !IsKeySpammer && _onPointClicked is not null)
         {
             RunOnUIThread(() => _onPointClicked(px, py));
-        }
-    }
-
-    private void UpdateProgress(string msg, double pct) =>
-        RunOnUIThread(() =>
-        {
-            StatusText = msg;
-            if (pct >= 0)
-            {
-                ProgressPercentage = Math.Min(100, Math.Max(0, pct));
-            }
-        });
-
-    [RelayCommand]
-    public void Stop(string? message = null)
-    {
-        _cts?.Cancel();
-        _cts?.Dispose();
-        _cts = null;
-
-        IsRunning = false;
-        ProgressPercentage = 0;
-        if (message is not null)
-        {
-            StatusText = message;
-        }
-        else if (string.IsNullOrEmpty(StatusText) || StatusText == LocalizationManager.Get("Common_Running"))
-        {
-            StatusText = LocalizationManager.Get("Common_StoppedByUser");
         }
     }
 

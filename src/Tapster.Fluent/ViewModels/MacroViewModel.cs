@@ -11,16 +11,14 @@ using CommunityToolkit.Mvvm.Input;
 using Tapster;
 
 /// <summary>
-/// ViewModel managing Macro recording, editing, and replay playback.
+/// ViewModel managing the Macro Recorder/Replay UI state, actions list, and marker overlay coordination.
 /// </summary>
-public partial class MacroViewModel : ViewModelBase
+public partial class MacroViewModel : TaskViewModelBase
 {
     private readonly MacroRecorder _recorder;
-    private readonly PanicDetector _panicDetector;
-    private readonly Action<IReadOnlyList<MarkerPoint>>? _setMarkersCallback;
-    private readonly Action<int, int, int>? _onMarkerRippleCallback;
+    private readonly Action<List<MarkerPoint>>? _setMarkersCallback;
     private readonly Action? _clearMarkersCallback;
-    private CancellationTokenSource? _cts;
+    private readonly Action<int, int, int>? _onMarkerRippleCallback;
 
     public ObservableCollection<MacroAction> Actions { get; } = new();
 
@@ -31,37 +29,24 @@ public partial class MacroViewModel : ViewModelBase
     private double _speed = 1.0;
 
     [ObservableProperty]
-    private double _delaySeconds = 3.0;
-
-    [ObservableProperty]
     private bool _ignoreMouseMove = true;
 
     [ObservableProperty]
     private bool _isRecording;
 
-    [ObservableProperty]
-    private bool _isRunning;
-
-    [ObservableProperty]
-    private string _statusText = string.Empty;
-
-    [ObservableProperty]
-    private double _progressPercentage;
-
     public MacroViewModel(
         MacroRecorder? recorder = null,
         PanicDetector? panicDetector = null,
-        Action<IReadOnlyList<MarkerPoint>>? setMarkersCallback = null,
-        Action<int, int, int>? onMarkerRippleCallback = null,
+        Action<List<MarkerPoint>>? setMarkersCallback = null,
         Action? clearMarkersCallback = null,
+        Action<int, int, int>? onMarkerRippleCallback = null,
         Action<Action>? dispatcher = null)
-        : base(dispatcher)
+        : base(panicDetector, dispatcher)
     {
         _recorder = recorder ?? new MacroRecorder();
-        _panicDetector = panicDetector ?? new PanicDetector();
         _setMarkersCallback = setMarkersCallback;
-        _onMarkerRippleCallback = onMarkerRippleCallback;
         _clearMarkersCallback = clearMarkersCallback;
+        _onMarkerRippleCallback = onMarkerRippleCallback;
     }
 
     [RelayCommand]
@@ -73,8 +58,8 @@ public partial class MacroViewModel : ViewModelBase
         }
 
         IsRecording = true;
-        StatusText = LocalizationManager.Get("Macro_Recording");
-        _recorder.StartRecording(null, IgnoreMouseMove);
+        StatusText = LocalizationManager.Get("Macro_RecordingStatus");
+        _recorder.StartRecording(ignoreMouseMove: IgnoreMouseMove);
     }
 
     [RelayCommand]
@@ -85,16 +70,15 @@ public partial class MacroViewModel : ViewModelBase
             return;
         }
 
-        _recorder.StopRecording();
         IsRecording = false;
+        _recorder.StopRecording();
+        StatusText = LocalizationManager.Get("Macro_RecordingStopped");
 
         Actions.Clear();
         foreach (var action in _recorder.Actions)
         {
             Actions.Add(action);
         }
-
-        StatusText = string.Format(LocalizationManager.Get("Macro_ActionsCount"), Actions.Count);
     }
 
     [RelayCommand]
@@ -124,28 +108,15 @@ public partial class MacroViewModel : ViewModelBase
             return;
         }
 
-        // Sync actions into recorder if modified
         _recorder.Clear();
         foreach (var action in Actions)
         {
             _recorder.InsertAction(_recorder.Actions.Count, action);
         }
 
-        IsRunning = true;
-        ProgressPercentage = 0;
-        StatusText = LocalizationManager.Get("Common_Running");
-
-        _cts = new CancellationTokenSource();
-
         try
         {
-            await ExecuteAutomationTaskAsync(
-                DelaySeconds,
-                _panicDetector,
-                _cts,
-                ExecuteMacroCoreAsync,
-                UpdateProgress,
-                Stop);
+            await RunAutomationWorkflowAsync(ExecuteMacroCoreAsync);
         }
         finally
         {
@@ -195,76 +166,45 @@ public partial class MacroViewModel : ViewModelBase
                     {
                         RunOnUIThread(() => _onMarkerRippleCallback(action.X, action.Y, thisClick));
                     }
-                    _panicDetector.SyncProgrammaticPosition(action.X, action.Y);
+                    PanicDetectorInstance.SyncProgrammaticPosition(action.X, action.Y);
                 }
                 else if (action.Type is MacroActionType.MouseMove)
                 {
-                    _panicDetector.SyncProgrammaticPosition(action.X, action.Y);
+                    PanicDetectorInstance.SyncProgrammaticPosition(action.X, action.Y);
                 }
             },
             checkPanicCallback: () =>
             {
-                if (_panicDetector.CheckPanic(out var reason))
+                if (PanicDetectorInstance.CheckPanic(out var reason))
                 {
                     throw new OperationCanceledException(reason ?? PanicDetector.EmergencyPanicMessage);
                 }
             });
     }
 
-    private void UpdateProgress(string msg, double pct) =>
-        RunOnUIThread(() =>
-        {
-            StatusText = msg;
-            if (pct >= 0)
-            {
-                ProgressPercentage = Math.Min(100, Math.Max(0, pct));
-            }
-        });
-
-    [RelayCommand]
-    public void Stop(string? message = null)
+    public override void Stop(string? message = null)
     {
-        _cts?.Cancel();
-        _cts?.Dispose();
-        _cts = null;
-
-        IsRunning = false;
-        ProgressPercentage = 0;
-
-        if (message is not null)
-        {
-            StatusText = message;
-        }
-        else if (string.IsNullOrEmpty(StatusText) || StatusText == LocalizationManager.Get("Common_Running"))
-        {
-            StatusText = LocalizationManager.Get("Common_StoppedByUser");
-        }
+        base.Stop(message);
+        IsRecording = false;
+        _recorder.StopRecording();
     }
 
-    [RelayCommand]
-    public void ClearActions()
+    public void AddAction(MacroAction action)
     {
-        Actions.Clear();
-        _recorder.Clear();
-        StatusText = string.Empty;
+        Actions.Add(action);
     }
 
-    [RelayCommand]
     public void DeleteAction(int index)
     {
         if (index >= 0 && index < Actions.Count)
         {
             Actions.RemoveAt(index);
-            _recorder.RemoveActionAt(index);
         }
     }
 
-    public void AddAction(MacroAction action)
+    public void ClearActions()
     {
-        if (action is not null)
-        {
-            Actions.Add(action);
-            _recorder.InsertAction(_recorder.Actions.Count, action);
-        }
+        Actions.Clear();
+        _recorder.Clear();
     }
 }
