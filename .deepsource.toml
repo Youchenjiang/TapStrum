@@ -1,7 +1,10 @@
 version = 1
 
 exclude_patterns = [
+  "src/TapStrum.Fluent/**",
   "src/Tapster.Fluent/**",
+  "src/TapStrum.Launcher/**",
+  "src/Tapster.Launcher/**",
   "scripts/**"
 ]
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -30,6 +31,12 @@ public class MacroAction
 public class MacroRecorder
 {
     private readonly List<MacroAction> _actions = new();
+    private readonly ReadOnlyCollection<MacroAction> _readOnlyActions;
+
+    public MacroRecorder()
+    {
+        _readOnlyActions = _actions.AsReadOnly();
+    }
     private volatile bool _isRecording;
     private Thread? _recordThread;
     private uint _recordThreadId;
@@ -45,16 +52,7 @@ public class MacroRecorder
 
     public bool IgnoreMouseMove { get; set; } = true;
 
-    public IReadOnlyList<MacroAction> Actions
-    {
-        get
-        {
-            lock (_actions)
-            {
-                return _actions.ToArray();
-            }
-        }
-    }
+    public IReadOnlyList<MacroAction> Actions => _readOnlyActions;
 
     public void StartRecording(Action<int>? onActionCaptured = null, bool ignoreMouseMove = true, Action<MacroAction, int>? onActionDetailed = null)
     {

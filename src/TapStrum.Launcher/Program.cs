@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -40,7 +41,15 @@ internal static class Program
         {
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string appDir = Path.Combine(localAppData, "TapStrum", $"app-v{AppVersion}");
-            string targetExe = Path.Combine(appDir, "Tapster.Fluent.exe");
+            string targetExe = Path.Combine(appDir, "TapStrum.Fluent.exe");
+            if (!File.Exists(targetExe))
+            {
+                string legacyExe = Path.Combine(appDir, "Tapster.Fluent.exe");
+                if (File.Exists(legacyExe))
+                {
+                    targetExe = legacyExe;
+                }
+            }
             string hashFile = Path.Combine(appDir, ".payload_hash");
 
             var assembly = Assembly.GetExecutingAssembly();
@@ -82,7 +91,7 @@ internal static class Program
 
             if (!File.Exists(targetExe))
             {
-                MessageBoxW(IntPtr.Zero, "Failed to locate Tapster.Fluent.exe after extraction.", "TapStrum Error", 0x10);
+                MessageBoxW(IntPtr.Zero, "Failed to locate TapStrum.Fluent.exe after extraction.", "TapStrum Error", 0x10);
                 return 1;
             }
 
@@ -109,7 +118,8 @@ internal static class Program
     {
         try
         {
-            var processes = Process.GetProcessesByName("Tapster.Fluent");
+            var processes = Process.GetProcessesByName("TapStrum.Fluent")
+                .Concat(Process.GetProcessesByName("Tapster.Fluent"));
             foreach (var p in processes)
             {
                 try
@@ -128,7 +138,8 @@ internal static class Program
     {
         try
         {
-            var processes = Process.GetProcessesByName("Tapster.Fluent");
+            var processes = Process.GetProcessesByName("TapStrum.Fluent")
+                .Concat(Process.GetProcessesByName("Tapster.Fluent"));
             if (processes.Length == 0) return false;
 
             AllowSetForegroundWindow(ASFW_ANY);
