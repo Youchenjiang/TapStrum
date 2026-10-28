@@ -34,12 +34,12 @@ jobs:
       - name: "Build Tapster Solution (Release)"
         shell: pwsh
         run: |
-          dotnet build Tapster.sln -c Release
+          dotnet build TapStrum.sln -c Release
 
       - name: "Run Unit Tests"
         shell: pwsh
         run: |
-          dotnet test Tapster.sln --no-build -c Release --logger "console;verbosity=normal"
+          dotnet test TapStrum.sln --no-build -c Release --logger "console;verbosity=normal"
 
       - name: "Run Python Tooling & Automation Unit Tests"
         shell: pwsh

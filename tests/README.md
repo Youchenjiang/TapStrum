@@ -19,7 +19,7 @@ tests/
 Run the complete test suite from repository root:
 
 ```powershell
-dotnet test Tapster.sln -c Release --logger "console;verbosity=normal"
+dotnet test TapStrum.sln -c Release --logger "console;verbosity=normal"
 ```
 
 To run only the core test project:

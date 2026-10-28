@@ -162,15 +162,10 @@ public static class LocalizationManager
                 using var stream = assembly.GetManifestResourceStream(resourceName);
                 if (stream is not null)
                 {
-                    using var reader = new StreamReader(stream, Encoding.UTF8);
-                    var json = reader.ReadToEnd();
-                    var parsed = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                    if (parsed is not null)
+                    using var doc = JsonDocument.Parse(stream);
+                    foreach (var prop in doc.RootElement.EnumerateObject())
                     {
-                        foreach (var (k, v) in parsed)
-                        {
-                            dict[k] = v;
-                        }
+                        dict[prop.Name] = prop.Value.GetString() ?? string.Empty;
                     }
                 }
             }

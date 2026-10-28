@@ -100,7 +100,7 @@ python tools/lint_commits.py --range origin/main..HEAD || {
 }
 
 echo "[pre-push] Running Tapster test suite (Release)..."
-dotnet test Tapster.sln -c Release || {
+dotnet test TapStrum.sln -c Release || {
     dotnet build-server shutdown >/dev/null 2>&1 || true
     echo "[ERROR] Unit test suite failed. Aborting push." >&2
     exit 1
