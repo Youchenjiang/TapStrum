@@ -1,3 +1,4 @@
+#pragma warning disable S2325 // Sonar analyzer false positive for instance UI thread dispatch methods
 namespace Tapster_Fluent.ViewModels;
 
 using System;

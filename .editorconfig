@@ -18,6 +18,8 @@ trim_trailing_whitespace = false
 end_of_line = lf
 
 [*.{cs,csx}]
+dotnet_diagnostic.S2325.severity = none
+dotnet_diagnostic.CA1822.severity = none
 # C# formatting rules
 csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion

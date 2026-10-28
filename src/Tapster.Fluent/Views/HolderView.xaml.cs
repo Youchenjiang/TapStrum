@@ -25,13 +25,6 @@ public sealed partial class HolderView : UserControl
         }
     }
 
-    public StackPanel StepsContainer => HolderStepsContainer;
-    public StackPanel VirtualKeyboardContainer => KeyboardContainer;
-    public TextBlock StepTargetHint => ActiveStepTargetHint;
-    public StackPanel RepeatPanel => HolderRepeatPanel;
-    public NumberBox RepeatBox => HolderRepeatBox;
-    public ScrollViewer ScrollViewer => HolderScrollViewer;
-
     public HolderView()
     {
         InitializeComponent();

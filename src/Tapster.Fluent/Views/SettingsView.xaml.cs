@@ -1,3 +1,4 @@
+#pragma warning disable S2325 // WinUI XAML event handlers and controls are generated in partial class
 namespace Tapster_Fluent.Views;
 
 using System;
