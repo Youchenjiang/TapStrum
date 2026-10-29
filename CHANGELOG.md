@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.4.0.0] - 2026-10-30
+
+### Added
+- **Single-Instance Enforcement & Named Pipe IPC Wake**: Introduced `SingleInstanceService` using system named mutex (`Local\TapStrum_SingleInstance_Mutex`) and named pipe IPC (`Local\TapStrum_Wake_Pipe`) to eliminate duplicate background instances and summon the existing window to front upon secondary launches (PR #54).
+- **WinUI 3 MVVM Architecture & Modular ViewModels**: Integrated `CommunityToolkit.Mvvm`, extracted independent views (`TyperView`, `HolderView`, `ClickerView`, `MacroView`, `SettingsView`, `AboutView`), and introduced `TaskViewModelBase` for unified asynchronous execution lifecycle and panic handling (PR #65).
+- **Decoupled Core Domain Services**: Extracted dedicated interfaces and implementation engines for core capabilities (`IClickerService`, `ITyperService`, `IKeyHolderPipelineService`, `IAppSettingsService`) with shared `PanicDelayHelper` safety delay coordination (PR #64).
+- **Dynamic JSON Localization Engine**: Replaced hardcoded string resources with dynamic JSON localization dictionaries (`zh-TW`, `zh-CN`, `en-US`, `ja-JP`), enabling runtime language switching and seamless community translation extensibility (PR #66).
+- **Store Release Enrichment & Verification Suite**: Added Microsoft Store package probing, reconciliation workflow, and verification scripts to guarantee parity between GitHub releases and Microsoft Store packages (PR #58).
+- **Direct Store Page Link & Error Dialog**: Added a dedicated Microsoft Store navigation button in AboutView with user-facing dialog fallback on failure (PR #57).
+- **Guarded Branch Creation & Pre-Flight Toolchain**: Added `branch` subcommand to `pr_tool` and git `post-checkout` hook to mechanically prevent non-compliant branch naming (PR #59, PR #68).
+
+### Changed
+- **Comprehensive Brand Identity & Topology Consolidation**: Formally rebranded from Tapster to TapStrum across all assemblies, namespaces, project files, executables (`TapStrum.Core`, `TapStrum.Fluent`, `TapStrum.Launcher`), and Microsoft Partner Center package identities (PR #53, PR #63, PR #66, PR #67).
+- **Full Namespace Standardization**: Harmonized internal namespaces across 82 C# source files to canonical `TapStrum`, `TapStrum.Fluent`, and `TapStrum.Services` (PR #67).
+- **Monolithic Page Decomposition**: Refactored monolithic `MainPage` into a pure, lightweight navigation container hosting modular views (PR #65).
+- **Standard Source Layout**: Relocated all project source trees into a unified `src/` directory topology and eliminated legacy WPF projects and solutions (PR #63, PR #67).
+- **MSIX Package Footprint Optimization**: Retargeted Windows SDK to `10.0.19041.0` and adopted fail-safe file trimming and completeness gates, drastically reducing MSIX package size (PR #52).
+
+### Fixed
+- **Static Analysis & Anti-Pattern Remediation**: Resolved cyclomatic complexity warnings, unmanaged P/Invoke visibility (`CS-W1059`), uninitialized variable risks (`CS-W1022`), culture-invariant string comparisons (`CS-R1018`), and async cancellation token ordering (`CS-R1141`) across core modules (PR #60, PR #63, PR #66).
+- **Process Enumeration Safety**: Materialized process queries to arrays in launcher instance helpers to avoid enumeration concurrency exceptions (PR #66).
+- **GitHub Actions Least-Privilege Permissions**: Hardened CI workflow token scopes, granting explicit read permissions to caller workflows and strictly isolating release publishing privileges (PR #51, PR #61).
+- **Unit Test Coverage Expansion**: Added 21 Fluent ViewModel unit tests, single instance tests, and core domain service tests, bringing total test count to 321 passing unit tests (PR #54, PR #64, PR #65).
+
 ## [1.3.0.0] - 2026-10-10
 
 ### Added
@@ -38,46 +62,3 @@
 
 ### Fixed
 - Fixed MSIX launch crash caused by duplicate WinUI 3 runtime binaries and unpackaged packaging flags conflicting with `Microsoft.WindowsAppRuntime.2` (`CoreMessagingXP.dll` `0xc0000602`).
-
-### Changed
-- Parameterized `WindowsPackageType` and `WindowsAppSDKSelfContained` in `Tapster.Fluent.csproj` to support dynamic overrides across MSIX and Portable builds.
-- Updated `build_msix.ps1` to publish with `-p:WindowsPackageType=MSIX -p:WindowsAppSDKSelfContained=false`.
-- Explicitly pinned `build_portable.ps1` to `-p:WindowsPackageType=None -p:WindowsAppSDKSelfContained=true`.
-
-All notable changes to **Tapster** will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
----
-
-## [1.1.0] - 2026-08-16
-
-### Added
-- **True Standalone Single-File Launcher (`Tapster.Launcher`)**: Embedded payload compression, SHA-256 integrity hash verification, automated process termination before extraction to prevent DLL file locks, and single-instance window activation.
-- **Decoupled Per-Panel Action Cards**: Embedded delay box, live progress bars (typing characters, hold countdown, click counts, macro playback steps), and Start/Stop controls directly into Typer, Holder, Clicker, and Macro panels.
-- **Dedicated About Page**: Architecture specs, version tags, 100% offline privacy statement, and one-click appdata directory launcher.
-- **OpenSSF Supply Chain Security Suite**: OpenSSF Scorecard audit, CodeQL SAST scanning, Dependabot weekly updates, and comprehensive security policy.
-- **Repository Governance**: Repository Policy CI enforcement, PR & Issue templates, local `commit-msg` git hook, and `AGENTS.md` authorization gate.
-
-### Changed
-- Refactored `MacroRecorder` to run on a dedicated high-frequency background worker thread supporting relative millisecond timestamps and signed bitwise key state polling.
-- Replaced global bottom footer with self-contained execution cards across all functional views.
-- Globally configured `Directory.Build.props` to disable MSBuild `NodeReuse` and `UseSharedCompilation`, ensuring zero lingering background processes.
-
-### Fixed
-- Fixed launcher file locking issue (`clrjit.dll used by another process`) when launching consecutive instances during updates.
-- Fixed window title bar drag lag by isolating the drag region from interactive controls.
-- Fixed missing window and taskbar icons by embedding multi-size ICO resources directly into the PE headers.
-
----
-
-## [1.0.0] - 2026-08-01
-
-### Added
-- **Core Automation Engine (`Tapster.Core`)**: Native C# .NET Win32 `SendInput` keyboard and mouse simulator.
-- **Fluent Desktop Interface (`Tapster.Fluent`)**: WinUI 3 modern user interface featuring Windows 11 Mica backdrop and dark/light themes.
-- **5-Row Physical Virtual Keyboard**: Realistic keycaps with standard physical spacing and dedicated modifier keys.
-- **System Tray Residency**: Minimize to system tray on window close, tray icon menu, and global wake-up hotkey (`Ctrl + Alt + T`).
-- **Settings Persistence**: User preferences persisted to `%LOCALAPPDATA%\Tapster\settings.json`.
-- **Dual-Track Packaging**: Standalone portable zip and signed Microsoft Store MSIX package.

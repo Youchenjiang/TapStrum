@@ -31,3 +31,10 @@ Key Features:
 
 ## Search Terms
 keyboard holder, auto clicker, macro recorder, key presser, automation, winui, tapstrum
+
+## What's New in v1.4.0.0
+- **Single-Instance Enforcement & Smart Wake**: Prevents accidental duplicate background instances; launching the shortcut again or clicking the system tray instantly summons the existing window to the foreground.
+- **Modern WinUI 3 MVVM Modular Views**: Refactored functional tabs into modular views and viewmodels, delivering faster rendering, smoother animations, and responsive interactions.
+- **Dynamic Multi-Language Engine**: Migrated localization to lightweight JSON dictionaries, offering full runtime support for English, Traditional Chinese, Simplified Chinese, and Japanese.
+- **Decoupled Core Engines & Rock-Solid Stability**: Independent service engines for typing, holding, clicking, and macro replay backed by 321 passing unit tests for uninterrupted long-running automation.
+- **Optimized MSIX Packaging**: Streamlined application package payload, reducing installation footprint and improving cold-start launch times.

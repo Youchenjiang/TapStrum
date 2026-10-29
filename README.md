@@ -60,7 +60,7 @@ TapStrum is engineered on a strict **Local-First & Zero-Telemetry** philosophy:
 2. Run directly — true single-file executable, zero installation, zero external dependencies, perfect for USB drives.
 
 ### Sideloadable Package: MSIX
-Download `TapStrum-v1.3.0.0.msix` from [Releases](../../releases) to install with Windows modern app package management and desktop shortcuts.
+Download `TapStrum-v1.4.0.0.msix` from [Releases](../../releases) to install with Windows modern app package management and desktop shortcuts.
 
 ### Microsoft Store (Official)
 Get TapStrum directly from the [Microsoft Store](https://apps.microsoft.com/detail/9n4whn5np91c):
@@ -96,7 +96,7 @@ dotnet test TapStrum.sln -c Release
 # 1. Build Standalone Portable Single-File EXE (publish/TapStrum.exe)
 powershell -ExecutionPolicy Bypass -File scripts/build_portable.ps1
 
-# 2. Build Self-Contained Signed Store MSIX (publish/TapStrum-v1.3.0.0.msix, ~6.85 MB)
+# 2. Build Self-Contained Signed Store MSIX (publish/TapStrum-v1.4.0.0.msix, ~6.85 MB)
 powershell -ExecutionPolicy Bypass -File scripts/build_msix.ps1
 ```
 

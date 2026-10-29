@@ -60,7 +60,7 @@ TapStrum 秉持嚴格的 **本機優先（Local-First）** 與 **零遙測** 原
 2. 雙擊直接開跑 — 真正的純單一檔案、零依賴、解壓即跑，非常適合隨身碟攜帶。
 
 ### 應用程式套件：MSIX
-從 [Releases](../../releases) 下載 `TapStrum-v1.3.0.0.msix`，享受現代 Windows 應用程式封裝管理與桌面捷徑整合。
+從 [Releases](../../releases) 下載 `TapStrum-v1.4.0.0.msix`，享受現代 Windows 應用程式封裝管理與桌面捷徑整合。
 
 ### Microsoft Store（官方微軟商店）
 直接前往 [Microsoft Store 商店頁面](https://apps.microsoft.com/detail/9n4whn5np91c) 一鍵取得安裝：
@@ -96,7 +96,7 @@ dotnet test TapStrum.sln -c Release
 # 1. 打包純單檔綠色免安裝版 (publish/TapStrum.exe)
 powershell -ExecutionPolicy Bypass -File scripts/build_portable.ps1
 
-# 2. 打包自封裝 Store MSIX 套件 (publish/TapStrum-v1.3.0.0.msix, 6.85 MB)
+# 2. 打包自封裝 Store MSIX 套件 (publish/TapStrum-v1.4.0.0.msix, 6.85 MB)
 powershell -ExecutionPolicy Bypass -File scripts/build_msix.ps1
 ```
 
