@@ -1,4 +1,4 @@
-namespace Tapster.Services;
+namespace TapStrum.Services;
 
 /// <summary>
 /// Configuration parameters for the automated clicking and key-spamming engine.

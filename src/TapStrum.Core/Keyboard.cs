@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using static Tapster.NativeMethods;
+using static TapStrum.NativeMethods;
 
-namespace Tapster;
+namespace TapStrum;
 
 internal readonly record struct KeyStroke(ushort Vk, bool Extended = false);
 

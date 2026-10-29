@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 
-namespace Tapster.Services;
+namespace TapStrum.Services;
 
 /// <summary>
 /// Default implementation of <see cref="IAppSettingsService"/> storing settings in local application data.

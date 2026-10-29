@@ -1,4 +1,4 @@
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Represents a single stage in a multi-stage key hold pipeline.

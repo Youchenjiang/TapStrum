@@ -1,4 +1,4 @@
-namespace Tapster_Fluent.Views;
+namespace TapStrum.Fluent.Views;
 
 using System;
 using System.Diagnostics;

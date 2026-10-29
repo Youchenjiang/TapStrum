@@ -1,4 +1,4 @@
-namespace Tapster.Services;
+namespace TapStrum.Services;
 
 /// <summary>
 /// Domain service interface for reading and persisting application configuration data.

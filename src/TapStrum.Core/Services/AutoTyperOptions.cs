@@ -1,4 +1,4 @@
-namespace Tapster.Services;
+namespace TapStrum.Services;
 
 /// <summary>
 /// Operational mode for automated typing simulation.

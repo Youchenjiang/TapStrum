@@ -1,6 +1,6 @@
 using System;
 
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Provides utility functions for simulating human-like timing and coordinate jitter.

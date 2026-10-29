@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
-using static Tapster.NativeMethods;
+using static TapStrum.NativeMethods;
 
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Simulates mouse input using Windows SendInput API.

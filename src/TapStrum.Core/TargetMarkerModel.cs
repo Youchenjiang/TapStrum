@@ -1,4 +1,4 @@
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Model and geometric calculation engine for click target crosshair marker and jitter spread boundary.

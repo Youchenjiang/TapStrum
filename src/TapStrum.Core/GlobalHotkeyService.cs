@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using static Tapster.NativeMethods;
+using static TapStrum.NativeMethods;
 
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Manages registration and dispatching of Windows global hotkeys using RegisterHotKey / WM_HOTKEY.

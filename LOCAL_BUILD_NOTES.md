@@ -27,7 +27,7 @@ To build, debug, and package TapStrum locally, your workstation requires:
 ### 2.1 Standard Solution Compilation
 Always compile the solution using Release configuration:
 ```powershell
-dotnet build Tapster.sln -c Release
+dotnet build TapStrum.sln -c Release
 dotnet build-server shutdown
 ```
 

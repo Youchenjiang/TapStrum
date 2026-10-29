@@ -1,11 +1,11 @@
-namespace Tapster.Fluent.Tests;
+namespace TapStrum.Fluent.Tests;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Tapster;
-using Tapster.Services;
-using Tapster_Fluent.ViewModels;
+using TapStrum;
+using TapStrum.Services;
+using TapStrum.Fluent.ViewModels;
 using Xunit;
 
 public class ClickerViewModelTests

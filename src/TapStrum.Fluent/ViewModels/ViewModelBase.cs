@@ -1,13 +1,13 @@
-namespace Tapster_Fluent.ViewModels;
+namespace TapStrum.Fluent.ViewModels;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Tapster;
+using TapStrum;
 
 /// <summary>
-/// Base class for all Tapster ViewModels providing thread dispatching, localization, and shared execution helpers.
+/// Base class for all TapStrum ViewModels providing thread dispatching, localization, and shared execution helpers.
 /// </summary>
 public abstract partial class ViewModelBase : ObservableObject
 {

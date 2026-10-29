@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tapster.Services;
+namespace TapStrum.Services;
 
 /// <summary>
 /// Configuration options for the multi-stage key holding execution pipeline.

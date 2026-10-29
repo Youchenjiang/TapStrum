@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
 
-namespace Tapster.Launcher;
+namespace TapStrum.Launcher;
 
 internal static class Program
 {

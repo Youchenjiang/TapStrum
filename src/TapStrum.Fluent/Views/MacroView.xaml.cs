@@ -1,10 +1,10 @@
-namespace Tapster_Fluent.Views;
+namespace TapStrum.Fluent.Views;
 
 using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Tapster;
-using Tapster_Fluent.ViewModels;
+using TapStrum;
+using TapStrum.Fluent.ViewModels;
 
 /// <summary>
 /// View managing Macro action recording, step editing, and replay execution.

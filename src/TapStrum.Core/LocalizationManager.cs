@@ -1,4 +1,4 @@
-namespace Tapster;
+namespace TapStrum;
 
 using System;
 using System.Collections.Generic;

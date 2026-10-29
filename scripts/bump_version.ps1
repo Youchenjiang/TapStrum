@@ -78,6 +78,6 @@ Write-Host "✅ Successfully bumped version to $newVersion" -ForegroundColor Gre
 
 if ($Build) {
     Write-Host "[*] Building solution with new version..." -ForegroundColor Cyan
-    dotnet build Tapster.sln -c Release
+    dotnet build TapStrum.sln -c Release
     dotnet build-server shutdown
 }

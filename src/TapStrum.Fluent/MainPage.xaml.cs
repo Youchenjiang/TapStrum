@@ -1,11 +1,11 @@
-namespace Tapster_Fluent;
+namespace TapStrum.Fluent;
 
 using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Tapster;
-using Tapster_Fluent.ViewModels;
-using Tapster_Fluent.Views;
+using TapStrum;
+using TapStrum.Fluent.ViewModels;
+using TapStrum.Fluent.Views;
 
 /// <summary>
 /// Root navigation container and coordinator for TapStrum functional views and ViewModels.

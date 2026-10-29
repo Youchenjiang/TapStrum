@@ -2,10 +2,10 @@ using System;
 using System.Threading;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using Tapster;
+using TapStrum;
 using WinRT;
 
-namespace Tapster_Fluent;
+namespace TapStrum.Fluent;
 
 public static class Program
 {

@@ -1,11 +1,11 @@
-namespace Tapster_Fluent.Views;
+namespace TapStrum.Fluent.Views;
 
 using System;
 using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Tapster;
-using Tapster_Fluent.ViewModels;
+using TapStrum;
+using TapStrum.Fluent.ViewModels;
 
 /// <summary>
 /// View managing the multi-stage Key-Holder pipeline and virtual keyboard configuration.

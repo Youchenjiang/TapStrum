@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Specifies the type of recorded input action.
@@ -81,7 +81,7 @@ public class MacroRecorder
         _recordThread = new Thread(RecordLoop)
         {
             IsBackground = true,
-            Name = "Tapster_MacroRecordWorker"
+            Name = "TapStrum_MacroRecordWorker"
         };
         _recordThread.Start();
 
