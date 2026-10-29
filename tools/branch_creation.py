@@ -1,5 +1,6 @@
 """Guarded branch creation enforcing branch naming policies."""
 
+import re
 import subprocess
 from branch_policy import validate_branch_name
 from process_guard import executable, invoke
@@ -15,7 +16,11 @@ def create_branch(branch, *, base=None, runner=None):
         formatted = "\n  - ".join(problems)
         raise ValueError(f"invalid branch name '{branch}':\n  - {formatted}")
 
-    # Check worktree cleanliness
+    if base:
+        if base.startswith("-") or not re.fullmatch(r"[A-Za-z0-9_./-]+", base):
+            raise ValueError(f"invalid base ref '{base}': base must not start with '-' and must be a valid git ref")
+
+    # Check worktree cleanliness immediately before checkout
     status = invoke(["git", "status", "--porcelain"])
     if status.stdout.strip():
         raise RuntimeError("working tree has uncommitted changes; commit or stash before creating a branch")

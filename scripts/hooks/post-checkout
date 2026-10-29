@@ -35,10 +35,8 @@ if [ $EXIT_CODE -ne 0 ]; then
   echo "      Example: python tools/pr_tool.py branch chore/release-preparation"
   echo "================================================================================"
   echo ""
-  if [ -n "$PREV_HEAD" ] && [ "$PREV_HEAD" != "0000000000000000000000000000000000000000" ]; then
-    echo "Switching back to previous HEAD ($PREV_HEAD)..."
-    git checkout "$PREV_HEAD" >/dev/null 2>&1
-  fi
+  echo "Switching back to previous branch..."
+  git checkout - >/dev/null 2>&1 || git checkout main >/dev/null 2>&1
   exit 1
 fi
 

@@ -194,7 +194,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
                             <TextBlock x:Name="SettingsAboutNavTitleText" Text="版本與專案資訊" FontWeight="SemiBold" FontSize="13" TextWrapping="Wrap"/>
-                            <TextBlock Text="TapStrum Fluent v1.3.0.0 (WinUI 3 + .NET Architecture)"
+                            <TextBlock Text="TapStrum Fluent v1.4.0.0 (WinUI 3 + .NET Architecture)"
                                        FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
                         </StackPanel>
                         <Button x:Name="SettingsAboutNavBtn" Grid.Column="1" Content="查看詳情" FontSize="11"
