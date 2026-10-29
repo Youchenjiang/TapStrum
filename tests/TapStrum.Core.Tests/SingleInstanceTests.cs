@@ -49,7 +49,7 @@ public class SingleInstanceTests
     }
 
     [Fact]
-    public async Task SignalWake_WhenListenerActive_TriggersCallback()
+    public async Task SignalWake_WhenListenerActive_TriggersCallbackAsync()
     {
         string uniqueMutex = $@"Local\TapStrum_Test_Mutex_{Guid.NewGuid():N}";
         string uniqueEvent = $@"Local\TapStrum_Test_Event_{Guid.NewGuid():N}";

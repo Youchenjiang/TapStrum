@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -7,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Tapster;
 
+/// <summary>
+/// Specifies the type of recorded input action.
+/// </summary>
 public enum MacroActionType
 {
     ClickLeft,
@@ -18,6 +22,9 @@ public enum MacroActionType
     TypeText
 }
 
+/// <summary>
+/// Represents a captured or scheduled macro automation action.
+/// </summary>
 public class MacroAction
 {
     public MacroActionType Type { get; set; }
@@ -27,9 +34,18 @@ public class MacroAction
     public long DelayMs { get; set; }
 }
 
+/// <summary>
+/// Records and replays keyboard and mouse automation action sequences.
+/// </summary>
 public class MacroRecorder
 {
     private readonly List<MacroAction> _actions = new();
+    private readonly ReadOnlyCollection<MacroAction> _readOnlyActions;
+
+    public MacroRecorder()
+    {
+        _readOnlyActions = _actions.AsReadOnly();
+    }
     private volatile bool _isRecording;
     private Thread? _recordThread;
     private uint _recordThreadId;
@@ -45,16 +61,7 @@ public class MacroRecorder
 
     public bool IgnoreMouseMove { get; set; } = true;
 
-    public IReadOnlyList<MacroAction> Actions
-    {
-        get
-        {
-            lock (_actions)
-            {
-                return _actions.ToArray();
-            }
-        }
-    }
+    public IReadOnlyList<MacroAction> Actions => _readOnlyActions;
 
     public void StartRecording(Action<int>? onActionCaptured = null, bool ignoreMouseMove = true, Action<MacroAction, int>? onActionDetailed = null)
     {
@@ -131,6 +138,9 @@ public class MacroRecorder
                     case 0x0207: // WM_MBUTTONDOWN
                         RecordCapturedAction(MacroActionType.ClickMiddle, hookStruct.pt.X, hookStruct.pt.Y, string.Empty, now);
                         break;
+                    default:
+                        // Ignore unhandled window messages during recording
+                        break;
                 }
             }
             catch (Exception ex)
@@ -180,8 +190,8 @@ public class MacroRecorder
 
     private void RecordCapturedAction(MacroActionType type, int x, int y, string data, long now)
     {
-        MacroAction action;
-        int totalCount;
+        MacroAction action = null!;
+        int totalCount = 0;
         lock (_actions)
         {
             if (!_isRecording) return;
@@ -263,7 +273,7 @@ public class MacroRecorder
         Action<MacroAction>? actionExecutingCallback = null,
         Action? checkPanicCallback = null)
     {
-        List<MacroAction> actionsSnapshot;
+        List<MacroAction> actionsSnapshot = [];
         lock (_actions)
         {
             actionsSnapshot = new List<MacroAction>(_actions);
@@ -283,7 +293,7 @@ public class MacroRecorder
                 var action = actionsSnapshot[i];
                 progressCallback?.Invoke(currentLoop, i + 1);
 
-                await ReplaySingleStepAsync(action, speedMultiplier, token, actionExecutingCallback, checkPanicCallback);
+                await ReplaySingleStepAsync(action, speedMultiplier, actionExecutingCallback, checkPanicCallback, token);
             }
         }
     }
@@ -291,11 +301,11 @@ public class MacroRecorder
     private static async Task ReplaySingleStepAsync(
         MacroAction action,
         double speedMultiplier,
-        CancellationToken token,
         Action<MacroAction>? actionExecutingCallback,
-        Action? checkPanicCallback)
+        Action? checkPanicCallback,
+        CancellationToken token)
     {
-        CheckReplaySafety(token, checkPanicCallback);
+        CheckReplaySafety(checkPanicCallback, token);
 
         int delay = (int)(action.DelayMs / Math.Max(0.1, speedMultiplier));
         if (delay > 0)
@@ -303,13 +313,13 @@ public class MacroRecorder
             await Task.Delay(delay, token);
         }
 
-        CheckReplaySafety(token, checkPanicCallback);
+        CheckReplaySafety(checkPanicCallback, token);
 
         actionExecutingCallback?.Invoke(action);
         ExecuteAction(action);
     }
 
-    private static void CheckReplaySafety(CancellationToken token, Action? checkPanicCallback)
+    private static void CheckReplaySafety(Action? checkPanicCallback, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         if (checkPanicCallback != null)
@@ -347,6 +357,9 @@ public class MacroRecorder
                 break;
             case MacroActionType.TypeText:
                 Keyboard.Type(action.Data);
+                break;
+            default:
+                // Ignore unsupported or unhandled macro action types
                 break;
         }
     }

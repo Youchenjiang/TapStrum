@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -40,53 +41,31 @@ internal static class Program
         {
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string appDir = Path.Combine(localAppData, "TapStrum", $"app-v{AppVersion}");
-            string targetExe = Path.Combine(appDir, "Tapster.Fluent.exe");
+            string targetExe = ResolveTargetExe(appDir);
             string hashFile = Path.Combine(appDir, ".payload_hash");
 
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = typeof(Program).Assembly;
             using Stream? stream = assembly.GetManifestResourceStream("payload.zip")
                 ?? assembly.GetManifestResourceStream("Tapster.Launcher.payload.zip");
 
-            string currentHash = "";
-            if (stream != null)
+            string currentHash = ComputePayloadHash(stream);
+
+            if (NeedsExtraction(targetExe, hashFile, currentHash))
             {
-                using var sha256 = SHA256.Create();
-                byte[] hashBytes = sha256.ComputeHash(stream);
-                currentHash = Convert.ToHexString(hashBytes);
-                stream.Position = 0;
+                PerformExtraction(appDir, stream, hashFile, currentHash);
+                targetExe = ResolveTargetExe(appDir);
             }
-
-            bool needsExtract = !File.Exists(targetExe) ||
-                                !File.Exists(hashFile) ||
-                                (File.Exists(hashFile) && File.ReadAllText(hashFile).Trim() != currentHash);
-
-            if (needsExtract)
+            else if (ActivateExistingInstance(appDir))
             {
-                // Kill any older running instance before updating files to avoid file lock on DLLs
-                KillExistingInstances(appDir);
-                ExtractPayload(appDir, stream);
-
-                if (!string.IsNullOrEmpty(currentHash))
-                {
-                    try { File.WriteAllText(hashFile, currentHash); } catch { }
-                }
-            }
-            else
-            {
-                // If already running and up to date, bring existing instance to foreground
-                if (ActivateExistingInstance(appDir))
-                {
-                    return 0;
-                }
+                return 0;
             }
 
             if (!File.Exists(targetExe))
             {
-                MessageBoxW(IntPtr.Zero, "Failed to locate Tapster.Fluent.exe after extraction.", "TapStrum Error", 0x10);
+                MessageBoxW(IntPtr.Zero, "Failed to locate TapStrum.Fluent.exe after extraction.", "TapStrum Error", 0x10);
                 return 1;
             }
 
-            // Launch target executable with all arguments
             var startInfo = new ProcessStartInfo
             {
                 FileName = targetExe,
@@ -105,11 +84,66 @@ internal static class Program
         }
     }
 
+    private static string ResolveTargetExe(string appDir)
+    {
+        string targetExe = Path.Combine(appDir, "TapStrum.Fluent.exe");
+        if (File.Exists(targetExe))
+        {
+            return targetExe;
+        }
+
+        string legacyExe = Path.Combine(appDir, "Tapster.Fluent.exe");
+        return File.Exists(legacyExe) ? legacyExe : targetExe;
+    }
+
+    private static string ComputePayloadHash(Stream? stream)
+    {
+        if (stream == null)
+        {
+            return string.Empty;
+        }
+
+        using var sha256 = SHA256.Create();
+        byte[] hashBytes = sha256.ComputeHash(stream);
+        stream.Position = 0;
+        return Convert.ToHexString(hashBytes);
+    }
+
+    private static bool NeedsExtraction(string targetExe, string hashFile, string currentHash)
+    {
+        if (!File.Exists(targetExe) || !File.Exists(hashFile))
+        {
+            return true;
+        }
+
+        try
+        {
+            return !string.Equals(File.ReadAllText(hashFile).Trim(), currentHash, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
+    private static void PerformExtraction(string appDir, Stream? stream, string hashFile, string currentHash)
+    {
+        KillExistingInstances(appDir);
+        ExtractPayload(appDir, stream);
+
+        if (!string.IsNullOrEmpty(currentHash))
+        {
+            try { File.WriteAllText(hashFile, currentHash); } catch { }
+        }
+    }
+
     private static void KillExistingInstances(string appDir)
     {
         try
         {
-            var processes = Process.GetProcessesByName("Tapster.Fluent");
+            var processes = Process.GetProcessesByName("TapStrum.Fluent")
+                .Concat(Process.GetProcessesByName("Tapster.Fluent"))
+                .ToArray();
             foreach (var p in processes)
             {
                 try
@@ -128,7 +162,9 @@ internal static class Program
     {
         try
         {
-            var processes = Process.GetProcessesByName("Tapster.Fluent");
+            var processes = Process.GetProcessesByName("TapStrum.Fluent")
+                .Concat(Process.GetProcessesByName("Tapster.Fluent"))
+                .ToArray();
             if (processes.Length == 0) return false;
 
             AllowSetForegroundWindow(ASFW_ANY);

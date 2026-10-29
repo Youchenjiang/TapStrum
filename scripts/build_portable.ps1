@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 $root = "$PSScriptRoot/.."
 $publishDir = "$root/publish"
 $tempFluent = "$publishDir/fluent-temp"
-$launcherDir = "$root/src/Tapster.Launcher"
+$launcherDir = "$root/src/TapStrum.Launcher"
 $payloadZip = "$launcherDir/payload.zip"
 $targetExe = "$publishDir/TapStrum.exe"
 
@@ -23,9 +23,9 @@ try {
     Remove-Item -Recurse -Force "$publishDir/single-test" -ErrorAction SilentlyContinue
     Remove-Item -Recurse -Force "$publishDir/Tapster-Portable" -ErrorAction SilentlyContinue
 
-    # 2. Publish Tapster.Fluent (Self-Contained & Trimmed)
-    Write-Host "[Build] Compiling Tapster.Fluent core engine..." -ForegroundColor Yellow
-    dotnet publish "$root/src/Tapster.Fluent/Tapster.Fluent.csproj" `
+    # 2. Publish TapStrum.Fluent (Self-Contained & Trimmed)
+    Write-Host "[Build] Compiling TapStrum.Fluent core engine..." -ForegroundColor Yellow
+    dotnet publish "$root/src/TapStrum.Fluent/TapStrum.Fluent.csproj" `
         -c Release `
         -r win-x64 `
         --self-contained true `
@@ -65,9 +65,9 @@ try {
     Compress-Archive -Path "$tempFluent/*" -DestinationPath $payloadZip -Force
     Remove-Item -Recurse -Force $tempFluent -ErrorAction SilentlyContinue
 
-    # 5. Compile Tapster.Launcher into Single-File Standalone EXE
+    # 5. Compile TapStrum.Launcher into Single-File Standalone EXE
     Write-Host "[Launcher] Compiling single-file Tapster.exe launcher..." -ForegroundColor Cyan
-    dotnet publish "$launcherDir/Tapster.Launcher.csproj" `
+    dotnet publish "$launcherDir/TapStrum.Launcher.csproj" `
         -c Release `
         -r win-x64 `
         --self-contained true `

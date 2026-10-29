@@ -98,7 +98,7 @@ public static partial class Keyboard
     /// </summary>
     public static void ReleaseAllModifiers()
     {
-        string[] mods = ["shift", "ctrl", "alt", "windows"];
+        string[] mods = [KeyShift, KeyCtrl, KeyAlt, "windows"];
         foreach (var mod in mods)
         {
             try
@@ -128,6 +128,27 @@ public static partial class Keyboard
         _ = GetAsyncKeyState(0x1B);
     }
 
+    private const string KeyShift = "shift";
+    private const string KeyCtrl = "ctrl";
+    private const string KeyAlt = "alt";
+    private const string KeyWin = "win";
+
+    private static readonly Dictionary<int, string> KeyNames = new()
+    {
+        [0x10] = KeyShift, [0xA0] = KeyShift, [0xA1] = KeyShift,
+        [0x11] = KeyCtrl, [0xA2] = KeyCtrl, [0xA3] = KeyCtrl,
+        [0x12] = KeyAlt, [0xA4] = KeyAlt, [0xA5] = KeyAlt,
+        [0x5B] = KeyWin, [0x5C] = KeyWin,
+        [0x0D] = "enter", [0x20] = "space", [0x09] = "tab", [0x1B] = "esc",
+        [0x08] = "backspace", [0x2E] = "delete", [0x2D] = "insert",
+        [0x24] = "home", [0x23] = "end", [0x21] = "pageup", [0x22] = "pagedown",
+        [0x14] = "capslock", [0x26] = "up", [0x28] = "down", [0x25] = "left", [0x27] = "right",
+        [0x2C] = "printscreen", [0x13] = "pause", [0x90] = "numlock", [0x91] = "scrolllock",
+        [0x6A] = "multiply", [0x6B] = "add", [0x6D] = "subtract", [0x6E] = "decimal", [0x6F] = "divide",
+        [0xC0] = "`", [0xBD] = "-", [0xBB] = "=", [0xDB] = "[", [0xDD] = "]", [0xDC] = "\\",
+        [0xBA] = ";", [0xDE] = "'", [0xBC] = ",", [0xBE] = ".", [0xBF] = "/"
+    };
+
     /// <summary>
     /// Maps a virtual key code to a friendly key name string.
     /// </summary>
@@ -138,50 +159,7 @@ public static partial class Keyboard
         if (vk >= 0x60 && vk <= 0x69) return $"num{vk - 0x60}";
         if (vk >= 0x70 && vk <= 0x7B) return $"f{vk - 0x70 + 1}";
 
-        return vk switch
-        {
-            0x10 or 0xA0 or 0xA1 => "shift",
-            0x11 or 0xA2 or 0xA3 => "ctrl",
-            0x12 or 0xA4 or 0xA5 => "alt",
-            0x5B or 0x5C => "win",
-            0x0D => "enter",
-            0x20 => "space",
-            0x09 => "tab",
-            0x1B => "esc",
-            0x08 => "backspace",
-            0x2E => "delete",
-            0x2D => "insert",
-            0x24 => "home",
-            0x23 => "end",
-            0x21 => "pageup",
-            0x22 => "pagedown",
-            0x14 => "capslock",
-            0x26 => "up",
-            0x28 => "down",
-            0x25 => "left",
-            0x27 => "right",
-            0x2C => "printscreen",
-            0x13 => "pause",
-            0x90 => "numlock",
-            0x91 => "scrolllock",
-            0x6A => "multiply",
-            0x6B => "add",
-            0x6D => "subtract",
-            0x6E => "decimal",
-            0x6F => "divide",
-            0xC0 => "`",
-            0xBD => "-",
-            0xBB => "=",
-            0xDB => "[",
-            0xDD => "]",
-            0xDC => "\\",
-            0xBA => ";",
-            0xDE => "'",
-            0xBC => ",",
-            0xBE => ".",
-            0xBF => "/",
-            _ => $"vk_{vk}"
-        };
+        return KeyNames.TryGetValue(vk, out var name) ? name : $"vk_{vk}";
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
@@ -284,12 +262,12 @@ public static partial class Keyboard
 
     private static readonly Dictionary<string, KeyStroke> NamedKeyMap = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["shift"] = new(0x10),
-        ["ctrl"] = new(0x11),
+        [KeyShift] = new(0x10),
+        [KeyCtrl] = new(0x11),
         ["control"] = new(0x11),
-        ["alt"] = new(0x12),
+        [KeyAlt] = new(0x12),
         ["windows"] = new(0x5B),
-        ["win"] = new(0x5B),
+        [KeyWin] = new(0x5B),
         ["enter"] = new(0x0D),
         ["return"] = new(0x0D),
         ["numpadenter"] = new(0x0D, Extended: true),

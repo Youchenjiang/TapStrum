@@ -175,6 +175,8 @@ public sealed partial class MainWindow : Window
         UIntPtr uIdSubclass,
         IntPtr dwRefData)
     {
+        _ = uIdSubclass;
+        _ = dwRefData;
         if (uMsg == NativeMethods.WM_GETMINMAXINFO)
         {
             NativeMethods.DefSubclassProc(hWnd, uMsg, wParam, lParam);

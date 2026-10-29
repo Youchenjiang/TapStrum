@@ -13,7 +13,7 @@ public static class Mouse
     /// </summary>
     public static void Click(string button = "left")
     {
-        var (down, up) = button.ToLower() switch
+        var (down, up) = button.ToLowerInvariant() switch
         {
             "right" => (MOUSEEVENTF_RIGHTDOWN, MOUSEEVENTF_RIGHTUP),
             "middle" or "mid" => (MOUSEEVENTF_MIDDLEDOWN, MOUSEEVENTF_MIDDLEUP),
@@ -61,7 +61,7 @@ public static class Mouse
     /// </summary>
     public static bool IsButtonDown(string button)
     {
-        int vk = button.ToLower() switch
+        int vk = button.ToLowerInvariant() switch
         {
             "right" => VK_RBUTTON,
             "middle" or "mid" => VK_MBUTTON,

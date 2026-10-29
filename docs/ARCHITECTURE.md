@@ -2,16 +2,30 @@
 
 ## 1. System Overview
 
-TapStrum is a modern, high-performance Windows automation assistant engineered for deterministic keyboard and mouse emulation, macro recording/replay, and continuous action holding. It provides an acrylic/mica-styled Windows 11 Fluent application (`src/Tapster.Fluent`) with a portable native bootstrapper (`src/Tapster.Launcher`), both powered by a unified unmanaged Win32 driver engine (`src/Tapster`).
+TapStrum is a modern, high-performance Windows automation assistant engineered for deterministic keyboard and mouse emulation, macro recording/replay, and continuous action holding. It provides an acrylic/mica-styled Windows 11 Fluent application (`src/TapStrum.Fluent`) with a portable native bootstrapper (`src/TapStrum.Launcher`), both powered by a unified unmanaged Win32 driver engine (`src/TapStrum.Core`).
 
 ```mermaid
 flowchart TD
-    subgraph UI_Hosts ["User Interface Hosts"]
-        FluentHost["Tapster.Fluent<br>(WinUI 3 / Windows App SDK)"]
-        LauncherHost["Tapster.Launcher<br>(Single-File Bootstrapper)"]
+    subgraph UI_Hosts ["User Interface Hosts (Presentation)"]
+        FluentHost["TapStrum.Fluent<br>(WinUI 3 / MVVM / CommunityToolkit)"]
+        LauncherHost["TapStrum.Launcher<br>(Single-File Bootstrapper)"]
     end
 
-    subgraph Core_Engine ["Tapster.Core (Pure Win32 Engine)"]
+    subgraph MVVM_Layer ["Presentation & ViewModels"]
+        NavHost["MainPage (NavigationView Host)"]
+        Views["Views (Clicker, Holder, Macro, Typer, Settings, About)"]
+        ViewModels["ViewModels (ObservableRecipient / RelayCommand)"]
+    end
+
+    subgraph Domain_Services ["Domain Services & Contracts"]
+        ClickerSvc["AutoClickerService (IAutoClickerService)"]
+        HolderSvc["KeyHolderService (IKeyHolderService)"]
+        TyperSvc["AutoTyperService (IAutoTyperService)"]
+        SettingsSvc["AppSettingsService (IAppSettingsService)"]
+        LocMgr["LocalizationManager (Embedded JSON Resources)"]
+    end
+
+    subgraph Core_Engine ["TapStrum.Core (Pure Win32 Engine)"]
         KeyboardSub["Keyboard Controller<br>(SendInput / VK Mapper)"]
         MouseSub["Mouse Controller<br>(SendInput / Absolute Coords)"]
         MacroSub["MacroRecorder & Replayer<br>(LowLevel Hooks / QPC Timing)"]
@@ -24,8 +38,12 @@ flowchart TD
         HookChain["WH_KEYBOARD_LL / WH_MOUSE_LL"]
     end
 
-    FluentHost -->|Direct In-Process Call| Core_Engine
     LauncherHost -->|Extracts & Launches| FluentHost
+    FluentHost --> NavHost
+    NavHost --> Views
+    Views --> ViewModels
+    ViewModels --> Domain_Services
+    Domain_Services --> Core_Engine
     KeyboardSub --> Win32Interop
     MouseSub --> Win32Interop
     MacroSub --> Win32Interop
@@ -38,8 +56,16 @@ flowchart TD
 
 ## 2. Core Architecture Components
 
-### 2.1 `Tapster.Core` (Engine Layer)
+### 2.1 `TapStrum.Core` (Engine & Domain Services Layer)
 - **Zero-Dependency Win32 Foundation**: Operates directly on `user32.dll` and `kernel32.dll` via P/Invoke.
+- **Domain Services & Abstraction**:
+  - `IAutoClickerService`: Manages CPS calculation, interval timings, spatial/temporal jitter, and coordinate click simulation.
+  - `IKeyHolderService`: Coordinates multi-stage holding pipelines, stage transitions, hold/rest loops, and progress callbacks.
+  - `IAutoTyperService`: Powers keystroke emulation and clipboard injection modes with optional trailing keys (Enter, Tab).
+  - `IAppSettingsService`: Manages configuration serialization to `%LOCALAPPDATA%\TapStrum\settings.json`.
+- **Dynamic Embedded Localization (`LocalizationManager`)**:
+  - Zero-reflection JSON resource parser (`JsonDocument.Parse`) completely compatible with Native AOT and single-file assembly trimming.
+  - Dynamically packages `zh-TW`, `en-US`, `ja-JP`, and `zh-CN` language definitions without binary bloat.
 - **Hardware Simulation via `SendInput`**:
   - Key presses and releases use `INPUT` unions with `INPUT_KEYBOARD` flags.
   - Unicode character synthesis uses `KEYEVENTF_UNICODE` for full CJK and international symbol support.
@@ -51,14 +77,18 @@ flowchart TD
   - Worker threads run decoupled from the UI thread using captured non-nullable `CancellationToken` structs.
   - Cancellation signals propagate instantly to break micro-sleep loops without unhandled thread aborts.
 
-### 2.2 `Tapster.Fluent` (Modern Host)
+### 2.2 `TapStrum.Fluent` (Modern WinUI 3 & MVVM Host)
 - **Framework**: WinUI 3 (Windows App SDK 2.x+), targeted at Windows 10 build 19041 and Windows 11 build 22000+.
+- **MVVM Decomposition (`CommunityToolkit.Mvvm`)**:
+  - `MainPage` serves strictly as a lightweight navigation container (`NavigationView`).
+  - Dedicated ViewModels (`ClickerViewModel`, `HolderViewModel`, `MacroViewModel`, `TyperViewModel`, `SettingsViewModel`, `MainViewModel`) manage decoupled business state with compile-time code generation (`ObservableProperty`, `RelayCommand`).
+  - Common asynchronous execution flows are factored into `TaskViewModelBase` to guarantee deterministic cancellation, countdowns, and progress reporting.
 - **Desktop Integration**:
   - Runs in system tray via unmanaged `Shell_NotifyIconW` and hidden message-only Win32 routing windows.
   - Global hotkey listener (`Ctrl + Alt + T`) registered via `RegisterHotKey` for instantaneous wake-up without polling.
   - Responsive Mica backdrop material and dynamic Theme switching (Light / Dark).
 
-### 2.3 `Tapster.Launcher` (Portable Native Bootstrapper)
+### 2.3 `TapStrum.Launcher` (Portable Native Bootstrapper)
 - **Framework**: .NET 8 Self-Contained Single-File Executable.
 - **Purpose**: Zero-dependency portable distribution, SHA-256 payload integrity verification, single-instance activation and foreground handoff.
 

@@ -40,7 +40,7 @@
 
   <Applications>
     <Application Id="App"
-      Executable="Tapster.Fluent.exe"
+      Executable="TapStrum.Fluent.exe"
       EntryPoint="Windows.FullTrustApplication"
       uap10:RuntimeBehavior="packagedClassicApp"
       uap10:TrustLevel="mediumIL">

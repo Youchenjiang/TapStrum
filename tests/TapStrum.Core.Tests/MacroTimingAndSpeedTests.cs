@@ -22,7 +22,7 @@ public class MacroTimingAndSpeedTests
     }
 
     [Fact]
-    public async Task MacroRecorder_ReplayAsync_EmptyActions_ReturnsImmediately()
+    public async Task MacroRecorder_ReplayAsync_EmptyActions_ReturnsImmediatelyAsync()
     {
         var recorder = new MacroRecorder();
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
