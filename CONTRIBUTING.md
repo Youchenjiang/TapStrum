@@ -71,7 +71,7 @@ One commit must represent exactly **one logical unit of change**:
 ## 🚀 Verification Expectations
 
 Before opening a PR or merging commits:
-1. Run `dotnet build Tapster.sln -c Release` to ensure 0 errors.
+1. Run `dotnet build TapStrum.sln -c Release` to ensure 0 errors.
 2. Verify both packaging pipelines produce clean artifacts:
    - `powershell -File scripts/build_portable.ps1` -> `publish/TapStrum.exe`
    - `powershell -File scripts/build_msix.ps1` -> `publish/TapStrum-v1.3.0.0.msix`

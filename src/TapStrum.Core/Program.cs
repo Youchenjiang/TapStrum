@@ -30,16 +30,16 @@ internal static class Program
         int count = GetArg(args, "--count", 0);
         int intervalMs = GetArg(args, "--interval", 100);
 
-        Console.WriteLine($"[Tapster] Mode: {mode}, Delay: {delay}s");
+        Console.WriteLine($"[TapStrum] Mode: {mode}, Delay: {delay}s");
 
         // Countdown
         for (int i = delay; i > 0; i--)
         {
-            Console.Write($"\r[Tapster] Starting in {i}s... ");
+            Console.Write($"\r[TapStrum] Starting in {i}s... ");
             Thread.Sleep(1000);
             if (_cts.IsCancellationRequested) return;
         }
-        Console.WriteLine("\r[Tapster] Running...            ");
+        Console.WriteLine("\r[TapStrum] Running...            ");
 
         _running = true;
 
@@ -55,13 +55,13 @@ internal static class Program
                 RunClicker(args, intervalMs, count);
                 break;
             default:
-                Console.WriteLine($"[Tapster] Unknown mode: {mode}");
+                Console.WriteLine($"[TapStrum] Unknown mode: {mode}");
                 PrintUsage();
                 break;
         }
 
         _running = false;
-        Console.WriteLine("[Tapster] Done.");
+        Console.WriteLine("[TapStrum] Done.");
     }
 
     private static void RunTyper(string[] args, int intervalMs, int count)
@@ -80,7 +80,7 @@ internal static class Program
 
         if (string.IsNullOrEmpty(text))
         {
-            Console.WriteLine("[Tapster] No text to type.");
+            Console.WriteLine("[TapStrum] No text to type.");
             return;
         }
 
@@ -109,7 +109,7 @@ internal static class Program
         Keyboard.ReleaseAllModifiers();
         Keyboard.Press(key);
 
-        Console.WriteLine($"[Tapster] Holding '{key}'... (Esc to release)");
+        Console.WriteLine($"[TapStrum] Holding '{key}'... (Esc to release)");
 
         var start = DateTime.UtcNow;
         while (_running && !_cts.IsCancellationRequested)
@@ -144,7 +144,7 @@ internal static class Program
 
             if (count > 0)
             {
-                Console.Write($"\r[Tapster] Clicked {clicked}/{count}");
+                Console.Write($"\r[TapStrum] Clicked {clicked}/{count}");
                 if (clicked >= count) break;
             }
 
@@ -160,13 +160,13 @@ internal static class Program
         _running = false;
         _cts.Cancel();
         Keyboard.ReleaseAllModifiers();
-        Console.WriteLine("\n[Tapster] Aborted.");
+        Console.WriteLine("\n[TapStrum] Aborted.");
     }
 
     private static void PrintUsage()
     {
         Console.WriteLine("""
-            Tapster - Lightweight Input Automation for Windows 11
+            TapStrum - Lightweight Input Automation for Windows 11
 
             Usage: tapster <mode> [options]
 

@@ -16,7 +16,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Authors>Youchen Jiang</Authors>
-    <Description>Tapster Fluent Dashboard</Description>
+    <Description>TapStrum Fluent Dashboard</Description>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <Win32Icon>app.ico</Win32Icon>
     <AppxManifestMetadataIsRequired>false</AppxManifestMetadataIsRequired>

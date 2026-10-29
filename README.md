@@ -83,12 +83,12 @@ Open **Settings > Apps > Installed apps**, find **TapStrum**, and click **Uninst
 ```powershell
 git clone https://github.com/Youchenjiang/TapStrum.git
 cd TapStrum
-dotnet build Tapster.sln -c Release
+dotnet build TapStrum.sln -c Release
 ```
 
 ### Test
 ```powershell
-dotnet test Tapster.sln -c Release
+dotnet test TapStrum.sln -c Release
 ```
 
 ### Packaging Pipelines

@@ -18,7 +18,7 @@ public sealed record MarkerPoint(int Index, int X, int Y);
 /// </summary>
 public sealed class TargetMarkerOverlay : IDisposable
 {
-    private const string WindowClassName = "Tapster_TargetOverlayWindow";
+    private const string WindowClassName = "TapStrum_TargetOverlayWindow";
     private readonly TargetMarkerModel _model = new();
     private readonly NativeMethods.WndProc _wndProc;
     private IntPtr _hWnd = IntPtr.Zero;
@@ -111,7 +111,7 @@ public sealed class TargetMarkerOverlay : IDisposable
         _hWnd = NativeMethods.CreateWindowExW(
             exStyle,
             WindowClassName,
-            "Tapster Target Marker",
+            "TapStrum Target Marker",
             NativeMethods.WS_POPUP,
             -1000, -1000, 10, 10,
             IntPtr.Zero,

@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using TapStrum;
 
 /// <summary>
-/// Base class for all Tapster ViewModels providing thread dispatching, localization, and shared execution helpers.
+/// Base class for all TapStrum ViewModels providing thread dispatching, localization, and shared execution helpers.
 /// </summary>
 public abstract partial class ViewModelBase : ObservableObject
 {

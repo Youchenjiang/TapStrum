@@ -23,7 +23,7 @@
 - [ ] **docs/StoreListing_*.md**（5 國語言）：更新 What's new 與新功能特色說明。
 
 ### Step 4：本機驗證
-- [ ] 執行單元測試：`dotnet test Tapster.sln -c Release`
+- [ ] 執行單元測試：`dotnet test TapStrum.sln -c Release`
 - [ ] 執行可攜式單一檔打包：`powershell -File scripts/build_portable.ps1`
 - [ ] 執行 MSIX 打包測試：`powershell -File scripts/build_msix.ps1`
 - [ ] 清理建置進程：`dotnet build-server shutdown`

@@ -83,12 +83,12 @@ TapStrum 秉持嚴格的 **本機優先（Local-First）** 與 **零遙測** 原
 ```powershell
 git clone https://github.com/Youchenjiang/TapStrum.git
 cd TapStrum
-dotnet build Tapster.sln -c Release
+dotnet build TapStrum.sln -c Release
 ```
 
 ### 測試
 ```powershell
-dotnet test Tapster.sln -c Release
+dotnet test TapStrum.sln -c Release
 ```
 
 ### 打包腳本

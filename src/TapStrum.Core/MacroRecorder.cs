@@ -81,7 +81,7 @@ public class MacroRecorder
         _recordThread = new Thread(RecordLoop)
         {
             IsBackground = true,
-            Name = "Tapster_MacroRecordWorker"
+            Name = "TapStrum_MacroRecordWorker"
         };
         _recordThread.Start();
 

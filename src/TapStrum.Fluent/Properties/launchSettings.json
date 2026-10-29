@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "Tapster.Fluent (Package)": {
+    "TapStrum.Fluent (Package)": {
       "commandName": "MsixPackage"
     },
-    "Tapster.Fluent (Unpackaged)": {
+    "TapStrum.Fluent (Unpackaged)": {
       "commandName": "Project"
     }
   }
