@@ -88,6 +88,8 @@ public sealed class SystemTrayManager : IDisposable
         UIntPtr uIdSubclass,
         IntPtr dwRefData)
     {
+        _ = uIdSubclass;
+        _ = dwRefData;
         if (uMsg == NativeMethods.WM_TRAYICON)
         {
             uint mouseMsg = (uint)(lParam.ToInt64() & 0xFFFF);

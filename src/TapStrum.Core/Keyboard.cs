@@ -98,7 +98,7 @@ public static partial class Keyboard
     /// </summary>
     public static void ReleaseAllModifiers()
     {
-        string[] mods = ["shift", "ctrl", "alt", "windows"];
+        string[] mods = [KeyShift, KeyCtrl, KeyAlt, "windows"];
         foreach (var mod in mods)
         {
             try
@@ -128,12 +128,17 @@ public static partial class Keyboard
         _ = GetAsyncKeyState(0x1B);
     }
 
+    private const string KeyShift = "shift";
+    private const string KeyCtrl = "ctrl";
+    private const string KeyAlt = "alt";
+    private const string KeyWin = "win";
+
     private static readonly Dictionary<int, string> KeyNames = new()
     {
-        [0x10] = "shift", [0xA0] = "shift", [0xA1] = "shift",
-        [0x11] = "ctrl", [0xA2] = "ctrl", [0xA3] = "ctrl",
-        [0x12] = "alt", [0xA4] = "alt", [0xA5] = "alt",
-        [0x5B] = "win", [0x5C] = "win",
+        [0x10] = KeyShift, [0xA0] = KeyShift, [0xA1] = KeyShift,
+        [0x11] = KeyCtrl, [0xA2] = KeyCtrl, [0xA3] = KeyCtrl,
+        [0x12] = KeyAlt, [0xA4] = KeyAlt, [0xA5] = KeyAlt,
+        [0x5B] = KeyWin, [0x5C] = KeyWin,
         [0x0D] = "enter", [0x20] = "space", [0x09] = "tab", [0x1B] = "esc",
         [0x08] = "backspace", [0x2E] = "delete", [0x2D] = "insert",
         [0x24] = "home", [0x23] = "end", [0x21] = "pageup", [0x22] = "pagedown",
@@ -257,12 +262,12 @@ public static partial class Keyboard
 
     private static readonly Dictionary<string, KeyStroke> NamedKeyMap = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["shift"] = new(0x10),
-        ["ctrl"] = new(0x11),
+        [KeyShift] = new(0x10),
+        [KeyCtrl] = new(0x11),
         ["control"] = new(0x11),
-        ["alt"] = new(0x12),
+        [KeyAlt] = new(0x12),
         ["windows"] = new(0x5B),
-        ["win"] = new(0x5B),
+        [KeyWin] = new(0x5B),
         ["enter"] = new(0x0D),
         ["return"] = new(0x0D),
         ["numpadenter"] = new(0x0D, Extended: true),
