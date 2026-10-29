@@ -108,7 +108,6 @@ public class TargetMarkerTests
     [Fact]
     public void TargetMarkerOverlay_NativeWindowCreation_Diagnostics()
     {
-        var hMod = System.Diagnostics.Process.GetCurrentProcess().Handle;
         var hModule = GetModuleHandleW(null);
         var wc = new WndClassEx
         {
@@ -158,7 +157,7 @@ public class TargetMarkerTests
     }
 
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
-    internal struct WndClassEx
+    internal struct WndClassEx // skipcq: CS-W1057
     {
         internal uint cbSize;
         internal uint style;
@@ -225,7 +224,7 @@ public class TargetMarkerTests
     internal static extern bool DeleteDC(IntPtr hdc);
 
     [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
-    internal static extern bool UpdateLayeredWindow(
+    internal static extern bool UpdateLayeredWindow( // skipcq: CS-R1138
         IntPtr hwnd, IntPtr hdcDst, ref Point pptDst, ref Size psize,
         IntPtr hdcSrc, ref Point pptSrc, uint crKey, ref BlendFunction pblend, uint dwFlags);
 

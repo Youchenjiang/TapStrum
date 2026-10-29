@@ -25,7 +25,7 @@ internal static class Program
             return;
         }
 
-        var mode = args[0].ToLower();
+        var mode = args[0].ToLowerInvariant();
         int delay = GetArg(args, "--delay", 3);
         int count = GetArg(args, "--count", 0);
         int intervalMs = GetArg(args, "--interval", 100);

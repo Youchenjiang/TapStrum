@@ -44,7 +44,7 @@ internal static class Program
             string targetExe = ResolveTargetExe(appDir);
             string hashFile = Path.Combine(appDir, ".payload_hash");
 
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = typeof(Program).Assembly;
             using Stream? stream = assembly.GetManifestResourceStream("payload.zip")
                 ?? assembly.GetManifestResourceStream("Tapster.Launcher.payload.zip");
 

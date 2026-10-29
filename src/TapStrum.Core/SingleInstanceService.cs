@@ -96,7 +96,7 @@ public sealed class SingleInstanceService : IDisposable
             _cts = new CancellationTokenSource();
             var token = _cts.Token;
 
-            var listenerThread = new Thread(() => ListenLoop(_wakeEvent, token, onWakeRequested))
+            var listenerThread = new Thread(() => ListenLoop(_wakeEvent, onWakeRequested, token))
             {
                 IsBackground = true,
                 Name = "TapStrum_SingleInstance_WakeListener"
@@ -109,7 +109,7 @@ public sealed class SingleInstanceService : IDisposable
         }
     }
 
-    private static void ListenLoop(EventWaitHandle wakeEvent, CancellationToken token, Action onWakeRequested)
+    private static void ListenLoop(EventWaitHandle wakeEvent, Action onWakeRequested, CancellationToken token)
     {
         var waitHandles = new WaitHandle[] { wakeEvent, token.WaitHandle };
 

@@ -238,10 +238,10 @@ internal static partial class NativeMethods
     internal const int DWMWA_SYSTEMBACKDROP_TYPE = 38;
 
     [DllImport("dwmapi.dll", PreserveSig = true)]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute); // skipcq: CS-R1138
 
     [DllImport("dwmapi.dll", PreserveSig = true)]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref uint pvAttribute, int cbAttribute);
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref uint pvAttribute, int cbAttribute); // skipcq: CS-R1138
 
     internal static int SetWindowAttribute(IntPtr hwnd, int dwAttribute, int pvAttribute)
     {
@@ -314,7 +314,7 @@ internal static partial class NativeMethods
     internal static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
     [DllImport("user32.dll")]
-    internal static extern sbyte GetMessageW(out Msg lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+    internal static extern sbyte GetMessageW(out Msg lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax); // skipcq: CS-R1138
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]

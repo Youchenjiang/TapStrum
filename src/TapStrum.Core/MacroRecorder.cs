@@ -305,7 +305,7 @@ public class MacroRecorder
         Action? checkPanicCallback,
         CancellationToken token)
     {
-        CheckReplaySafety(token, checkPanicCallback);
+        CheckReplaySafety(checkPanicCallback, token);
 
         int delay = (int)(action.DelayMs / Math.Max(0.1, speedMultiplier));
         if (delay > 0)
@@ -313,13 +313,13 @@ public class MacroRecorder
             await Task.Delay(delay, token);
         }
 
-        CheckReplaySafety(token, checkPanicCallback);
+        CheckReplaySafety(checkPanicCallback, token);
 
         actionExecutingCallback?.Invoke(action);
         ExecuteAction(action);
     }
 
-    private static void CheckReplaySafety(CancellationToken token, Action? checkPanicCallback)
+    private static void CheckReplaySafety(Action? checkPanicCallback, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         if (checkPanicCallback != null)
@@ -357,6 +357,9 @@ public class MacroRecorder
                 break;
             case MacroActionType.TypeText:
                 Keyboard.Type(action.Data);
+                break;
+            default:
+                // Ignore unsupported or unhandled macro action types
                 break;
         }
     }
