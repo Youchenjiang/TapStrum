@@ -1,0 +1,43 @@
+#!/bin/sh
+# TapStrum post-checkout hook to prevent switching to or staying on non-compliant branches
+# Configured via: git config core.hooksPath scripts/hooks
+# (or run powershell -File scripts/setup_hooks.ps1)
+
+PREV_HEAD="$1"
+NEW_HEAD="$2"
+BRANCH_FLAG="$3"
+
+# Only check branch checkouts (flag == 1)
+if [ "$BRANCH_FLAG" != "1" ]; then
+  exit 0
+fi
+
+CURRENT_BRANCH=$(git branch --show-current 2>/dev/null | tr -d '\r')
+
+# Allow main, master, or detached HEAD states (rebase, tags, bisect)
+if [ -z "$CURRENT_BRANCH" ] || [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ]; then
+  exit 0
+fi
+
+# Run branch policy validation
+ERRORS=$(python tools/branch_policy.py "$CURRENT_BRANCH" 2>&1)
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "================================================================================"
+  echo "[Git Hook Error] Non-compliant branch name detected: '$CURRENT_BRANCH'"
+  echo "================================================================================"
+  echo "$ERRORS"
+  echo ""
+  echo "[TIP] Please use pr_tool to create a policy-compliant branch:"
+  echo "      python tools/pr_tool.py branch <type>/<description>"
+  echo "      Example: python tools/pr_tool.py branch chore/release-preparation"
+  echo "================================================================================"
+  echo ""
+  echo "Switching back to previous branch..."
+  git checkout - >/dev/null 2>&1 || git checkout main >/dev/null 2>&1
+  exit 1
+fi
+
+exit 0

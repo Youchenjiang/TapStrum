@@ -3,7 +3,6 @@
 import re
 
 ALLOWED_PREFIXES = (
-    "feature",
     "feat",
     "fix",
     "refactor",
@@ -26,7 +25,7 @@ def validate_branch_name(branch):
     """Validate branch name against Clickra branch policy."""
     errors = []
     if "/" not in branch:
-        errors.append("branch name must include a type prefix (e.g., feature/name, refactor/name)")
+        errors.append("branch name must include a type prefix (e.g., feat/name, refactor/name)")
         return errors
 
     prefix, suffix = branch.split("/", 1)
@@ -55,3 +54,19 @@ def validate_branch_name(branch):
         errors.append(f"branch suffix '{suffix}' exceeds 25 characters (length: {len(suffix)})")
 
     return errors
+
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 2:
+        print("Usage: python branch_policy.py <branch_name>", file=sys.stderr)
+        sys.exit(2)
+    candidate = sys.argv[1]
+    errs = validate_branch_name(candidate)
+    if errs:
+        print(f"[FAIL] Invalid branch name '{candidate}':", file=sys.stderr)
+        for err in errs:
+            print(f"  - {err}", file=sys.stderr)
+        sys.exit(1)
+    print(f"[OK] Branch name '{candidate}' is compliant.")
+    sys.exit(0)

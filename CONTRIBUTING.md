@@ -14,6 +14,9 @@ TapStrum follows strict commit, branch, and engineering quality policies inspire
   - `docs/<short-name>` for documentation updates
   - `chore/<short-name>` for maintenance, CI, and build script adjustments
 - Keep branches short-lived and rebase on `main` before submitting a PR.
+- **Branch Creation & Hook Setup**:
+  - Run `pwsh scripts/setup_hooks.ps1` (or `./scripts/install-hooks.sh` on POSIX) after clone to configure `core.hooksPath`.
+  - Create compliant branches via `python tools/pr_tool.py branch <name>` to enforce branch naming and length policies.
 
 ---
 
@@ -74,5 +77,5 @@ Before opening a PR or merging commits:
 1. Run `dotnet build TapStrum.sln -c Release` to ensure 0 errors.
 2. Verify both packaging pipelines produce clean artifacts:
    - `powershell -File scripts/build_portable.ps1` -> `publish/TapStrum.exe`
-   - `powershell -File scripts/build_msix.ps1` -> `publish/TapStrum-v1.3.0.0.msix`
+   - `powershell -File scripts/build_msix.ps1` -> `publish/TapStrum-v1.4.0.0.msix`
 3. Confirm background process state is completely clean (`Stop-BuildServers`).

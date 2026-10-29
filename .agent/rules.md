@@ -98,11 +98,14 @@ or
 - **Strict Anti-Free-Riding**: NEVER bundle Tier 4 governance/memory updates into Tier 2 feature/implementation commits. If a feature commit is reverted, project governance and session memory must remain intact.
 
 ### 5. Branch Scope & Naming Discipline
+- **Mandatory Creation Tool**: Agents MUST NEVER run `git checkout -b` or `git branch` directly. All branch creation MUST be performed via `python tools/pr_tool.py branch <name>`.
 - **Single Scope Rule**: Every branch must address exactly ONE focused capability or problem.
+- **Allowed Prefixes Only**: Must start with one of `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `perf`, `style`, `hotfix` (no `release/` or ad-hoc prefixes).
+- **Strict Ban on Version Identifiers**: Branch names must NEVER contain version identifiers (e.g., `v1.0.0`, `1.4.0.0`). Release/packaging branches must use functional descriptions like `chore/release-preparation`.
 - **No Compound or Sequence Suffixes**: Never concatenate unrelated topic words, and never use sequence suffixes such as `-pr2` or `phase-1`.
 - **Strict Word & Length Limits**:
-  - The branch suffix must consist of **2 to 3 words** separated by hyphens (e.g. `feat/pr-toolchain` or `fix/fluent-tray`).
-  - The branch suffix length must **NOT exceed 25 characters** (enforced by `branch_policy.py`).
+  - The branch suffix must consist of **2 to 3 words** separated by hyphens (e.g. `feat/pr-toolchain` or `chore/release-preparation`).
+  - The branch suffix length must **NOT exceed 25 characters** (enforced by `branch_policy.py` and Git `post-checkout` hook).
 
 ### 6. Pull Request Toolchain & Submission Protocol
 - **Primary PR Toolchain (`pr_tool.py`)**: Use `python tools/pr_tool.py` as the standard PR operations entry point:

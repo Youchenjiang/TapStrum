@@ -15,7 +15,7 @@ timeline
     Phase 1 : 2026 前期 : C# NativeAOT 核心重構 : SendInput 原生硬體模擬 / 微秒級時序 / 2MB 零依賴
     Phase 2 : 2026 近期 : WinUI 3 Fluent 現代介面 : 擬真 5 排實體鍵盤 / 分頁獨立執行卡片 / 全域喚醒 (Ctrl+Alt+T) / PE 圖示注入
     Phase 3 : 2026 進行中 : 偏好持久化與巨集錄製 : 系統匣常駐 / 偏好設定持久化 / 全域鍵鼠錄製引擎 / 擬人化隨機延遲
-    Phase 4 : 2026 規劃中 : 多語系與 Microsoft Store 合規 : 5 國語言 i18n / MSIX 沙盒合規 / 商店素材與隱私政策
+    Phase 4 : 2026 近期 : 多語系與 Microsoft Store 合規 : 5 國語言 i18n / MSIX 沙盒合規 / 商店素材與隱私政策
     Phase 5 : 2026 進行中 : 雙軌打包與純單檔 EXE 發布 : 純單檔啟動器 (SHA-256 自動同步) / 構建伺服器自動清理 / MSIX 自動簽署
 ```
 
@@ -27,7 +27,7 @@ timeline
 | **Phase 1** | Native 底層核心 | C# .NET 8 + Win32 `SendInput` | 輕量命令列 (CLI) | ~2-3MB / ~8MB | 已完成 ✅ |
 | **Phase 2** | Fluent 現代介面 | WinUI 3 + Windows App SDK | 現代 Windows 11 GUI | 獨立發布 / ~35MB | 已完成 ✅ (現行) |
 | **Phase 3** | 進階自動化與錄製 | C# .NET + Win32 Hooks + Tray | Fluent GUI + 獨立控制卡片 | 獨立發布 / ~35MB | 進行中 🚧 |
-| **Phase 4** | Store 上架合規 | C# .NET + MSIX Sandboxed | 5 國多語系 Fluent GUI | MSIX 商店套件 | 規劃中 📌 |
+| **Phase 4** | Store 上架合規 | C# .NET + MSIX Sandboxed | 5 國多語系 Fluent GUI | MSIX 商店套件 | 已完成 ✅ (v1.4.0.0) |
 | **Phase 5** | 雙軌發行與自動化 | Single-File Launcher + MSIX | 雙軌（Store + Portable EXE） | 雙軌自動分發 | 進行中 🚧 |
 
 ---
@@ -154,7 +154,7 @@ timeline
 
 ---
 
-### [Phase 4] 多語系與 Microsoft Store 上架合規 (Store Readiness & i18n) — `進行中 🚧`
+### [Phase 4] 多語系與 Microsoft Store 上架合規 (Store Readiness & i18n) — `已完成 ✅ (v1.4.0.0)`
 > **目標**：對齊微軟商店政策（Microsoft Store Policies），通過自動化與人工審核並上架。
 
 - [x] **[P4-1] 多語系原生本地化支援 (Multi-language i18n)**
@@ -165,7 +165,7 @@ timeline
     - 日本語 (`ja-JP`)
 - [x] **[P4-2] MSIX 封裝與自動簽署 (MSIX Packaging & Signing)**
   - **規則**：建立 `packaging/msix/AppxManifest.xml`（宣告 `runFullTrust`）與全套視覺資產；實作 `scripts/build_msix.ps1` 透過 `makeappx.exe` 打包與 `signtool.exe` 自動化測試憑證簽署，產出標準 `.msix` 安裝套件（33.9MB）。
-- [ ] **[P4-3] Microsoft Store 文案與上架素材 (Store Listings & Assets)**
+- [x] **[P4-3] Microsoft Store 文案與上架素材 (Store Listings & Assets)**
   - **規格**：撰寫多語言商店文案、準備 1920x1080 高解析功能截圖；建立正式隱私權政策 (`PRIVACY.md`)，聲明「不收集、不傳輸任何使用者按鍵記錄，100% 本機處理」。
 
 ---

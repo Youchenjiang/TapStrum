@@ -414,6 +414,11 @@ def _execute_action(args, run):
         return _ready(args.body_file)
     if args.action == "prepare":
         return _prepare(args.body_file, args.initial)
+    if args.action == "branch":
+        from branch_creation import create_branch
+        res = create_branch(args.name, base=args.base)
+        print(f"[OK] Created and checked out compliant branch: {res['branch']} (from {res['base']})")
+        return 0
     repo, branch = context(run)
     if args.action == "create":
         result = guarded_create(repo, branch, title=args.title, body_file=args.body_file,
@@ -512,6 +517,9 @@ def main(argv=None, run=command):
     push.add_argument("--body-file", required=True)
     push.add_argument("--authorize", help="Exact branch:40-character-SHA from preview")
     push.add_argument("--execute", action="store_true", help="Requires explicit approval for this exact push")
+    branch_cmd = sub.add_parser("branch", help="Validate and safely create a compliant development branch")
+    branch_cmd.add_argument("name", help="Compliant branch name (e.g. feat/my-feature, chore/clean-cache)")
+    branch_cmd.add_argument("--base", default=None, help="Base branch or ref to branch from (default: current HEAD)")
     creator = sub.add_parser("create", help="Preview or explicitly authorize creation of one PR")
     creator.add_argument("--title", required=True)
     creator.add_argument("--body-file", required=True)
