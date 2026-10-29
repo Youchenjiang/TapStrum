@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace Tapster.Services;
+namespace TapStrum.Services;
 
 /// <summary>
 /// Provides shared panic detection and cancellable delay utilities across background automation services.

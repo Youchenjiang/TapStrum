@@ -1,12 +1,12 @@
 #pragma warning disable S2325 // Sonar analyzer false positive for instance UI thread dispatch methods
-namespace Tapster_Fluent.ViewModels;
+namespace TapStrum.Fluent.ViewModels;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Tapster;
+using TapStrum;
 
 /// <summary>
 /// Abstract base class for runnable automation ViewModels that manage countdown, cancellation, and progress state.

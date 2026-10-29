@@ -1,10 +1,10 @@
 #pragma warning disable S2325 // Sonar analyzer false positive for instance UI thread dispatch methods
-namespace Tapster_Fluent.ViewModels;
+namespace TapStrum.Fluent.ViewModels;
 
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Tapster;
+using TapStrum;
 
 /// <summary>
 /// Root ViewModel coordinating navigation, global status, and child automation ViewModels.

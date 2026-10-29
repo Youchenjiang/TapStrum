@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
-using static Tapster.NativeMethods;
+using static TapStrum.NativeMethods;
 
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Provides keyboard key spamming and key-down state detection for auto-clicking and hold-to-click features.

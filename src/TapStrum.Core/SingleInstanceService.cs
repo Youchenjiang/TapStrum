@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Manages single-instance enforcement and inter-process wake communication.

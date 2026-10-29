@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using Tapster;
+using TapStrum;
 using Xunit;
 
-namespace Tapster.Core.Tests;
+namespace TapStrum.Core.Tests;
 
 public class SingleInstanceTests
 {

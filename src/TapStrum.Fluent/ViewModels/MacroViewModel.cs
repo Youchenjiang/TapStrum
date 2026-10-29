@@ -1,4 +1,4 @@
-namespace Tapster_Fluent.ViewModels;
+namespace TapStrum.Fluent.ViewModels;
 
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Tapster;
+using TapStrum;
 
 /// <summary>
 /// ViewModel managing the Macro Recorder/Replay UI state, actions list, and marker overlay coordination.

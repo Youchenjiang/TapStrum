@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>Tapster</AssemblyName>
-    <RootNamespace>Tapster.Launcher</RootNamespace>
+    <RootNamespace>TapStrum.Launcher</RootNamespace>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <Win32Icon>app.ico</Win32Icon>
     <PublishSingleFile>true</PublishSingleFile>

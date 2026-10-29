@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Tapster;
-using Tapster.Services;
+using TapStrum;
+using TapStrum.Services;
 using Xunit;
 
-namespace Tapster.Core.Tests;
+namespace TapStrum.Core.Tests;
 
 public class KeyHolderServiceTests
 {

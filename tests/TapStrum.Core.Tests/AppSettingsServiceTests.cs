@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using Tapster.Services;
+using TapStrum.Services;
 using Xunit;
 
-namespace Tapster.Core.Tests;
+namespace TapStrum.Core.Tests;
 
 public class AppSettingsServiceTests : IDisposable
 {

@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using Tapster;
+using TapStrum;
 
-namespace Tapster_Fluent;
+namespace TapStrum.Fluent;
 
 public sealed class SystemTrayManager : IDisposable
 {

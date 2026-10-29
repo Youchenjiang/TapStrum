@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Tapster.Services;
+namespace TapStrum.Services;
 
 /// <summary>
 /// Domain service interface for automated mouse clicking and keyboard key spamming.

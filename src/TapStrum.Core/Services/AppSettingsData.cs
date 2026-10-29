@@ -1,4 +1,4 @@
-namespace Tapster.Services;
+namespace TapStrum.Services;
 
 /// <summary>
 /// Data model representing user application preferences and automation configurations.

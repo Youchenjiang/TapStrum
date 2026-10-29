@@ -7,13 +7,15 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>TapStrum.Core</AssemblyName>
-    <RootNamespace>Tapster</RootNamespace>
+    <RootNamespace>TapStrum</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="TapStrum.Core.Tests" />
     <InternalsVisibleTo Include="TapStrum.Fluent" />
+    <InternalsVisibleTo Include="TapStrum.Core.Tests" />
     <InternalsVisibleTo Include="Tapster.Core.Tests" />
+    <InternalsVisibleTo Include="TapStrum.Fluent" />
     <InternalsVisibleTo Include="Tapster.Fluent" />
   </ItemGroup>
 

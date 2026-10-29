@@ -1,8 +1,8 @@
-namespace Tapster.Fluent.Tests;
+namespace TapStrum.Fluent.Tests;
 
 using System.Threading.Tasks;
-using Tapster;
-using Tapster_Fluent.ViewModels;
+using TapStrum;
+using TapStrum.Fluent.ViewModels;
 using Xunit;
 
 public class MacroViewModelTests

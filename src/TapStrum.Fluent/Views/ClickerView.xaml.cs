@@ -1,13 +1,13 @@
 #pragma warning disable S2325 // WinUI XAML event handlers and controls are generated in partial class
-namespace Tapster_Fluent.Views;
+namespace TapStrum.Fluent.Views;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Tapster;
-using Tapster_Fluent.ViewModels;
+using TapStrum;
+using TapStrum.Fluent.ViewModels;
 
 /// <summary>
 /// View managing the Auto-Clicker and Key-Spammer configuration and execution pipeline.

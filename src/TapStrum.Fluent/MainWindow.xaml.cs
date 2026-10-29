@@ -4,9 +4,9 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using WinRT.Interop;
-using Tapster;
+using TapStrum;
 
-namespace Tapster_Fluent;
+namespace TapStrum.Fluent;
 
 public sealed partial class MainWindow : Window
 {

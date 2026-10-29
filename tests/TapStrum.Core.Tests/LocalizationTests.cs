@@ -1,8 +1,8 @@
 using System.Linq;
-using Tapster;
+using TapStrum;
 using Xunit;
 
-namespace Tapster.Core.Tests;
+namespace TapStrum.Core.Tests;
 
 public class LocalizationTests
 {

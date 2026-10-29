@@ -1,11 +1,11 @@
 #pragma warning disable S2325 // WinUI XAML event handlers and controls are generated in partial class
-namespace Tapster_Fluent.Views;
+namespace TapStrum.Fluent.Views;
 
 using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Tapster;
-using Tapster_Fluent.ViewModels;
+using TapStrum;
+using TapStrum.Fluent.ViewModels;
 
 /// <summary>
 /// View managing user application preferences, startup toggles, and hotkey overview.

@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using Microsoft.UI.Xaml;
 
-namespace Tapster_Fluent;
+namespace TapStrum.Fluent;
 
 public partial class App : Application
 {

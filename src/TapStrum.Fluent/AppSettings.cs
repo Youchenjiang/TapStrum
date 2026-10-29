@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.Json;
 using Microsoft.Win32;
 
-namespace Tapster_Fluent;
+namespace TapStrum.Fluent;
 
 public class AppSettings
 {

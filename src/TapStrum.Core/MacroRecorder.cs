@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Specifies the type of recorded input action.

@@ -1,9 +1,9 @@
-namespace Tapster_Fluent.ViewModels;
+namespace TapStrum.Fluent.ViewModels;
 
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Tapster.Services;
+using TapStrum.Services;
 
 /// <summary>
 /// ViewModel managing application settings, persistence, and hotkey configurations.

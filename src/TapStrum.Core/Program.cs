@@ -1,4 +1,4 @@
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Lightweight input automation tool for Windows 11.

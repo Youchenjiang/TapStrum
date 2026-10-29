@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Tapster;
+using TapStrum;
 
-namespace Tapster_Fluent;
+namespace TapStrum.Fluent;
 
 /// <summary>
 /// A marker point on screen with a sequence order index.

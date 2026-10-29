@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Tapster;
+namespace TapStrum;
 
 internal static partial class NativeMethods
 {

@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Tapster.Services;
+namespace TapStrum.Services;
 
 /// <summary>
 /// Default implementation of <see cref="IAutoTyperService"/> supporting both keystroke emulation

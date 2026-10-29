@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tapster;
+namespace TapStrum;
 
 /// <summary>
 /// Detects hardware-level emergency panic conditions such as rapid cursor shake gestures

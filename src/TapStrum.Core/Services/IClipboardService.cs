@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Tapster.Services;
+namespace TapStrum.Services;
 
 /// <summary>
 /// Abstraction for accessing and updating system clipboard content.

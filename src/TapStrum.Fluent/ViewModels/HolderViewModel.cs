@@ -1,4 +1,4 @@
-namespace Tapster_Fluent.ViewModels;
+namespace TapStrum.Fluent.ViewModels;
 
 using System;
 using System.Collections.ObjectModel;
@@ -7,8 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Tapster;
-using Tapster.Services;
+using TapStrum;
+using TapStrum.Services;
 
 /// <summary>
 /// ViewModel managing the Key-Holder pipeline stages, loop iterations, and execution state.

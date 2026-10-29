@@ -1,7 +1,7 @@
-namespace Tapster.Fluent.Tests;
+namespace TapStrum.Fluent.Tests;
 
-using Tapster.Services;
-using Tapster_Fluent.ViewModels;
+using TapStrum.Services;
+using TapStrum.Fluent.ViewModels;
 using Xunit;
 
 public class SettingsViewModelTests
