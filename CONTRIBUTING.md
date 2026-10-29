@@ -14,6 +14,9 @@ TapStrum follows strict commit, branch, and engineering quality policies inspire
   - `docs/<short-name>` for documentation updates
   - `chore/<short-name>` for maintenance, CI, and build script adjustments
 - Keep branches short-lived and rebase on `main` before submitting a PR.
+- **Branch Creation & Hook Setup**:
+  - Run `pwsh scripts/setup_hooks.ps1` (or `./scripts/install-hooks.sh` on POSIX) after clone to configure `core.hooksPath`.
+  - Create compliant branches via `python tools/pr_tool.py branch <name>` to enforce branch naming and length policies.
 
 ---
 

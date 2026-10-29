@@ -103,7 +103,7 @@ def load_store_config(config_path):
             c_id or "MOCK_CLIENT",
             c_sec or "MOCK_SECRET",
             p_id or "MOCK_PRODUCT",
-            m_path or "publish/TapStrum-v1.3.0.0.msix"
+            m_path or "publish/TapStrum-v1.4.0.0.msix"
         )
 
     if not all([t_id, c_id, c_sec, p_id, m_path]):

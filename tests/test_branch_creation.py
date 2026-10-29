@@ -39,7 +39,7 @@ class BranchCreationTests(unittest.TestCase):
             res = branch_creation.create_branch("chore/release-preparation", base="main", runner=mock_run)
             self.assertEqual(res["branch"], "chore/release-preparation")
             self.assertEqual(res["status"], "created")
-            mock_run.assert_called_once_with(
+            mock_run.assert_any_call(
                 [executable("git"), "checkout", "-b", "chore/release-preparation", "main"],
                 text=True, capture_output=True, check=False
             )
@@ -51,7 +51,7 @@ class BranchCreationTests(unittest.TestCase):
              patch("branch_creation.subprocess.run", return_value=fake_proc) as mock_run:
             code = pr_tool.main(["branch", "chore/release-preparation", "--base", "main"])
             self.assertEqual(code, 0)
-            mock_run.assert_called_once_with(
+            mock_run.assert_any_call(
                 [executable("git"), "checkout", "-b", "chore/release-preparation", "main"],
                 text=True, capture_output=True, check=False
             )

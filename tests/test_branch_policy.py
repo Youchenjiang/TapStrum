@@ -17,7 +17,7 @@ class BranchPolicyTests(unittest.TestCase):
                 self.assertTrue(validate_branch_name(branch))
 
     def test_rejects_invalid_prefix(self):
-        for branch in ("audit/something", "custom/foo", "invalid-no-prefix"):
+        for branch in ("audit/something", "custom/foo", "feature/my-branch", "invalid-no-prefix"):
             with self.subTest(branch=branch):
                 self.assertTrue(validate_branch_name(branch))
 

@@ -6,10 +6,23 @@ from branch_policy import validate_branch_name
 from process_guard import executable, invoke
 
 
+def ensure_hooks_configured():
+    """Ensure core.hooksPath is configured to scripts/hooks."""
+    try:
+        proc = subprocess.run([executable("git"), "config", "core.hooksPath"],
+                              capture_output=True, text=True, check=False)
+        if proc.stdout.strip() != "scripts/hooks":
+            subprocess.run([executable("git"), "config", "core.hooksPath", "scripts/hooks"],
+                           capture_output=True, text=True, check=False)
+    except Exception:
+        pass
+
+
 def create_branch(branch, *, base=None, runner=None):
     """Validate and safely create a new compliant git branch."""
     if runner is None:
         runner = subprocess.run
+        ensure_hooks_configured()
 
     problems = validate_branch_name(branch)
     if problems:

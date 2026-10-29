@@ -3,7 +3,6 @@
 import re
 
 ALLOWED_PREFIXES = (
-    "feature",
     "feat",
     "fix",
     "refactor",
@@ -26,7 +25,7 @@ def validate_branch_name(branch):
     """Validate branch name against Clickra branch policy."""
     errors = []
     if "/" not in branch:
-        errors.append("branch name must include a type prefix (e.g., feature/name, refactor/name)")
+        errors.append("branch name must include a type prefix (e.g., feat/name, refactor/name)")
         return errors
 
     prefix, suffix = branch.split("/", 1)
