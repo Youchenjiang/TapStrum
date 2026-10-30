@@ -110,12 +110,17 @@ try {
         throw "Store acquisition signer issuer '$($signature.SignerCertificate.Issuer)' is not a Microsoft Marketplace CA."
     }
 
+    $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $sourcePath).Hash
+    $expectedSha256 = if ($selected.PSObject.Properties["Sha256"]) { [string]$selected.Sha256 } else { "" }
+    if ($expectedSha256 -and $sha256 -cne $expectedSha256.ToUpperInvariant()) {
+        throw "Acquired Store MSIX SHA-256 '$sha256' does not match manifest digest '$expectedSha256'."
+    }
+
     $sha1 = (Get-FileHash -Algorithm SHA1 -LiteralPath $sourcePath).Hash # NOSONAR: Store acquisition metadata comparison
-    $expectedSha1 = [string]$selected.Sha1
+    $expectedSha1 = if ($selected.PSObject.Properties["Sha1"]) { [string]$selected.Sha1 } else { "" }
     if ($expectedSha1 -and $sha1 -cne $expectedSha1.ToUpperInvariant()) {
         throw "Acquired Store MSIX SHA-1 '$sha1' does not match manifest digest '$expectedSha1'."
     }
-    $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $sourcePath).Hash
 
     Copy-Item -LiteralPath $sourcePath -Destination $destination -Force
     $evidence = [pscustomobject]@{

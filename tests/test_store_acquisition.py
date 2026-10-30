@@ -29,6 +29,12 @@ class StoreAcquisitionTests(unittest.TestCase):
         self.assertNotIn("runs-on: [self-hosted", workflow)
         self.assertNotIn("tapstrum-store]", workflow)
 
+    def test_acquisition_safely_handles_strict_mode_property_access(self):
+        wrapper = (ROOT / "scripts" / "acquire_store_package.ps1").read_text(encoding="utf-8")
+        self.assertIn('PSObject.Properties["Sha256"]', wrapper)
+        self.assertIn('PSObject.Properties["Sha1"]', wrapper)
+        self.assertNotIn("$expectedSha1 = [string]$selected.Sha1", wrapper)
+
     def test_sonar_excludes_only_vendored_store_source(self):
         sonar = (ROOT / ".sonarcloud.properties").read_text(encoding="utf-8").strip()
         self.assertEqual(
