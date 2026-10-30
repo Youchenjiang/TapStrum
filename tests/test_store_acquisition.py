@@ -1,4 +1,5 @@
 import pathlib
+import subprocess
 import unittest
 
 
@@ -30,10 +31,51 @@ class StoreAcquisitionTests(unittest.TestCase):
         self.assertNotIn("tapstrum-store]", workflow)
 
     def test_acquisition_safely_handles_strict_mode_property_access(self):
-        wrapper = (ROOT / "scripts" / "acquire_store_package.ps1").read_text(encoding="utf-8")
-        self.assertIn('PSObject.Properties["Sha256"]', wrapper)
-        self.assertIn('PSObject.Properties["Sha1"]', wrapper)
-        self.assertNotIn("$expectedSha1 = [string]$selected.Sha1", wrapper)
+        script_path = str(ROOT / "scripts" / "acquire_store_package.ps1").replace("\\", "/")
+        ps_test = """
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+$scriptPath = '{SCRIPT_PATH}'
+$tokens = $null
+$errors = $null
+$ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$tokens, [ref]$errors)
+if ($null -ne $errors -and $errors.Count -gt 0) {
+    throw "Syntax error in script"
+}
+
+$memberExprs = $ast.FindAll({ param($node)
+    $node -is [System.Management.Automation.Language.MemberExpressionAst] -and
+    $node.Expression -is [System.Management.Automation.Language.VariableExpressionAst] -and
+    $node.Expression.VariablePath.UserPath -eq 'selected'
+}, $true)
+
+foreach ($m in $memberExprs) {
+    if ($m.Member.Value -in @('Sha1', 'Sha256')) {
+        throw "Direct property access $($m.Extent.Text) found on `$selected under StrictMode"
+    }
+}
+
+$selected = [pscustomobject]@{
+    FileName = 'test.msix'
+    SourceUrl = 'https://delivery.mp.microsoft.com/test'
+    Sha256 = 'AABBCC'
+}
+
+$expectedSha256 = if ($selected.PSObject.Properties['Sha256']) { [string]$selected.PSObject.Properties['Sha256'].Value } else { '' }
+$expectedSha1 = if ($selected.PSObject.Properties['Sha1']) { [string]$selected.PSObject.Properties['Sha1'].Value } else { '' }
+
+if ($expectedSha256 -ne 'AABBCC' -or $expectedSha1 -ne '') {
+    throw 'Failed extracting properties under StrictMode'
+}
+""".replace("{SCRIPT_PATH}", script_path)
+        proc = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_test],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(0, proc.returncode, f"PowerShell strict mode check failed: {proc.stderr}")
 
     def test_sonar_excludes_only_vendored_store_source(self):
         sonar = (ROOT / ".sonarcloud.properties").read_text(encoding="utf-8").strip()
