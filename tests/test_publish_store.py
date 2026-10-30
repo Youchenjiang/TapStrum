@@ -99,5 +99,68 @@ class TestPublishStoreDryRun(unittest.TestCase):
         self.assertIn("TapStrum submitted to Microsoft Partner Center! (Outcome: confirmed)", result.stdout)
 
 
+class TestStoreConfigLoading(unittest.TestCase):
+    """Test environment variable and configuration precedence."""
+
+    def test_env_var_override(self):
+        env_vars = {
+            "STORE_TENANT_ID": "test-tenant-123",
+            "STORE_CLIENT_ID": "test-client-456",
+            "STORE_CLIENT_SECRET": "test-secret-789",
+            "STORE_PRODUCT_ID": "test-product-000",
+            "STORE_MSIX_PATH": "test/path/app.msix"
+        }
+        original_env = {k: os.environ.get(k) for k in env_vars}
+        try:
+            os.environ.update(env_vars)
+            t_id, c_id, c_sec, p_id, m_path = publish_store.load_store_config("nonexistent_config.json")
+            self.assertEqual(t_id, "test-tenant-123")
+            self.assertEqual(c_id, "test-client-456")
+            self.assertEqual(c_sec, "test-secret-789")
+            self.assertEqual(p_id, "test-product-000")
+            self.assertEqual(m_path, "test/path/app.msix")
+        finally:
+            for k, v in original_env.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
+
+
+class TestReleaseWorkflowStoreIntegration(unittest.TestCase):
+    """Test that release.yml properly wires the Microsoft Store submission job."""
+
+    def test_release_workflow_contains_submit_store_job(self):
+        import yaml
+        workflow_path = os.path.join(REPO_ROOT, ".github", "workflows", "release.yml")
+        self.assertTrue(os.path.exists(workflow_path), f"Missing {workflow_path}")
+
+        with open(workflow_path, "r", encoding="utf-8") as f:
+            workflow = yaml.safe_load(f)
+
+        jobs = workflow.get("jobs", {})
+        self.assertIn("submit-store", jobs, "release.yml must define a 'submit-store' job")
+
+        store_job = jobs["submit-store"]
+        needs = store_job.get("needs", [])
+        if isinstance(needs, str):
+            needs = [needs]
+        self.assertIn("build", needs, "submit-store must depend on 'build'")
+        self.assertIn("publish", needs, "submit-store must depend on 'publish'")
+
+        steps = store_job.get("steps", [])
+        step_names = [s.get("name", "") for s in steps]
+        self.assertTrue(any("Download Release Assets" in name for name in step_names), "Must download release assets")
+        self.assertTrue(any("Submit" in name for name in step_names), "Must submit package to Partner Center")
+
+        submit_step = next(s for s in steps if "Submit" in s.get("name", ""))
+        step_env = submit_step.get("env", {})
+        self.assertIn("STORE_TENANT_ID", step_env)
+        self.assertIn("STORE_CLIENT_ID", step_env)
+        self.assertIn("STORE_CLIENT_SECRET", step_env)
+        self.assertIn("STORE_PRODUCT_ID", step_env)
+        self.assertIn("python scripts/publish_store.py", submit_step.get("run", ""))
+
+
 if __name__ == '__main__':
     unittest.main()
