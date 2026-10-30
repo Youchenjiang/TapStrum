@@ -157,3 +157,38 @@ jobs:
               Write-Host "Creating new GitHub release for $env:TAG_NAME..."
               gh release create "$env:TAG_NAME" @assetFiles --title "$env:TAG_NAME" --notes-file release_notes.md --repo "$env:REPO_NAME"
           }
+
+  submit-store:
+    name: Submit to Microsoft Store
+    needs: [build, publish]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - name: "Checkout Code"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: "Setup Python"
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+
+      - name: "Download Release Assets"
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets
+          path: publish
+
+      - name: "Submit Package to Microsoft Partner Center"
+        shell: pwsh
+        env:
+          STORE_TENANT_ID: ${{ secrets.STORE_TENANT_ID }}
+          STORE_CLIENT_ID: ${{ secrets.STORE_CLIENT_ID }}
+          STORE_CLIENT_SECRET: ${{ secrets.STORE_CLIENT_SECRET }}
+          STORE_PRODUCT_ID: ${{ secrets.STORE_PRODUCT_ID }}
+        run: |
+          python scripts/publish_store.py
+

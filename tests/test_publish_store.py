@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import unittest
+from unittest.mock import patch
 
 # Add scripts directory to sys.path
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -97,6 +98,46 @@ class TestPublishStoreDryRun(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, f"Dry-run failed with stderr: {result.stderr}")
         self.assertIn("TapStrum submitted to Microsoft Partner Center! (Outcome: confirmed)", result.stdout)
+
+
+class TestStoreConfigLoading(unittest.TestCase):
+    """Test environment variable and configuration precedence."""
+
+    def test_env_var_override(self):
+        env_vars = {
+            "STORE_TENANT_ID": "test-tenant-123",
+            "STORE_CLIENT_ID": "test-client-456",
+            "STORE_CLIENT_SECRET": "test-secret-789",
+            "STORE_PRODUCT_ID": "test-product-000",
+            "STORE_MSIX_PATH": "test/path/app.msix"
+        }
+        with patch.dict(os.environ, env_vars, clear=False):
+            t_id, c_id, c_sec, p_id, m_path = publish_store.load_store_config("nonexistent_config.json")
+            self.assertEqual(t_id, "test-tenant-123")
+            self.assertEqual(c_id, "test-client-456")
+            self.assertEqual(c_sec, "test-secret-789")
+            self.assertEqual(p_id, "test-product-000")
+            self.assertEqual(m_path, "test/path/app.msix")
+
+
+class TestReleaseWorkflowStoreIntegration(unittest.TestCase):
+    """Test that release.yml properly wires the Microsoft Store submission job."""
+
+    def test_release_workflow_contains_submit_store_job(self):
+        workflow_path = os.path.join(REPO_ROOT, ".github", "workflows", "release.yml")
+        self.assertTrue(os.path.exists(workflow_path), f"Missing {workflow_path}")
+
+        with open(workflow_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        self.assertIn("submit-store:", content, "release.yml must define a 'submit-store' job")
+        self.assertIn("needs: [build, publish]", content, "submit-store must depend on 'build' and 'publish'")
+        self.assertIn("Download Release Assets", content, "Must download release assets")
+        self.assertIn("python scripts/publish_store.py", content, "Must invoke publish_store.py")
+        self.assertIn("STORE_TENANT_ID: ${{ secrets.STORE_TENANT_ID }}", content)
+        self.assertIn("STORE_CLIENT_ID: ${{ secrets.STORE_CLIENT_ID }}", content)
+        self.assertIn("STORE_CLIENT_SECRET: ${{ secrets.STORE_CLIENT_SECRET }}", content)
+        self.assertIn("STORE_PRODUCT_ID: ${{ secrets.STORE_PRODUCT_ID }}", content)
 
 
 if __name__ == '__main__':
