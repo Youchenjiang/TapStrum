@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import unittest
+from unittest.mock import patch
 
 # Add scripts directory to sys.path
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -63,7 +64,6 @@ class TestSectionMatching(unittest.TestCase):
 
         self.assertEqual(publish_store.match_section_name("搜尋關鍵字"), "keywords")
         self.assertEqual(publish_store.match_section_name("検索キーワード"), "keywords")
-        self.assertEqual(publish_store.match_section_name("검색 키워德"), "keywords") if False else None
         self.assertEqual(publish_store.match_section_name("검색 키워드"), "keywords")
         self.assertEqual(publish_store.match_section_name("Search Terms"), "keywords")
 
@@ -111,21 +111,13 @@ class TestStoreConfigLoading(unittest.TestCase):
             "STORE_PRODUCT_ID": "test-product-000",
             "STORE_MSIX_PATH": "test/path/app.msix"
         }
-        original_env = {k: os.environ.get(k) for k in env_vars}
-        try:
-            os.environ.update(env_vars)
+        with patch.dict(os.environ, env_vars, clear=False):
             t_id, c_id, c_sec, p_id, m_path = publish_store.load_store_config("nonexistent_config.json")
             self.assertEqual(t_id, "test-tenant-123")
             self.assertEqual(c_id, "test-client-456")
             self.assertEqual(c_sec, "test-secret-789")
             self.assertEqual(p_id, "test-product-000")
             self.assertEqual(m_path, "test/path/app.msix")
-        finally:
-            for k, v in original_env.items():
-                if v is None:
-                    os.environ.pop(k, None)
-                else:
-                    os.environ[k] = v
 
 
 class TestReleaseWorkflowStoreIntegration(unittest.TestCase):
