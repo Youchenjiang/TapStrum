@@ -55,16 +55,24 @@ public partial class App : Application
         }
     }
 
-    private static void LogCrash(string message)
+    internal static void LogCrash(string message)
     {
         try
         {
             string path = Path.Join(Path.GetTempPath(), "tapster_crash.log");
             File.AppendAllText(path, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] {message}{Environment.NewLine}");
+
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (!string.IsNullOrEmpty(localAppData))
+            {
+                string appDir = Path.Join(localAppData, "TapStrum");
+                Directory.CreateDirectory(appDir);
+                File.AppendAllText(Path.Join(appDir, "crash.log"), $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] {message}{Environment.NewLine}");
+            }
         }
-        catch (Exception ex)
+        catch
         {
-            System.Diagnostics.Debug.WriteLine($"Failed to write crash log: {ex.Message}");
+            // Logging failure must never terminate application
         }
     }
 }

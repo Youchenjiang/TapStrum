@@ -14,6 +14,8 @@ using TapStrum.Fluent.ViewModels;
 /// </summary>
 public sealed partial class ClickerView : UserControl
 {
+    private bool _isInitialized;
+
     public ClickerViewModel? ViewModel
     {
         get => DataContext as ClickerViewModel;
@@ -30,6 +32,7 @@ public sealed partial class ClickerView : UserControl
     public ClickerView()
     {
         InitializeComponent();
+        _isInitialized = true;
         Loaded += ClickerView_Loaded;
     }
 
@@ -72,18 +75,19 @@ public sealed partial class ClickerView : UserControl
 
     private void ClickTargetTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (!_isInitialized) return;
         bool isSpammer = ClickTargetTypeCombo.SelectedIndex == 1;
 
-        MouseButtonLabel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
-        MouseButtonCombo.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
+        if (MouseButtonLabel is not null) MouseButtonLabel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
+        if (MouseButtonCombo is not null) MouseButtonCombo.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
 
-        SpamKeyLabel.Visibility = isSpammer ? Visibility.Visible : Visibility.Collapsed;
-        SpamKeyBox.Visibility = isSpammer ? Visibility.Visible : Visibility.Collapsed;
+        if (SpamKeyLabel is not null) SpamKeyLabel.Visibility = isSpammer ? Visibility.Visible : Visibility.Collapsed;
+        if (SpamKeyBox is not null) SpamKeyBox.Visibility = isSpammer ? Visibility.Visible : Visibility.Collapsed;
 
-        ClickCoordsLabel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
-        ClickCoordsPanel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
-        LocationJitterLabel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
-        LocationJitterPanel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
+        if (ClickCoordsLabel is not null) ClickCoordsLabel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
+        if (ClickCoordsPanel is not null) ClickCoordsPanel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
+        if (LocationJitterLabel is not null) LocationJitterLabel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
+        if (LocationJitterPanel is not null) LocationJitterPanel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
 
         AppSettings.Current.ClickerIsKeySpammer = isSpammer;
         AppSettings.Current.Save();
@@ -93,8 +97,9 @@ public sealed partial class ClickerView : UserControl
 
     private void ClickTriggerModeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (!_isInitialized) return;
         bool isHold = ClickTriggerModeCombo.SelectedIndex == 1;
-        HoldModeHint.Visibility = isHold ? Visibility.Visible : Visibility.Collapsed;
+        if (HoldModeHint is not null) HoldModeHint.Visibility = isHold ? Visibility.Visible : Visibility.Collapsed;
 
         AppSettings.Current.ClickerHoldMode = isHold;
         AppSettings.Current.Save();
@@ -102,6 +107,7 @@ public sealed partial class ClickerView : UserControl
 
     private void SpamKeyBox_TextChanged(object sender, TextChangedEventArgs e)
     {
+        if (!_isInitialized) return;
         AppSettings.Current.ClickerSpamKey = SpamKeyBox.Text;
         AppSettings.Current.Save();
         UpdateClickerActionBtnState();
@@ -109,20 +115,23 @@ public sealed partial class ClickerView : UserControl
 
     private void TimeJitterCheck_Checked(object sender, RoutedEventArgs e)
     {
-        TimeJitterBox.IsEnabled = true;
+        if (!_isInitialized) return;
+        if (TimeJitterBox is not null) TimeJitterBox.IsEnabled = true;
         AppSettings.Current.ClickerJitterEnabled = true;
         AppSettings.Current.Save();
     }
 
     private void TimeJitterCheck_Unchecked(object sender, RoutedEventArgs e)
     {
-        TimeJitterBox.IsEnabled = false;
+        if (!_isInitialized) return;
+        if (TimeJitterBox is not null) TimeJitterBox.IsEnabled = false;
         AppSettings.Current.ClickerJitterEnabled = false;
         AppSettings.Current.Save();
     }
 
     private void ClickCoords_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
     {
+        if (!_isInitialized) return;
         UpdateClearCoordsBtnState();
     }
 
@@ -240,6 +249,8 @@ public sealed partial class ClickerView : UserControl
 
     public void UpdateClickerActionBtnState()
     {
+        if (ClickerActionBtn is null || ClickTargetTypeCombo is null || SpamKeyBox is null) return;
+
         if (ViewModel is { IsRunning: true })
         {
             ClickerActionBtn.IsEnabled = true;
@@ -252,6 +263,8 @@ public sealed partial class ClickerView : UserControl
 
     public void UpdateClearCoordsBtnState()
     {
+        if (ClearCoordsBtn is null || ClickXBox is null || ClickYBox is null) return;
+
         bool hasCoords = !double.IsNaN(ClickXBox.Value) || !double.IsNaN(ClickYBox.Value);
         ClearCoordsBtn.IsEnabled = hasCoords;
     }
