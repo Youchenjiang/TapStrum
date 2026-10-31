@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace TapStrum.Launcher;
 
-internal static class Program
+public static class Program
 {
     private static readonly string AppVersion = typeof(Program).Assembly.GetName().Version switch
     {
@@ -45,8 +45,7 @@ internal static class Program
             string hashFile = Path.Combine(appDir, ".payload_hash");
 
             var assembly = typeof(Program).Assembly;
-            using Stream? stream = assembly.GetManifestResourceStream("payload.zip")
-                ?? assembly.GetManifestResourceStream("Tapster.Launcher.payload.zip");
+            using Stream? stream = GetPayloadStream(assembly);
 
             string currentHash = ComputePayloadHash(stream);
 
@@ -82,6 +81,17 @@ internal static class Program
             MessageBoxW(IntPtr.Zero, $"TapStrum Launcher encountered an error:\n{ex.Message}", "TapStrum Error", 0x10);
             return 1;
         }
+    }
+
+    internal static Stream? GetPayloadStream(Assembly assembly)
+    {
+        return assembly.GetManifestResourceStream("TapStrum.Launcher.payload.zip")
+            ?? assembly.GetManifestResourceStream("payload.zip")
+            ?? assembly.GetManifestResourceStream("Tapster.Launcher.payload.zip")
+            ?? assembly.GetManifestResourceNames()
+                .Where(n => n.EndsWith("payload.zip", StringComparison.OrdinalIgnoreCase))
+                .Select(assembly.GetManifestResourceStream)
+                .FirstOrDefault();
     }
 
     private static string ResolveTargetExe(string appDir)

@@ -11,6 +11,8 @@ using TapStrum.Fluent.ViewModels;
 /// </summary>
 public sealed partial class MacroView : UserControl
 {
+    private readonly bool _isInitialized;
+
     public MacroViewModel? ViewModel
     {
         get => DataContext as MacroViewModel;
@@ -27,6 +29,7 @@ public sealed partial class MacroView : UserControl
     public MacroView()
     {
         InitializeComponent();
+        _isInitialized = true;
         Loaded += MacroView_Loaded;
     }
 
@@ -96,6 +99,7 @@ public sealed partial class MacroView : UserControl
 
     private void MacroActionList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (!_isInitialized) return;
         UpdateMacroItemActionBtns();
     }
 
@@ -150,7 +154,10 @@ public sealed partial class MacroView : UserControl
 
     public void UpdateMacroItemActionBtns()
     {
-        bool hasSelection = MacroActionList.SelectedIndex >= 0;
+        if (EditActionBtn is null || DeleteActionBtn is null || MacroActionList is null) return;
+
+        int idx = MacroActionList.SelectedIndex;
+        bool hasSelection = idx >= 0;
         bool isBusy = ViewModel is { IsRunning: true } or { IsRecording: true };
 
         EditActionBtn.IsEnabled = hasSelection && !isBusy;

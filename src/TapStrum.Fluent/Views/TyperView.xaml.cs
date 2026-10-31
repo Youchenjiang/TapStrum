@@ -14,6 +14,8 @@ using TapStrum.Fluent.ViewModels;
 /// </summary>
 public sealed partial class TyperView : UserControl
 {
+    private readonly bool _isInitialized;
+
     public TyperViewModel? ViewModel
     {
         get => DataContext as TyperViewModel;
@@ -30,6 +32,7 @@ public sealed partial class TyperView : UserControl
     public TyperView()
     {
         InitializeComponent();
+        _isInitialized = true;
         Loaded += TyperView_Loaded;
     }
 
@@ -81,14 +84,16 @@ public sealed partial class TyperView : UserControl
 
     private void TypeTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
+        if (!_isInitialized) return;
         UpdateTyperActionBtnState();
     }
 
     private void TypeModeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (!_isInitialized) return;
         bool isClipboard = TypeModeCombo.SelectedIndex == 1;
-        TypeModeHint.Visibility = isClipboard ? Visibility.Visible : Visibility.Collapsed;
-        TypeIntervalPanel.Visibility = isClipboard ? Visibility.Collapsed : Visibility.Visible;
+        if (TypeModeHint is not null) TypeModeHint.Visibility = isClipboard ? Visibility.Visible : Visibility.Collapsed;
+        if (TypeIntervalPanel is not null) TypeIntervalPanel.Visibility = isClipboard ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private async void TyperActionBtn_Click(object sender, RoutedEventArgs e)
@@ -136,6 +141,8 @@ public sealed partial class TyperView : UserControl
 
     public void UpdateTyperActionBtnState()
     {
+        if (TypeTextBox is null || ClearTextBtn is null || TyperActionBtn is null) return;
+
         bool hasText = !string.IsNullOrWhiteSpace(TypeTextBox.Text);
         ClearTextBtn.IsEnabled = hasText;
 
