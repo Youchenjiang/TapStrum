@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1.0] - 2026-10-31
+
+### Fixed
+- **WinUI 3 Early Event Parsing Crash**: Resolved synchronous `SelectionChanged` and `TextChanged` lifecycle events firing during `InitializeComponent()` before visual elements were instantiated, which threw masked `0x802B000A` XAML parsing failures and `NullReferenceException` on startup (PR #71).
+- **Missing XAML Style Resource**: Added definition for `SubtleButtonStyle` inside `App.xaml` resources (PR #71).
+- **Portable Payload Assembly Resolution**: Fixed embedded payload manifest resource lookup in `TapStrum.Launcher` by introducing dynamic resource stream discovery (PR #71).
+- **Startup Crash Logging**: Added global unhandled exception and dispatcher crash logging to `%TEMP%\tapster_crash.log` and `%LOCALAPPDATA%\TapStrum\crash.log` for instant fault diagnosis (PR #71).
+
+---
+
 ## [1.4.0.0] - 2026-10-30
 
 ### Added
