@@ -25,6 +25,36 @@ public sealed partial class HolderView : UserControl
     private bool _isCapturingKey;
     private readonly bool _isInitialized;
 
+    private static object? TryGetResource(string key)
+    {
+        try
+        {
+            if (Application.Current?.Resources == null) return null;
+            if (Application.Current.Resources.TryGetValue(key, out var val)) return val;
+            if (Application.Current.Resources.ThemeDictionaries != null)
+            {
+                foreach (var dictKey in new[] { "Default", "Dark", "Light" })
+                {
+                    if (Application.Current.Resources.ThemeDictionaries.TryGetValue(dictKey, out var themeObj) &&
+                        themeObj is ResourceDictionary themeDict &&
+                        themeDict.TryGetValue(key, out var themeVal))
+                    {
+                        return themeVal;
+                    }
+                }
+            }
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static Brush? TryGetBrush(string key) => TryGetResource(key) as Brush;
+
+    private static Style? TryGetStyle(string key) => TryGetResource(key) as Style;
+
     public HolderViewModel? ViewModel
     {
         get => DataContext as HolderViewModel;
@@ -44,6 +74,10 @@ public sealed partial class HolderView : UserControl
                     value.AddStage(new KeyHolderStage("space", 0, 0));
                 }
                 SyncFromViewModel();
+                if (_keyboardButtons.Count == 0 && _isInitialized)
+                {
+                    GenerateVirtualKeyboard();
+                }
                 RenderHolderStepCards();
                 UpdateVirtualKeyboardHighlights();
             }
@@ -476,8 +510,7 @@ public sealed partial class HolderView : UserControl
             Padding = new Thickness(2),
             FontSize = width > 50 || height > 50 ? 10 : 11,
             FontFamily = new FontFamily("Cascadia Code, Consolas"),
-            CornerRadius = new CornerRadius(4),
-            Style = Application.Current.Resources["DefaultButtonStyle"] as Style
+            CornerRadius = new CornerRadius(4)
         };
 
         btn.Click += (_, _) => OnKeyBtnClicked(keyId);
@@ -556,11 +589,7 @@ public sealed partial class HolderView : UserControl
 
     private void UpdateVirtualKeyboardHighlights()
     {
-        if (Application.Current.Resources["AccentButtonStyle"] is not Style accentStyle ||
-            Application.Current.Resources["DefaultButtonStyle"] is not Style defaultStyle)
-        {
-            return;
-        }
+        var accentStyle = TryGetStyle("AccentButtonStyle");
 
         var activeKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if (ViewModel != null && ViewModel.ActiveStageIndex >= 0 && ViewModel.ActiveStageIndex < ViewModel.Stages.Count)
@@ -577,7 +606,8 @@ public sealed partial class HolderView : UserControl
 
         foreach (var (keyId, list) in _keyboardButtons)
         {
-            var targetStyle = activeKeys.Contains(keyId) ? accentStyle : defaultStyle;
+            bool isHighlighted = activeKeys.Contains(keyId);
+            var targetStyle = isHighlighted ? accentStyle : null;
             foreach (var b in list)
             {
                 b.Style = targetStyle;
@@ -643,10 +673,8 @@ public sealed partial class HolderView : UserControl
         {
             CornerRadius = new CornerRadius(6),
             Padding = new Thickness(10, 6, 10, 6),
-            Background = (Brush)Application.Current.Resources[cardBackgroundKey],
-            BorderBrush = (Brush)Application.Current.Resources[
-                isRunning || isActive ? AccentFillBrush : "CardStrokeColorDefaultBrush"
-            ],
+            Background = TryGetBrush(cardBackgroundKey),
+            BorderBrush = TryGetBrush(isRunning || isActive ? AccentFillBrush : "CardStrokeColorDefaultBrush"),
             BorderThickness = new Thickness(isActive || isRunning ? 2 : 1)
         };
 
@@ -723,7 +751,7 @@ public sealed partial class HolderView : UserControl
             {
                 Glyph = "\uE768",
                 FontSize = 11,
-                Foreground = (Brush)Application.Current.Resources[AccentFillBrush]
+                Foreground = TryGetBrush(AccentFillBrush)
             });
         }
         stepBadgePanel.Children.Add(new TextBlock
@@ -732,8 +760,7 @@ public sealed partial class HolderView : UserControl
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
             FontSize = 12,
             VerticalAlignment = VerticalAlignment.Center,
-            Foreground = isRunning ? (Brush)Application.Current.Resources[AccentFillBrush] :
-                         (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+            Foreground = isRunning ? TryGetBrush(AccentFillBrush) : TryGetBrush("TextFillColorPrimaryBrush")
         });
         Grid.SetColumn(stepBadgePanel, 0);
         return stepBadgePanel;
@@ -745,10 +772,8 @@ public sealed partial class HolderView : UserControl
         {
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(8, 3, 8, 3),
-            Background = (Brush)Application.Current.Resources["LayerFillColorDefaultBrush"],
-            BorderBrush = (Brush)Application.Current.Resources[
-                isActive ? AccentFillBrush : "CardStrokeColorDefaultBrush"
-            ],
+            Background = TryGetBrush("LayerFillColorDefaultBrush"),
+            BorderBrush = TryGetBrush(isActive ? AccentFillBrush : "CardStrokeColorDefaultBrush"),
             BorderThickness = new Thickness(1),
             VerticalAlignment = VerticalAlignment.Center,
             Width = 110
@@ -763,8 +788,8 @@ public sealed partial class HolderView : UserControl
             VerticalAlignment = VerticalAlignment.Center,
             TextTrimming = TextTrimming.CharacterEllipsis,
             Foreground = string.IsNullOrWhiteSpace(stage.KeyCombo) ?
-                (Brush)Application.Current.Resources["TextFillColorTertiaryBrush"] :
-                (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                TryGetBrush("TextFillColorTertiaryBrush") :
+                TryGetBrush("TextFillColorPrimaryBrush")
         };
         keyPillBorder.Child = keyPillText;
         Grid.SetColumn(keyPillBorder, 1);
@@ -895,10 +920,11 @@ public sealed partial class HolderView : UserControl
             VerticalAlignment = VerticalAlignment.Center
         };
 
+        var subtleStyle = TryGetStyle("SubtleButtonStyle");
         var upBtn = new Button
         {
             Content = new FontIcon { Glyph = "\uE70E", FontSize = 10 },
-            Style = Application.Current.Resources["SubtleButtonStyle"] as Style,
+            Style = subtleStyle,
             Padding = new Thickness(5, 3, 5, 3),
             IsEnabled = (stepIndex > 0)
         };
@@ -914,7 +940,7 @@ public sealed partial class HolderView : UserControl
         var downBtn = new Button
         {
             Content = new FontIcon { Glyph = "\uE70D", FontSize = 10 },
-            Style = Application.Current.Resources["SubtleButtonStyle"] as Style,
+            Style = subtleStyle,
             Padding = new Thickness(5, 3, 5, 3),
             IsEnabled = (ViewModel != null && stepIndex < ViewModel.Stages.Count - 1)
         };
@@ -930,7 +956,7 @@ public sealed partial class HolderView : UserControl
         var delBtn = new Button
         {
             Content = new FontIcon { Glyph = "\uE711", FontSize = 10 },
-            Style = Application.Current.Resources["SubtleButtonStyle"] as Style,
+            Style = subtleStyle,
             Padding = new Thickness(5, 3, 5, 3),
             IsEnabled = (ViewModel != null && ViewModel.Stages.Count > 1)
         };
