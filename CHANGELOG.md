@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.4.1.0] - 2026-10-31
 
 ### Fixed
+- **Key Holder Virtual Keyboard & Step Cards Restoration**: Restored dynamic generation of the 96% compact virtual keyboard grid and interactive multi-stage pipeline step cards in HolderView, which were omitted during the monolithic MainPage MVVM decomposition (PR #71).
 - **WinUI 3 Early Event Parsing Crash**: Resolved synchronous `SelectionChanged` and `TextChanged` lifecycle events firing during `InitializeComponent()` before visual elements were instantiated, which threw masked `0x802B000A` XAML parsing failures and `NullReferenceException` on startup (PR #71).
 - **Missing XAML Style Resource**: Added definition for `SubtleButtonStyle` inside `App.xaml` resources (PR #71).
 - **Portable Payload Assembly Resolution**: Fixed embedded payload manifest resource lookup in `TapStrum.Launcher` by introducing dynamic resource stream discovery (PR #71).

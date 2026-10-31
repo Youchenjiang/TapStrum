@@ -111,6 +111,16 @@ public partial class HolderViewModel : TaskViewModelBase
         }
     }
 
+    public void MoveStage(int oldIndex, int newIndex)
+    {
+        if (oldIndex >= 0 && oldIndex < Stages.Count &&
+            newIndex >= 0 && newIndex < Stages.Count)
+        {
+            Stages.Move(oldIndex, newIndex);
+            ActiveStageIndex = newIndex;
+        }
+    }
+
     public void ClearStageKeys(int index)
     {
         if (index >= 0 && index < Stages.Count)

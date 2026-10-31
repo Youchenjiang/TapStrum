@@ -64,6 +64,21 @@ public class HolderViewModelTests
     }
 
     [Fact]
+    public void MoveStage_ReordersStagesAndUpdatesActiveIndex()
+    {
+        var vm = new HolderViewModel();
+        vm.AddStage(new KeyHolderStage("a", 1.0, 0.5));
+        vm.AddStage(new KeyHolderStage("b", 1.0, 0.5));
+        vm.AddStage(new KeyHolderStage("c", 1.0, 0.5));
+
+        vm.MoveStage(0, 2);
+        Assert.Equal("b", vm.Stages[0].KeyCombo);
+        Assert.Equal("c", vm.Stages[1].KeyCombo);
+        Assert.Equal("a", vm.Stages[2].KeyCombo);
+        Assert.Equal(2, vm.ActiveStageIndex);
+    }
+
+    [Fact]
     public async Task StartAsync_ValidationFails_WhenStagesEmptyOrNoKeysAsync()
     {
         var mockService = new MockHolderService();
