@@ -11,7 +11,7 @@ using TapStrum.Fluent.ViewModels;
 /// </summary>
 public sealed partial class MacroView : UserControl
 {
-    private bool _isInitialized;
+    private readonly bool _isInitialized;
 
     public MacroViewModel? ViewModel
     {

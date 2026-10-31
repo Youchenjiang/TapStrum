@@ -23,7 +23,7 @@ public sealed partial class HolderView : UserControl
 
     private readonly Dictionary<string, List<Button>> _keyboardButtons = new(StringComparer.OrdinalIgnoreCase);
     private bool _isCapturingKey;
-    private bool _isInitialized;
+    private readonly bool _isInitialized;
 
     public HolderViewModel? ViewModel
     {
@@ -77,9 +77,9 @@ public sealed partial class HolderView : UserControl
             ViewModel.AddStage(new KeyHolderStage("space", 0, 0));
         }
 
-        HolderScrollViewer.SizeChanged += (_, _) => UpdateKeyboardContainerWidth();
+        HolderScrollViewer.SizeChanged += (_, _) => UpdateKeyboardContainerWidth(this);
         GenerateVirtualKeyboard();
-        UpdateKeyboardContainerWidth();
+        UpdateKeyboardContainerWidth(this);
         RenderHolderStepCards();
         UpdateVirtualKeyboardHighlights();
         ApplyLocalization();
@@ -112,11 +112,11 @@ public sealed partial class HolderView : UserControl
         }
     }
 
-    private void UpdateKeyboardContainerWidth()
+    private static void UpdateKeyboardContainerWidth(HolderView view)
     {
-        if (KeyboardContainer == null || HolderScrollViewer == null) return;
-        double availableWidth = HolderScrollViewer.ActualWidth - 36;
-        KeyboardContainer.Width = Math.Max(804, availableWidth);
+        if (view.KeyboardContainer == null || view.HolderScrollViewer == null) return;
+        double availableWidth = view.HolderScrollViewer.ActualWidth - 36;
+        view.KeyboardContainer.Width = Math.Max(804, availableWidth);
     }
 
     private void AddStepBtn_Click(object sender, RoutedEventArgs e)
@@ -424,6 +424,48 @@ public sealed partial class HolderView : UserControl
         row.Children.Add(new Border { Width = width });
     }
 
+    private void OnKeyBtnClicked(string keyId)
+    {
+        if (ViewModel is null) return;
+
+        if (ViewModel.Stages.Count == 0)
+        {
+            ViewModel.AddStage(new KeyHolderStage("", 0, 0));
+        }
+        if (ViewModel.ActiveStageIndex < 0 || ViewModel.ActiveStageIndex >= ViewModel.Stages.Count)
+        {
+            ViewModel.ActiveStageIndex = 0;
+        }
+
+        var stage = ViewModel.Stages[ViewModel.ActiveStageIndex];
+        ToggleStageKey(stage, keyId);
+
+        RenderHolderStepCards();
+        UpdateVirtualKeyboardHighlights();
+        UpdateHolderActionBtnState();
+    }
+
+    private static void ToggleStageKey(KeyHolderStage stage, string keyId)
+    {
+        string current = stage.KeyCombo.Trim();
+        if (string.IsNullOrEmpty(current))
+        {
+            stage.KeyCombo = keyId;
+            return;
+        }
+
+        var keys = Keyboard.SplitCombo(current).ToList();
+        if (keys.Any(k => IsKeyMatch(k, keyId)))
+        {
+            keys.RemoveAll(k => string.Equals(k, keyId, StringComparison.OrdinalIgnoreCase));
+        }
+        else
+        {
+            keys.Add(keyId);
+        }
+        stage.KeyCombo = string.Join("+", keys);
+    }
+
     private Button CreateKeyBtn(string keyId, string label, double width = 36, double height = 34)
     {
         var btn = new Button
@@ -438,43 +480,7 @@ public sealed partial class HolderView : UserControl
             Style = Application.Current.Resources["DefaultButtonStyle"] as Style
         };
 
-        btn.Click += (s, e) =>
-        {
-            if (ViewModel is null) return;
-
-            if (ViewModel.Stages.Count == 0)
-            {
-                ViewModel.AddStage(new KeyHolderStage("", 0, 0));
-            }
-            if (ViewModel.ActiveStageIndex < 0 || ViewModel.ActiveStageIndex >= ViewModel.Stages.Count)
-            {
-                ViewModel.ActiveStageIndex = 0;
-            }
-
-            var stage = ViewModel.Stages[ViewModel.ActiveStageIndex];
-            string current = stage.KeyCombo.Trim();
-            if (string.IsNullOrEmpty(current))
-            {
-                stage.KeyCombo = keyId;
-            }
-            else
-            {
-                var keys = Keyboard.SplitCombo(current).ToList();
-                if (keys.Any(k => IsKeyMatch(k, keyId)))
-                {
-                    keys.RemoveAll(k => string.Equals(k, keyId, StringComparison.OrdinalIgnoreCase));
-                    stage.KeyCombo = string.Join("+", keys);
-                }
-                else
-                {
-                    keys.Add(keyId);
-                    stage.KeyCombo = string.Join("+", keys);
-                }
-            }
-            RenderHolderStepCards();
-            UpdateVirtualKeyboardHighlights();
-            UpdateHolderActionBtnState();
-        };
+        btn.Click += (_, _) => OnKeyBtnClicked(keyId);
 
         if (!_keyboardButtons.TryGetValue(keyId, out var btnList))
         {

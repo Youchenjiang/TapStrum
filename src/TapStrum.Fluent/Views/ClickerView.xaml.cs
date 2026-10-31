@@ -14,7 +14,7 @@ using TapStrum.Fluent.ViewModels;
 /// </summary>
 public sealed partial class ClickerView : UserControl
 {
-    private bool _isInitialized;
+    private readonly bool _isInitialized;
 
     public ClickerViewModel? ViewModel
     {
@@ -73,21 +73,30 @@ public sealed partial class ClickerView : UserControl
         UpdateClearCoordsBtnState();
     }
 
+    private static void SetControlVisibility(UIElement? element, Visibility visibility)
+    {
+        if (element is not null)
+        {
+            element.Visibility = visibility;
+        }
+    }
+
     private void ClickTargetTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (!_isInitialized) return;
         bool isSpammer = ClickTargetTypeCombo.SelectedIndex == 1;
 
-        if (MouseButtonLabel is not null) MouseButtonLabel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
-        if (MouseButtonCombo is not null) MouseButtonCombo.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
+        var mouseVis = isSpammer ? Visibility.Collapsed : Visibility.Visible;
+        var spamVis = isSpammer ? Visibility.Visible : Visibility.Collapsed;
 
-        if (SpamKeyLabel is not null) SpamKeyLabel.Visibility = isSpammer ? Visibility.Visible : Visibility.Collapsed;
-        if (SpamKeyBox is not null) SpamKeyBox.Visibility = isSpammer ? Visibility.Visible : Visibility.Collapsed;
-
-        if (ClickCoordsLabel is not null) ClickCoordsLabel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
-        if (ClickCoordsPanel is not null) ClickCoordsPanel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
-        if (LocationJitterLabel is not null) LocationJitterLabel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
-        if (LocationJitterPanel is not null) LocationJitterPanel.Visibility = isSpammer ? Visibility.Collapsed : Visibility.Visible;
+        SetControlVisibility(MouseButtonLabel, mouseVis);
+        SetControlVisibility(MouseButtonCombo, mouseVis);
+        SetControlVisibility(SpamKeyLabel, spamVis);
+        SetControlVisibility(SpamKeyBox, spamVis);
+        SetControlVisibility(ClickCoordsLabel, mouseVis);
+        SetControlVisibility(ClickCoordsPanel, mouseVis);
+        SetControlVisibility(LocationJitterLabel, mouseVis);
+        SetControlVisibility(LocationJitterPanel, mouseVis);
 
         AppSettings.Current.ClickerIsKeySpammer = isSpammer;
         AppSettings.Current.Save();
